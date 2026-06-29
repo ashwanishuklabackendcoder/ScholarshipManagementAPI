@@ -1,0 +1,104 @@
+@ScholarshipManagementAPI_HostAddress = http://localhost:5205
+
+GET {{ScholarshipManagementAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+# 1. School Self-Registration Request
+# Submits onboarding payload based on school-registration.html form
+POST {{ScholarshipManagementAPI_HostAddress}}/api/school/master-school/create
+Content-Type: application/json
+
+{
+  "schoolName": "Al-Aman High School",
+  "shortName": "AMAN-HS",
+  "schoolType": 2,
+  "owningInstitution": "Direct Aid International",
+  "yearEstablished": 2005,
+  "countryId": 212,
+  "area": "Waberi District",
+  "centerName": "Mogadishu Center",
+  "schoolNumber": "DA-SO-05",
+  "academicYearStartDate": "2026-09-01",
+  "academicYearEndDate": "2027-06-30",
+  "schoolTeachingLanguage": "Arabic, English",
+  "schoolAccreditations": "Ministry of Education Certificate of Accreditation",
+  "isIslamicCurriculum": true,
+  "religionSubjectCurriculum": "Islamic Studies Curriculum",
+  "totalStudentsHighSchool": 450,
+  "averageStudentsPerClass": 35,
+  "schoolLocalRank": 12,
+  "isThreeYearStudentSuccessRateAbove80": true,
+  "isUniversityEligibilityRateAbove80": true,
+  "isGraduateEnglishProficiencyAbove80": false,
+  "schoolWebsite": "https://al-aman.org",
+  "schoolPhoneNo": "+252615551234",
+  "emailId": "info@al-aman.org",
+  "principalName": "Dr. Ahmed Yusuf",
+  "principalMobile": "+252615551235",
+  "principalEmail": "principal@al-aman.org",
+  "schoolCoordinatorName": "Mohamed Omar",
+  "schoolCoordinatorMobile": "+252615551236",
+  "schoolCoordinatorEmail": "coordinator@al-aman.org",
+  "defaultCurrencyId": 1
+}
+
+###
+
+# 2. University Self-Registration Request
+# Submits onboarding metrics and basic details based on university-registration.html
+POST {{ScholarshipManagementAPI_HostAddress}}/api/university/register
+Content-Type: application/json
+
+{
+  "universityName": "East Africa Technological University",
+  "universityType": "Private",
+  "charterAccreditation": "National Higher Education Commission, AACSB Member",
+  "establishedYear": 2010,
+  "countryId": 212,
+  "city": "Mogadishu",
+  "address": "Km 5, Wadaada Makka Al-Mukarrama",
+  "website": "https://eatu.edu.so",
+  "vcName": "Prof. Abdi Farah",
+  "vcEmail": "vc@eatu.edu.so",
+  "vcMobile": "+252615999999",
+  "coordName": "Eng. Abdullahi Ali",
+  "coordPosition": "Director of Registration and Admissions",
+  "coordEmail": "coordinator@eatu.edu.so",
+  "coordPhone": "+252615888888",
+  "facultiesCount": 8,
+  "facultyFulltimeCount": 120,
+  "adminStaffCount": 45,
+  "progDegreeCount": 15,
+  "progDiplomaCount": 5,
+  "progCertificateCount": 2,
+  "progPostgradCount": 4,
+  "studentsTotal": 3200,
+  "studentsEnrolled": 850,
+  "intlStudentsPct": 2.5,
+  "studentsGender": "Co-education",
+  "studDegreeCount": 2800,
+  "studDiplomaCount": 300,
+  "studCertificateCount": 50,
+  "studPostgradCount": 50,
+  "graduatesTotal": 650,
+  "alumniCount": 4200,
+  "opSustainabilityPct": 85.0,
+  "employabilityPct": 78.5,
+  "phdStaffPct": 35.0,
+  "fteRatio": "25:1",
+  "teachingLoadHours": 12.0,
+  "annualPublications": 45,
+  "onlineProgramsCount": 2,
+  "intlAccreditedProgramsCount": 3,
+  "externalGrants": "UNESCO Research Grant 2025, EU Capacity Building Grant",
+  "notes": "EATU focuses on STEM education and sustainable developmental programs."
+}
+
+###
+
+# 3. Retrieve Pending University Registrations (SuperAdmin)
+# Requires authentication token. Add header 'Authorization: Bearer <token>' during live testing.
+GET {{ScholarshipManagementAPI_HostAddress}}/api/superadmin/university-registrations
+Accept: application/json
