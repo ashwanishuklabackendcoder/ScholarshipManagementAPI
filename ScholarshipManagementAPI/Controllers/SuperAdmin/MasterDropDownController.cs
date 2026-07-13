@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ScholarshipManagementAPI.DTOs.Common;
@@ -132,6 +132,21 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
                 Message = result.Items.Count == 0
                     ? "Data not found"
                     : "Data fetched successfully"
+            });
+        }
+
+        // -------- GET BY PARENT ID --------
+        [HttpGet("getByParentId/{parentId:long}")]
+        
+        public async Task<IActionResult> GetByParentId(long parentId)
+        {
+            var data = await _service.GetByParentIdAsync(parentId);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Result = data,
+                Message = "Dropdown options fetched successfully"
             });
         }
 

@@ -13,7 +13,7 @@ public partial class ZzMasterDropDown
 
     public int DisplaySequence { get; set; }
 
-    public bool Status { get; set; }
+    public bool IsActive { get; set; }
 
     public bool IsEditable { get; set; }
 

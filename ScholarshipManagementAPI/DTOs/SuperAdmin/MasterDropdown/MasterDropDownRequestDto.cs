@@ -15,7 +15,7 @@ namespace ScholarshipManagementAPI.DTOs.SuperADmin.ZzMasterDropdown
         [Range(0, int.MaxValue, ErrorMessage = "DisplaySequence must be >= 0")]
         public int DisplaySequence { get; set; }
 
-        public bool Status { get; set; }
+        public bool IsActive { get; set; }
 
         public bool IsEditable { get; set; }
 

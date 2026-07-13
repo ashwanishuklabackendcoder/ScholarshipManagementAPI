@@ -41,7 +41,10 @@ builder.Services.AddCors(options =>
                  "https://localhost:7064",                    // Local dev client (Blazor WASM)
                  "https://localhost:7197",                    // Local dev client (Blazor WASM)
                  "https://sms-ui-v1.runasp.net",             // staging dev client (Blazor WASM)
-                 "https://smsui.runasp.net"                   // staging dev client (Blazor WASM)
+                 "https://smsui.runasp.net" ,
+                 "http://localhost:4200",                // staging dev client (Blazor WASM)
+                 "https://sms-ui-angular.vercel.app" ,
+                 "https://kafat.ifnoss.us"//Angular Ui
              )
              .AllowAnyHeader()
              .AllowAnyMethod();
@@ -219,6 +222,7 @@ builder.Services.AddScoped<IAdminEmailTemplateService, AdminEmailTemplateService
 builder.Services.AddScoped<IMasterSchoolService, MasterSchoolService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IStudentRequirementService, StudentRequirementService>();
+builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationService>();
 
 builder.Services.AddScoped<IUniversityService, UniversityService>();
 builder.Services.AddScoped<IStaffService, StaffService>();

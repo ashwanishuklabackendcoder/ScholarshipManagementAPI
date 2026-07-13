@@ -1,4 +1,4 @@
-﻿using ScholarshipManagementAPI.DTOs.Common.Response;
+using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.SuperADmin.ZzMasterDropdown;
 
 namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
@@ -11,6 +11,7 @@ namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
 
         Task<MasterDropDownRequestDto?> GetByIdAsync(long id);
         Task<PagedResultDto<MasterDropDownRequestDto>> GetByFilterAsync(MasterDropDownFilterDto filter);
+        Task<List<MasterDropDownRequestDto>> GetByParentIdAsync(long parentId);
 
 
         //Task<List<MasterDropDownRequestDto>> GetByFilterAsync(MasterDropDownFilterDto filter);

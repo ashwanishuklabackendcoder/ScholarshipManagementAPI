@@ -6,7 +6,7 @@ namespace ScholarshipManagementAPI.DTOs.SuperADmin.ZzMasterDropdown
     {
         public long? ModuleId { get; set; }
         public long? ParentId { get; set; }
-        public bool? Status { get; set; }
+        public bool? IsActive { get; set; }
         public bool? IsShow { get; set; }
       
     }

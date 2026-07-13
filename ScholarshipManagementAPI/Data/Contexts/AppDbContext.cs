@@ -86,6 +86,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
+    public virtual DbSet<StudentRegistration> StudentRegistrations { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -966,7 +968,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.DisplayText).HasMaxLength(500);
             entity.Property(e => e.IsEditable).HasDefaultValue(true);
             entity.Property(e => e.IsShow).HasDefaultValue(true);
-            entity.Property(e => e.Status).HasDefaultValue(true);
+            entity.Property(e => e.IsActive).HasColumnName("IsActive").HasDefaultValue(true);
 
             entity.HasOne(d => d.Module).WithMany(p => p.ZzMasterDropDowns)
                 .HasForeignKey(d => d.ModuleId)
@@ -975,6 +977,19 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
                 .HasForeignKey(d => d.ParentId)
                 .HasConstraintName("FK_ZzMasterDropDown_ZzMasterDropDown");
+        });
+
+        modelBuilder.Entity<StudentRegistration>(entity =>
+        {
+            entity.HasKey(e => e.StudentId);
+            entity.ToTable("StudentRegistration");
+            entity.Property(e => e.FirstName).HasMaxLength(200);
+            entity.Property(e => e.LastName).HasMaxLength(200);
+            entity.Property(e => e.TotalScore).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MaxScore).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.RelativeGrade).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.EnglishScore).HasColumnType("decimal(5, 1)");
+            entity.Property(e => e.TransferGpa).HasColumnType("decimal(4, 2)");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -41,25 +41,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
             catch { }
 
-            // Parsing helpers
-            byte.TryParse(dto.SchoolType, out var schoolTypeVal);
-            short.TryParse(dto.SchoolYearOfEstablish, out var establishYearVal);
-            int.TryParse(dto.TotalNumberOfHighSchoolLevel, out var hsTotal);
-            int.TryParse(dto.AverageNumberOfStudentPerClass, out var avgStudents);
-            int.TryParse(dto.SchoolLocalRank, out var localRank);
-            int.TryParse(dto.StudentCodeFormatLastSavedNumber, out var seqNumber);
-
-            bool.TryParse(dto.StudentSuccessAverage, out var successRateAbove80);
-            bool.TryParse(dto.AverageSchoolGraduates, out var eligibilityRateAbove80);
-            bool.TryParse(dto.GraduatesEnglishLessThan, out var englishAbove80);
-
             var entity = new KfSchool
             {
                 SchoolName = dto.SchoolName,
                 ShortName = dto.ShortName,
-                SchoolType = schoolTypeVal > 0 ? schoolTypeVal : (byte)1,
+                SchoolType = dto.SchoolType,
                 OwningInstitution = dto.OwningInstitution,
-                SchoolYearOfEstablish = establishYearVal > 0 ? establishYearVal : null,
+                SchoolYearOfEstablish = dto.SchoolYearOfEstablish,
 
                 CountryId = dto.CountryId,
                 Area = dto.Area,
@@ -70,40 +58,40 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 AcademicYearEndDate = dto.AcademicYearEndDate,
                 SchoolTeachingLanguage = dto.SchoolTeachingLanguage,
                 SchoolAccreditations = dto.SchoolAccreditations,
-                IsIslamicCurriculum = false, // Set default or check curriculum
-                ReligionSubjectCurriculum = dto.SchoolSubjectCurriculum,
+                IsIslamicCurriculum = dto.IsIslamicCurriculum,
+                ReligionSubjectCurriculum = dto.ReligionSubjectCurriculum,
 
-                TotalStudentsHighSchool = hsTotal > 0 ? hsTotal : null,
-                AverageStudentsPerClass = avgStudents > 0 ? avgStudents : null,
-                SchoolLocalRank = localRank > 0 ? localRank : null,
-                IsThreeYearStudentSuccessRateAbove80 = successRateAbove80,
-                IsUniversityEligibilityRateAbove80 = eligibilityRateAbove80,
-                IsGraduateEnglishProficiencyAbove80 = englishAbove80,
+                TotalStudentsHighSchool = dto.TotalStudentsHighSchool,
+                AverageStudentsPerClass = dto.AverageStudentsPerClass,
+                SchoolLocalRank = dto.SchoolLocalRank,
+                IsThreeYearStudentSuccessRateAbove80 = dto.IsThreeYearStudentSuccessRateAbove80,
+                IsUniversityEligibilityRateAbove80 = dto.IsUniversityEligibilityRateAbove80,
+                IsGraduateEnglishProficiencyAbove80 = dto.IsGraduateEnglishProficiencyAbove80,
 
                 SchoolWebsite = dto.SchoolWebsite,
                 SchoolPhoneNo = dto.SchoolPhoneNo,
                 EmailId = dto.EmailId,
 
-                PrincipalName = null,
-                PrincipalMobile = null,
-                PrincipalEmail = null,
+                PrincipalName = dto.PrincipalName,
+                PrincipalMobile = dto.PrincipalMobile,
+                PrincipalEmail = dto.PrincipalEmail,
 
                 SchoolCoordinatorName = dto.SchoolCoordinatorName,
                 SchoolCoordinatorMobile = dto.SchoolCoordinatorMobile,
                 SchoolCoordinatorEmail = dto.SchoolCoordinatorEmail,
 
                 DefaultCurrencyId = dto.DefaultCurrencyId,
-                SchoolStatus = 1, // Default Active
+                SchoolStatus = dto.SchoolStatus,
                 StudentCodeFormatPrefix = dto.StudentCodeFormatPrefix,
-                StudentCodeFormatSuffix = dto.StudentCodeFormatSufix,
-                StudentSequenceNumber = seqNumber > 0 ? seqNumber : 1,
+                StudentCodeFormatSuffix = dto.StudentCodeFormatSuffix,
+                StudentSequenceNumber = dto.StudentSequenceNumber,
 
-                AccreditationStatus = 1, // Pending/Draft
-                AccreditationBy = null,
-                AccreditationDate = null,
-                CommitteeComment = null,
+                AccreditationStatus = dto.AccreditationStatus,
+                AccreditationBy = dto.AccreditationBy,
+                AccreditationDate = dto.AccreditationDate,
+                CommitteeComment = dto.CommitteeComment,
 
-                IsDraft = true,
+                IsDraft = dto.IsDraft,
                 IsActive = dto.IsActive,
                 CreatedBy = currentUserId,
                 CreatedDate = DateTime.UtcNow,
@@ -144,23 +132,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
             catch { }
 
-            // Parsing helpers
-            byte.TryParse(dto.SchoolType, out var schoolTypeVal);
-            short.TryParse(dto.SchoolYearOfEstablish, out var establishYearVal);
-            int.TryParse(dto.TotalNumberOfHighSchoolLevel, out var hsTotal);
-            int.TryParse(dto.AverageNumberOfStudentPerClass, out var avgStudents);
-            int.TryParse(dto.SchoolLocalRank, out var localRank);
-            int.TryParse(dto.StudentCodeFormatLastSavedNumber, out var seqNumber);
-
-            bool.TryParse(dto.StudentSuccessAverage, out var successRateAbove80);
-            bool.TryParse(dto.AverageSchoolGraduates, out var eligibilityRateAbove80);
-            bool.TryParse(dto.GraduatesEnglishLessThan, out var englishAbove80);
-
             entity.SchoolName = dto.SchoolName;
             entity.ShortName = dto.ShortName;
-            entity.SchoolType = schoolTypeVal > 0 ? schoolTypeVal : (byte)1;
+            entity.SchoolType = dto.SchoolType;
             entity.OwningInstitution = dto.OwningInstitution;
-            entity.SchoolYearOfEstablish = establishYearVal > 0 ? establishYearVal : null;
+            entity.SchoolYearOfEstablish = dto.SchoolYearOfEstablish;
 
             entity.CountryId = dto.CountryId;
             entity.Area = dto.Area;
@@ -171,27 +147,41 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.AcademicYearEndDate = dto.AcademicYearEndDate;
             entity.SchoolTeachingLanguage = dto.SchoolTeachingLanguage;
             entity.SchoolAccreditations = dto.SchoolAccreditations;
-            entity.ReligionSubjectCurriculum = dto.SchoolSubjectCurriculum;
+            entity.IsIslamicCurriculum = dto.IsIslamicCurriculum;
+            entity.ReligionSubjectCurriculum = dto.ReligionSubjectCurriculum;
 
-            entity.TotalStudentsHighSchool = hsTotal > 0 ? hsTotal : null;
-            entity.AverageStudentsPerClass = avgStudents > 0 ? avgStudents : null;
-            entity.SchoolLocalRank = localRank > 0 ? localRank : null;
-            entity.IsThreeYearStudentSuccessRateAbove80 = successRateAbove80;
-            entity.IsUniversityEligibilityRateAbove80 = eligibilityRateAbove80;
-            entity.IsGraduateEnglishProficiencyAbove80 = englishAbove80;
+            entity.TotalStudentsHighSchool = dto.TotalStudentsHighSchool;
+            entity.AverageStudentsPerClass = dto.AverageStudentsPerClass;
+            entity.SchoolLocalRank = dto.SchoolLocalRank;
+            entity.IsThreeYearStudentSuccessRateAbove80 = dto.IsThreeYearStudentSuccessRateAbove80;
+            entity.IsUniversityEligibilityRateAbove80 = dto.IsUniversityEligibilityRateAbove80;
+            entity.IsGraduateEnglishProficiencyAbove80 = dto.IsGraduateEnglishProficiencyAbove80;
 
             entity.SchoolWebsite = dto.SchoolWebsite;
             entity.SchoolPhoneNo = dto.SchoolPhoneNo;
             entity.EmailId = dto.EmailId;
+
+            entity.PrincipalName = dto.PrincipalName;
+            entity.PrincipalMobile = dto.PrincipalMobile;
+            entity.PrincipalEmail = dto.PrincipalEmail;
 
             entity.SchoolCoordinatorName = dto.SchoolCoordinatorName;
             entity.SchoolCoordinatorMobile = dto.SchoolCoordinatorMobile;
             entity.SchoolCoordinatorEmail = dto.SchoolCoordinatorEmail;
 
             entity.DefaultCurrencyId = dto.DefaultCurrencyId;
+            entity.SchoolStatus = dto.SchoolStatus;
             entity.StudentCodeFormatPrefix = dto.StudentCodeFormatPrefix;
-            entity.StudentCodeFormatSuffix = dto.StudentCodeFormatSufix;
-            entity.StudentSequenceNumber = seqNumber > 0 ? seqNumber : 1;
+            entity.StudentCodeFormatSuffix = dto.StudentCodeFormatSuffix;
+            entity.StudentSequenceNumber = dto.StudentSequenceNumber;
+
+            entity.AccreditationStatus = dto.AccreditationStatus;
+            entity.AccreditationBy = dto.AccreditationBy;
+            entity.AccreditationDate = dto.AccreditationDate;
+            entity.CommitteeComment = dto.CommitteeComment;
+
+            entity.IsDraft = dto.IsDraft;
+            entity.IsActive = dto.IsActive;
 
             entity.UpdatedBy = currentUserId;
             entity.UpdatedDate = DateTime.UtcNow;
@@ -227,31 +217,34 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     SchoolId = x.SchoolId,
                     SchoolName = x.SchoolName,
                     StudentCodeFormatPrefix = x.StudentCodeFormatPrefix,
-                    StudentCodeFormatSufix = x.StudentCodeFormatSuffix,
-                    StudentCodeFormatStartingNo = x.StudentCodeFormatPrefix, // fallback
-                    StudentCodeFormatLastSavedNumber = x.StudentSequenceNumber.ToString(),
+                    StudentCodeFormatSuffix = x.StudentCodeFormatSuffix,
+                    StudentSequenceNumber = x.StudentSequenceNumber,
                     CountryId = x.CountryId,
                     CountryName = x.Country != null ? x.Country.CountryName : null,
                     ShortName = x.ShortName,
                     Area = x.Area,
                     CenterName = x.CenterName,
                     SchoolNumber = x.SchoolNumber,
-                    SchoolYearOfEstablish = x.SchoolYearOfEstablish.ToString(),
-                    SchoolType = x.SchoolType.ToString(),
+                    SchoolYearOfEstablish = x.SchoolYearOfEstablish,
+                    SchoolType = x.SchoolType,
                     SchoolTeachingLanguage = x.SchoolTeachingLanguage,
-                    GraduatesEnglishLessThan = x.IsGraduateEnglishProficiencyAbove80.ToString(),
-                    TotalNumberOfHighSchoolLevel = x.TotalStudentsHighSchool.ToString(),
-                    AverageNumberOfStudentPerClass = x.AverageStudentsPerClass.ToString(),
-                    SchoolAccreditations = x.SchoolAccreditations,
-                    SchoolSubjectCurriculum = x.ReligionSubjectCurriculum,
-                    StudentSuccessAverage = x.IsThreeYearStudentSuccessRateAbove80.ToString(),
-                    AverageSchoolGraduates = x.IsUniversityEligibilityRateAbove80.ToString(),
-                    SchoolLocalRank = x.SchoolLocalRank.ToString(),
+                    IsIslamicCurriculum = x.IsIslamicCurriculum,
+                    ReligionSubjectCurriculum = x.ReligionSubjectCurriculum,
+                    TotalStudentsHighSchool = x.TotalStudentsHighSchool,
+                    AverageStudentsPerClass = x.AverageStudentsPerClass,
+                    SchoolLocalRank = x.SchoolLocalRank,
+                    IsThreeYearStudentSuccessRateAbove80 = x.IsThreeYearStudentSuccessRateAbove80,
+                    IsUniversityEligibilityRateAbove80 = x.IsUniversityEligibilityRateAbove80,
+                    IsGraduateEnglishProficiencyAbove80 = x.IsGraduateEnglishProficiencyAbove80,
                     OwningInstitution = x.OwningInstitution,
                     SchoolWebsite = x.SchoolWebsite,
                     SchoolPhoneNo = x.SchoolPhoneNo,
                     EmailId = x.EmailId,
+                    PrincipalName = x.PrincipalName,
+                    PrincipalMobile = x.PrincipalMobile,
+                    PrincipalEmail = x.PrincipalEmail,
                     IsActive = x.IsActive,
+                    IsDraft = x.IsDraft,
                     SchoolCoordinatorName = x.SchoolCoordinatorName,
                     SchoolCoordinatorMobile = x.SchoolCoordinatorMobile,
                     SchoolCoordinatorEmail = x.SchoolCoordinatorEmail,
@@ -259,10 +252,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     AcademicYearEndDate = x.AcademicYearEndDate,
                     CreatedDate = x.CreatedDate,
                     DefaultCurrencyId = x.DefaultCurrencyId,
+                    DefaultCurrencyName = x.DefaultCurrency != null ? x.DefaultCurrency.CurrencyName : null,
 
-                    ApprovalStatus = x.AccreditationStatus,
-                    ApprovedBy = x.AccreditationBy,
-                    ApprovedByName = x.AccreditationByNavigation != null ? x.AccreditationByNavigation.LoginName : null
+                    AccreditationStatus = x.AccreditationStatus,
+                    AccreditationBy = x.AccreditationBy,
+                    AccreditationByName = x.AccreditationByNavigation != null ? x.AccreditationByNavigation.LoginName : null
                 })
                 .FirstOrDefaultAsync();
         }
@@ -341,31 +335,34 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     SchoolId = x.SchoolId,
                     SchoolName = x.SchoolName,
                     StudentCodeFormatPrefix = x.StudentCodeFormatPrefix,
-                    StudentCodeFormatSufix = x.StudentCodeFormatSuffix,
-                    StudentCodeFormatStartingNo = x.StudentCodeFormatPrefix,
-                    StudentCodeFormatLastSavedNumber = x.StudentSequenceNumber.ToString(),
+                    StudentCodeFormatSuffix = x.StudentCodeFormatSuffix,
+                    StudentSequenceNumber = x.StudentSequenceNumber,
                     CountryId = x.CountryId,
                     CountryName = x.Country != null ? x.Country.CountryName : null,
                     ShortName = x.ShortName,
                     Area = x.Area,
                     CenterName = x.CenterName,
                     SchoolNumber = x.SchoolNumber,
-                    SchoolYearOfEstablish = x.SchoolYearOfEstablish.ToString(),
-                    SchoolType = x.SchoolType.ToString(),
+                    SchoolYearOfEstablish = x.SchoolYearOfEstablish,
+                    SchoolType = x.SchoolType,
                     SchoolTeachingLanguage = x.SchoolTeachingLanguage,
-                    GraduatesEnglishLessThan = x.IsGraduateEnglishProficiencyAbove80.ToString(),
-                    TotalNumberOfHighSchoolLevel = x.TotalStudentsHighSchool.ToString(),
-                    AverageNumberOfStudentPerClass = x.AverageStudentsPerClass.ToString(),
-                    SchoolAccreditations = x.SchoolAccreditations,
-                    SchoolSubjectCurriculum = x.ReligionSubjectCurriculum,
-                    StudentSuccessAverage = x.IsThreeYearStudentSuccessRateAbove80.ToString(),
-                    AverageSchoolGraduates = x.IsUniversityEligibilityRateAbove80.ToString(),
-                    SchoolLocalRank = x.SchoolLocalRank.ToString(),
+                    IsIslamicCurriculum = x.IsIslamicCurriculum,
+                    ReligionSubjectCurriculum = x.ReligionSubjectCurriculum,
+                    TotalStudentsHighSchool = x.TotalStudentsHighSchool,
+                    AverageStudentsPerClass = x.AverageStudentsPerClass,
+                    SchoolLocalRank = x.SchoolLocalRank,
+                    IsThreeYearStudentSuccessRateAbove80 = x.IsThreeYearStudentSuccessRateAbove80,
+                    IsUniversityEligibilityRateAbove80 = x.IsUniversityEligibilityRateAbove80,
+                    IsGraduateEnglishProficiencyAbove80 = x.IsGraduateEnglishProficiencyAbove80,
                     OwningInstitution = x.OwningInstitution,
                     SchoolWebsite = x.SchoolWebsite,
                     SchoolPhoneNo = x.SchoolPhoneNo,
                     EmailId = x.EmailId,
+                    PrincipalName = x.PrincipalName,
+                    PrincipalMobile = x.PrincipalMobile,
+                    PrincipalEmail = x.PrincipalEmail,
                     IsActive = x.IsActive,
+                    IsDraft = x.IsDraft,
                     SchoolCoordinatorName = x.SchoolCoordinatorName,
                     SchoolCoordinatorMobile = x.SchoolCoordinatorMobile,
                     SchoolCoordinatorEmail = x.SchoolCoordinatorEmail,
@@ -373,10 +370,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     AcademicYearEndDate = x.AcademicYearEndDate,
                     CreatedDate = x.CreatedDate,
                     DefaultCurrencyId = x.DefaultCurrencyId,
+                    DefaultCurrencyName = x.DefaultCurrency != null ? x.DefaultCurrency.CurrencyName : null,
 
-                    ApprovalStatus = x.AccreditationStatus,
-                    ApprovedBy = x.AccreditationBy,
-                    ApprovedByName = x.AccreditationByNavigation != null ? x.AccreditationByNavigation.LoginName : null,
+                    AccreditationStatus = x.AccreditationStatus,
+                    AccreditationBy = x.AccreditationBy,
+                    AccreditationByName = x.AccreditationByNavigation != null ? x.AccreditationByNavigation.LoginName : null,
 
                     TotalStudents = x.StudentData != null ? x.StudentData.Count : 0
                 })

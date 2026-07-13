@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
@@ -69,7 +69,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 DisplayText = dto.DisplayText,
                 ParentId = dto.ParentId == null || dto.ParentId == 0 ? null : dto.ParentId,
                 DisplaySequence = displaySequence,
-                Status = dto.Status,
+                IsActive = dto.IsActive,
                 IsEditable = dto.ParentId == null || dto.ParentId == 0 ? false : true,
                 IsShow = dto.IsShow,
                 ModuleId = dto.ParentId == null || dto.ParentId == 0 ? dto.ModuleId : null,
@@ -121,7 +121,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity.ParentId != null)
                 entity.DisplaySequence = dto.DisplaySequence;
 
-            entity.Status = dto.Status;
+            entity.IsActive = dto.IsActive;
             entity.IsEditable = dto.IsEditable;
             entity.IsShow = dto.IsShow;
             entity.ModuleId = dto.ModuleId == 0 ? null : dto.ModuleId;
@@ -166,7 +166,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     DisplayText = x.DisplayText,
                     ParentId = x.ParentId,
                     DisplaySequence = x.DisplaySequence,
-                    Status = x.Status,
+                    IsActive = x.IsActive,
                     IsEditable = x.IsEditable,
                     IsShow = x.IsShow,
                     CreatedBy = x.CreatedBy,
@@ -194,8 +194,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             else
                 query = query.Where(x => x.ParentId == null);
 
-            if (filter.Status.HasValue)
-                query = query.Where(x => x.Status == filter.Status);
+            if (filter.IsActive.HasValue)
+                query = query.Where(x => x.IsActive == filter.IsActive);
 
             if (filter.IsShow.HasValue)
                 query = query.Where(x => x.IsShow == filter.IsShow);
@@ -233,7 +233,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     DisplayText = x.DisplayText,
                     ParentId = x.ParentId,
                     DisplaySequence = x.DisplaySequence,
-                    Status = x.Status,
+                    IsActive = x.IsActive,
                     IsEditable = x.IsEditable,
                     IsShow = x.IsShow,
                     CreatedBy = x.CreatedBy,
@@ -252,6 +252,32 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 PageNumber = filter.PageNumber,
                 PageSize = filter.PageSize
             };
+        }
+
+        public async Task<List<MasterDropDownRequestDto>> GetByParentIdAsync(long parentId)
+        {
+            return await _context.ZzMasterDropDowns
+                .AsNoTracking()
+                .Include(x => x.Module)
+                .Where(x => x.ParentId == parentId)
+                .OrderBy(x => x.DisplaySequence)
+                .Select(x => new MasterDropDownRequestDto
+                {
+                    UniqueId = x.UniqueId,
+                    DisplayText = x.DisplayText,
+                    ParentId = x.ParentId,
+                    DisplaySequence = x.DisplaySequence,
+                    IsActive = x.IsActive,
+                    IsEditable = x.IsEditable,
+                    IsShow = x.IsShow,
+                    CreatedBy = x.CreatedBy,
+                    ModuleId = x.ModuleId,
+                    CreatedDate = x.CreatedDate,
+                    ModuleName = x.Module != null ? 
+                                 x.Module.ModuleName : 
+                                 (x.Parent != null && x.Parent.Module != null ? x.Parent.Module.ModuleName : null)
+                })
+                .ToListAsync();
         }
 
 
