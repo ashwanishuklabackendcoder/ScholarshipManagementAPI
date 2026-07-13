@@ -37,6 +37,8 @@ namespace ScholarshipManagementAPI.DTOs.School.StudentRegistration
         [MaxLength(200)]
         public string? ResidenceCountry { get; set; }
 
+        public long? ResidenceCountryId { get; set; }
+
         [MaxLength(200)]
         public string? Tribe { get; set; }
 
@@ -143,6 +145,7 @@ namespace ScholarshipManagementAPI.DTOs.School.StudentRegistration
         public DateTime? Dob { get; set; }
         public string? Nationality { get; set; }
         public string? ResidenceCountry { get; set; }
+        public long? ResidenceCountryId { get; set; }
         public string? Tribe { get; set; }
         public string? Religion { get; set; }
         public string? Gender { get; set; }

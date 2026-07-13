@@ -990,6 +990,11 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.RelativeGrade).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.EnglishScore).HasColumnType("decimal(5, 1)");
             entity.Property(e => e.TransferGpa).HasColumnType("decimal(4, 2)");
+
+            entity.HasOne(d => d.ResidenceCountryNavigation)
+                .WithMany()
+                .HasForeignKey(d => d.ResidenceCountryId)
+                .HasConstraintName("FK_StudentRegistration_ZzMasterCountry");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -16,6 +16,7 @@ namespace ScholarshipManagementAPI.Data.DbModels
         public DateTime? Dob { get; set; }
         public string? Nationality { get; set; }
         public string? ResidenceCountry { get; set; }
+        public long? ResidenceCountryId { get; set; }
         public string? Tribe { get; set; }
         public string? Religion { get; set; }
         public string? Gender { get; set; }
@@ -65,5 +66,7 @@ namespace ScholarshipManagementAPI.Data.DbModels
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public long? UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
+
+        public virtual ZzMasterCountry? ResidenceCountryNavigation { get; set; }
     }
 }

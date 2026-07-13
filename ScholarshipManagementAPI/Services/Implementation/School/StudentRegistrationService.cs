@@ -40,6 +40,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 Dob = dto.Dob,
                 Nationality = dto.Nationality,
                 ResidenceCountry = dto.ResidenceCountry,
+                ResidenceCountryId = dto.ResidenceCountryId,
                 Tribe = dto.Tribe,
                 Religion = dto.Religion,
                 Gender = dto.Gender,
@@ -117,6 +118,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.Dob = dto.Dob;
             entity.Nationality = dto.Nationality;
             entity.ResidenceCountry = dto.ResidenceCountry;
+            entity.ResidenceCountryId = dto.ResidenceCountryId;
             entity.Tribe = dto.Tribe;
             entity.Religion = dto.Religion;
             entity.Gender = dto.Gender;
@@ -191,6 +193,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     Dob = x.Dob,
                     Nationality = x.Nationality,
                     ResidenceCountry = x.ResidenceCountry,
+                    ResidenceCountryId = x.ResidenceCountryId,
                     Tribe = x.Tribe,
                     Religion = x.Religion,
                     Gender = x.Gender,
@@ -283,6 +286,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     Dob = x.Dob,
                     Nationality = x.Nationality,
                     ResidenceCountry = x.ResidenceCountry,
+                    ResidenceCountryId = x.ResidenceCountryId,
                     Tribe = x.Tribe,
                     Religion = x.Religion,
                     Gender = x.Gender,
