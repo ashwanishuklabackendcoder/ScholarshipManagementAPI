@@ -1,4 +1,4 @@
-﻿using Azure.Core;
+using Azure.Core;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
@@ -483,14 +483,21 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<CurrentUserProfileDto?> GetMyProfileAsync(long loginId , long roleId)
         {
+            //var user = await _context.UsersLogins
+            //    .Include(x => x.UsersLoginRoles)
+            //    .ThenInclude(x => x.Role)
+            //    .ThenInclude(x => x.Module)
+            //    .Include(x => x.Staff)
+            //    .ThenInclude(s => s.University)
+            //    .Include(x => x.Staff)
+            //    .ThenInclude(s => s.School)
+            //    .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
             var user = await _context.UsersLogins
                 .Include(x => x.UsersLoginRoles)
                 .ThenInclude(x => x.Role)
                 .ThenInclude(x => x.Module)
-                .Include(x => x.Staff)
-                .ThenInclude(s => s.University)
-                .Include(x => x.Staff)
-                .ThenInclude(s => s.School)
+                .Include(x => x.Staff)            
+                             
                 .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
 
             if (user == null)
@@ -754,16 +761,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             var baseName = config.BaseCurrencyName;
             var baseSymbol = config.BaseCurrencySymbol;
 
-            if (staff.StaffType == (long)StaffType.University && staff.University?.DefaultCurrencyId != null)
-            {
-                var currency = await _context.ZzMasterCurrencies
-                    .Where(x => x.CurrencyId == staff.University.DefaultCurrencyId)
-                    .Select(x => new { x.CurrencyCode, x.CurrencyName, x.CurrencySymbol })
-                    .FirstOrDefaultAsync();
-
-                if (currency != null)
-                    return (currency.CurrencyCode, currency.CurrencyName, currency.CurrencySymbol);
-            }
+            // University currency lookup removed because DefaultCurrencyId is deleted from UnUniversityRegistration
 
             if (staff.StaffType == (long)StaffType.School && staff.School?.DefaultCurrencyId != null)
             {

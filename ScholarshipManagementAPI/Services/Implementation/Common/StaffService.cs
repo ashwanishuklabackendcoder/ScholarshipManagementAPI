@@ -123,8 +123,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                 string organizationName = staff.StaffType switch
                 {
-                    (long)StaffType.University => await _context.UnUniversityLists
-                        .Where(x => x.UniversityId == staff.UniversityId)
+                    (long)StaffType.University => await _context.UnUniversityRegistrations
+                        .Where(x => x.RegistrationId == staff.UniversityId)
                         .Select(x => x.UniversityName)
                         .FirstOrDefaultAsync() ?? "",
 

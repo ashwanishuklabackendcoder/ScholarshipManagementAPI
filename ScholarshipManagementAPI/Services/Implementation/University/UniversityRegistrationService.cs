@@ -28,7 +28,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             {
                 throw new CustomException("A pending registration for this university already exists.");
             }
-            if (await _context.UnUniversityLists.AnyAsync(x => x.UniversityName.ToLower() == dto.UniversityName.ToLower()))
+            if (await _context.UnUniversityRegistrations.AnyAsync(x => x.UniversityName.ToLower() == dto.UniversityName.ToLower() && x.ApprovalStatus == 1))
             {
                 throw new CustomException("This university is already accredited and active.");
             }
@@ -36,7 +36,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             var entity = new UnUniversityRegistration
             {
                 UniversityName = dto.UniversityName,
-                UniversityType = dto.UniversityType,
+                UniversityType = string.IsNullOrWhiteSpace(dto.UniversityType) ? null : (long.TryParse(dto.UniversityType, out var ut) ? ut : null),
                 CharterAccreditation = dto.CharterAccreditation,
                 EstablishedYear = dto.EstablishedYear,
                 CountryId = dto.CountryId,
@@ -117,7 +117,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 {
                     RegistrationId = x.RegistrationId,
                     UniversityName = x.UniversityName,
-                    UniversityType = x.UniversityType,
+                    UniversityType = x.UniversityType.HasValue ? x.UniversityType.Value.ToString() : null,
                     CharterAccreditation = x.CharterAccreditation,
                     EstablishedYear = x.EstablishedYear,
                     CountryId = x.CountryId,
@@ -191,21 +191,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             reg.UpdatedBy = approvedByUserId;
             reg.UpdatedDate = DateTime.UtcNow;
 
-            // If approved (status = 1), promote/insert to UnUniversityList
-            if (status == 1)
-            {
-                var uni = new UnUniversityList
-                {
-                    UniversityName = reg.UniversityName,
-                    CountryId = reg.CountryId,
-                    IsActive = true,
-                    IsApproved = true,
-                    ApprovedBy = null, // Can map to HrStaffMaster if needed, otherwise leave null or use fallback
-                    CreatedDate = DateTime.UtcNow,
-                    Remarks = $"Self-Registration Approved by User {approvedByUserId} on {DateTime.UtcNow:yyyy-MM-dd}"
-                };
-                _context.UnUniversityLists.Add(uni);
-            }
+            // No need to insert into UnUniversityLists since the table is deleted/consolidated
 
             await _context.SaveChangesAsync();
             return true;

@@ -33,6 +33,14 @@ public partial class UsersMenu
 
     public string? Icon { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual ICollection<UsersMenu> InverseParent { get; set; } = new List<UsersMenu>();
 
     public virtual UsersModule Module { get; set; } = null!;

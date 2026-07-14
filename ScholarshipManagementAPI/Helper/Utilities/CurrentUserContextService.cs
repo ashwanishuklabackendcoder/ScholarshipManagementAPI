@@ -95,10 +95,7 @@ namespace ScholarshipManagementAPI.Helper.Utilities
             // 🔹 UNIVERSITY
             if (staff.StaffType == (long)StaffType.University && staff.UniversityId.HasValue)
             {
-                currencyId = await _context.UnUniversityLists
-                    .Where(u => u.UniversityId == staff.UniversityId.Value)
-                    .Select(u => u.DefaultCurrencyId)
-                    .FirstOrDefaultAsync();
+                currencyId = null;
             }
 
             // 🔹 SCHOOL

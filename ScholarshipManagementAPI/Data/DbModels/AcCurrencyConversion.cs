@@ -19,5 +19,13 @@ public partial class AcCurrencyConversion
 
     public string? Remarks { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual ZzMasterCurrency Currency { get; set; } = null!;
 }

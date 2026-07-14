@@ -11,6 +11,18 @@ public partial class KfCourseFaculty
 
     public long FacultyId { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? CreatedBy { get; set; }
+
+    public DateTime CreatedDate { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual KfCourse Course { get; set; } = null!;
 
     public virtual KfFaculty Faculty { get; set; } = null!;

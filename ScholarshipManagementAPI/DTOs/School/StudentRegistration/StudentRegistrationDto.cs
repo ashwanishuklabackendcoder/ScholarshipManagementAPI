@@ -32,10 +32,10 @@ namespace ScholarshipManagementAPI.DTOs.School.StudentRegistration
         public DateTime? Dob { get; set; }
 
         [MaxLength(200)]
-        public string? Nationality { get; set; }
+        public long? Nationality { get; set; }
 
         [MaxLength(200)]
-        public string? ResidenceCountry { get; set; }
+        public long? ResidenceCountry { get; set; }
 
         public long? ResidenceCountryId { get; set; }
 
@@ -143,9 +143,9 @@ namespace ScholarshipManagementAPI.DTOs.School.StudentRegistration
         public string LastName { get; set; } = string.Empty;
         public string? MotherName { get; set; }
         public DateTime? Dob { get; set; }
-        public string? Nationality { get; set; }
-        public string? ResidenceCountry { get; set; }
-        public long? ResidenceCountryId { get; set; }
+        public long? Nationality { get; set; }
+        public long? ResidenceCountry { get; set; }
+     
         public string? Tribe { get; set; }
         public string? Religion { get; set; }
         public string? Gender { get; set; }

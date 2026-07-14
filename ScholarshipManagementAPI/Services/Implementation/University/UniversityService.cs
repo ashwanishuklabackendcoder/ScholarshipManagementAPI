@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.MasterSchool;
+using ScholarshipManagementAPI.DTOs.University;
 using ScholarshipManagementAPI.DTOs.University.MasterUniversity;
 using ScholarshipManagementAPI.Helper;
 using ScholarshipManagementAPI.Helper.Utilities;
@@ -23,29 +24,32 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(UniversityRequestDto dto)
         {
-            if (await _context.UnUniversityLists
+            if (await _context.UnUniversityRegistrations
                 .AnyAsync(x => x.UniversityName.ToLower() == dto.UniversityName.ToLower()))
             {
                 throw new CustomException("University with same name already exists");
             }
 
-            var entity = new UnUniversityList
+            var entity = new UnUniversityRegistration
             {
                 UniversityName = dto.UniversityName,
                 IsActive = dto.IsActive,
                 CountryId = dto.CountryId,
-                IsApproved = dto.IsApproved,
+                ApprovalStatus = dto.IsApproved ? 1 : 0,
                 ApprovedBy = dto.ApprovedBy,
-                Remarks = dto.Remarks,
-                DefaultCurrencyId = dto.DefaultCurrencyId,
+                Notes = dto.Remarks,
+                City = "", 
+                CoordName = "",
+                CoordEmail = "",
+                CoordPhone = "",
 
                 CreatedDate = DateTime.UtcNow,     // always server-side
             };
 
-            _context.UnUniversityLists.Add(entity);
+            _context.UnUniversityRegistrations.Add(entity);
             await _context.SaveChangesAsync();
 
-            return entity.UniversityId;
+            return entity.RegistrationId;
         }
 
 
@@ -56,31 +60,23 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (dto.UniversityId == null || dto.UniversityId == 0)
                 return false;
 
-            if (await _context.UnUniversityLists.AnyAsync(x =>
+            if (await _context.UnUniversityRegistrations.AnyAsync(x =>
                       x.UniversityName.ToLower() == dto.UniversityName.ToLower()
-                      && x.UniversityId != dto.UniversityId))
+                      && x.RegistrationId != dto.UniversityId))
             {
                 throw new CustomException("University with same name already exists");
             }
 
-            var entity = await _context.UnUniversityLists
-                .FirstOrDefaultAsync(x => x.UniversityId == dto.UniversityId);
+            var entity = await _context.UnUniversityRegistrations
+                .FirstOrDefaultAsync(x => x.RegistrationId == dto.UniversityId);
 
             if (entity == null)
                 return false;
 
-            //entity.UniversityId = dto.UniversityId.Value;
-
             entity.UniversityName = dto.UniversityName;
             entity.IsActive = dto.IsActive;
             entity.CountryId = dto.CountryId;
-            entity.Remarks = dto.Remarks;
-            entity.DefaultCurrencyId = dto.DefaultCurrencyId;
-
-
-            // entity.IsApproved = dto.IsApproved;
-            // entity.ApprovedBy = dto.ApprovedBy;
-            // CreatedDate NOT updated on purpose
+            entity.Notes = dto.Remarks;
 
             await _context.SaveChangesAsync();
             return true;
@@ -91,13 +87,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.UnUniversityLists
-                .FirstOrDefaultAsync(x => x.UniversityId == id);
+            var entity = await _context.UnUniversityRegistrations
+                .FirstOrDefaultAsync(x => x.RegistrationId == id);
 
             if (entity == null)
                 return false;
-
-            //_context.UnUniversityLists.Remove(entity);
 
             // Soft delete
             entity.IsActive = false;
@@ -111,26 +105,24 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- GET BY ID ----------------
         public async Task<UniversityRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.UnUniversityLists
+            return await _context.UnUniversityRegistrations
                 .AsNoTracking()
-                .Where(x => x.UniversityId == id)
+                .Where(x => x.RegistrationId == id)
                 .Select(x => new UniversityRequestDto
                 {
-                    UniversityId = x.UniversityId,
+                    UniversityId = x.RegistrationId,
                     UniversityName = x.UniversityName,
                     IsActive = x.IsActive,
                     CountryId = x.CountryId,
-                    Remarks = x.Remarks,
-                    IsApproved = x.IsApproved,
+                    Remarks = x.Notes,
+                    IsApproved = x.ApprovalStatus == 1,
                     ApprovedBy = x.ApprovedBy,
 
                     CountryName = x.Country != null ? x.Country.CountryName : null,
-                    ApprovedByName = x.ApprovedByNavigation != null
-                        ? x.ApprovedByNavigation.StaffFirstName + " " + x.ApprovedByNavigation.StaffLastName
-                        : null,
+                    ApprovedByName = null,
 
                     CreatedDate = x.CreatedDate,
-                    DefaultCurrencyId = x.DefaultCurrencyId,
+                    DefaultCurrencyId = 0,
                 })
                 .FirstOrDefaultAsync();
         }
@@ -138,9 +130,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<UniversityRequestDto>> GetByFilterAsync(UniversityFilterDto filter)
+        public async Task<PagedResultDto<UniversityRegistrationDto>> GetByFilterAsync(UniversityFilterDto filter)
         {
-            var query = _context.UnUniversityLists
+            var query = _context.UnUniversityRegistrations
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -163,8 +155,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             {
                 var search = filter.SearchText.Trim().ToLower();
                 query = query.Where(x =>
-                    x.UniversityName.ToLower().Contains(search) ||
-                    (x.Remarks != null && x.Remarks.ToLower().Contains(search))
+                    x.UniversityName.ToLower().Contains(search) 
                 );
             }
 
@@ -173,7 +164,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             var totalCount = await query.CountAsync();
 
             // ---------- Ordering ----------
-            query = query.OrderByDescending(x => x.UniversityId);
+            query = query.OrderByDescending(x => x.RegistrationId);
 
             // ---------- Pagination rule ----------
             if (filter.PageSize > 0)
@@ -184,27 +175,59 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             }
 
             var items = await query
-                .Select(x => new UniversityRequestDto
-                {
-                    UniversityId = x.UniversityId,
-                    UniversityName = x.UniversityName,
-                    IsActive = x.IsActive,
-                    CountryId = x.CountryId,
-                    Remarks = x.Remarks,
-                    IsApproved = x.IsApproved,
-                    ApprovedBy = x.ApprovedBy,
-
-                    CountryName = x.Country != null ? x.Country.CountryName : null,
-                    ApprovedByName = x.ApprovedByNavigation != null
-                        ? x.ApprovedByNavigation.StaffFirstName + " " + x.ApprovedByNavigation.StaffLastName
-                        : null,
-
-                    CreatedDate = x.CreatedDate,
-                    DefaultCurrencyId = x.DefaultCurrencyId,
-                })
+               .Select(x => new UniversityRegistrationDto
+               {
+                   RegistrationId = x.RegistrationId,
+                   UniversityName = x.UniversityName,
+                   UniversityType = x.UniversityType.HasValue ? x.UniversityType.Value.ToString() : null,
+                   CharterAccreditation = x.CharterAccreditation,
+                   EstablishedYear = x.EstablishedYear,
+                   CountryId = x.CountryId,
+                   CountryName = x.Country.CountryName,
+                   City = x.City,
+                   Address = x.Address,
+                   Website = x.Website,
+                   VcName = x.VcName,
+                   VcEmail = x.VcEmail,
+                   VcMobile = x.VcMobile,
+                   CoordName = x.CoordName,
+                   CoordPosition = x.CoordPosition,
+                   CoordEmail = x.CoordEmail,
+                   CoordPhone = x.CoordPhone,
+                   FacultiesCount = x.FacultiesCount,
+                   FacultyFulltimeCount = x.FacultyFulltimeCount,
+                   AdminStaffCount = x.AdminStaffCount,
+                   ProgDegreeCount = x.ProgDegreeCount,
+                   ProgDiplomaCount = x.ProgDiplomaCount,
+                   ProgCertificateCount = x.ProgCertificateCount,
+                   ProgPostgradCount = x.ProgPostgradCount,
+                   StudentsTotal = x.StudentsTotal,
+                   StudentsEnrolled = x.StudentsEnrolled,
+                   IntlStudentsPct = x.IntlStudentsPct,
+                   StudentsGender = x.StudentsGender,
+                   StudDegreeCount = x.StudDegreeCount,
+                   StudDiplomaCount = x.StudDiplomaCount,
+                   StudCertificateCount = x.StudCertificateCount,
+                   StudPostgradCount = x.StudPostgradCount,
+                   GraduatesTotal = x.GraduatesTotal,
+                   AlumniCount = x.AlumniCount,
+                   OpSustainabilityPct = x.OpSustainabilityPct,
+                   EmployabilityPct = x.EmployabilityPct,
+                   PhdStaffPct = x.PhdStaffPct,
+                   FteRatio = x.FteRatio,
+                   TeachingLoadHours = x.TeachingLoadHours,
+                   AnnualPublications = x.AnnualPublications,
+                   OnlineProgramsCount = x.OnlineProgramsCount,
+                   IntlAccreditedProgramsCount = x.IntlAccreditedProgramsCount,
+                   ExternalGrants = x.ExternalGrants,
+                   Notes = x.Notes,
+                   ApprovalStatus = x.ApprovalStatus,
+                   ApprovedBy = x.ApprovedBy,
+                   CreatedDate = x.CreatedDate
+               })
                 .ToListAsync();
 
-            return new PagedResultDto<UniversityRequestDto>
+            return new PagedResultDto<UniversityRegistrationDto>
             {
                 Items = items,
                 TotalCount = totalCount,

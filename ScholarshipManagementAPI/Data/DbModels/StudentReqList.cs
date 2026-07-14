@@ -47,11 +47,15 @@ public partial class StudentReqList
 
     public DateTime CreatedDate { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual MasterDonorList? Donor { get; set; }
-
-    public virtual UnCourseReq Req { get; set; } = null!;
-
-    public virtual StudentDatum Student { get; set; } = null!;
 
     public virtual ICollection<StudentDocument> StudentDocuments { get; set; } = new List<StudentDocument>();
 }

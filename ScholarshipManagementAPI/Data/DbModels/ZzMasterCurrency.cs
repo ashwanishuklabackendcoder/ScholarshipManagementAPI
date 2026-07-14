@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
@@ -19,9 +19,15 @@ public partial class ZzMasterCurrency
 
     public DateTime CreatedDate { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public long? CreatedBy { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual ICollection<AcCurrencyConversion> AcCurrencyConversions { get; set; } = new List<AcCurrencyConversion>();
 
     public virtual ICollection<KfSchool> KfSchools { get; set; } = new List<KfSchool>();
-
-    public virtual ICollection<UnUniversityList> UnUniversityLists { get; set; } = new List<UnUniversityList>();
 }

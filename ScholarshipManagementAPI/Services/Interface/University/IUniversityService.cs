@@ -1,4 +1,5 @@
 ﻿using ScholarshipManagementAPI.DTOs.Common.Response;
+using ScholarshipManagementAPI.DTOs.University;
 using ScholarshipManagementAPI.DTOs.University.MasterUniversity;
 
 namespace ScholarshipManagementAPI.Services.Interface.University
@@ -10,6 +11,6 @@ namespace ScholarshipManagementAPI.Services.Interface.University
         Task<bool> DeleteAsync(long id);
 
         Task<UniversityRequestDto?> GetByIdAsync(long id);
-        Task<PagedResultDto<UniversityRequestDto>> GetByFilterAsync(UniversityFilterDto filter);
+        Task<PagedResultDto<UniversityRegistrationDto>> GetByFilterAsync(UniversityFilterDto filter);
     }
 }

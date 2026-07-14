@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
@@ -23,9 +23,21 @@ public partial class ZzMasterCountry
 
     public bool IsActive { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public long? CreatedBy { get; set; }
+
+    public DateTime CreatedDate { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual ICollection<KfSchool> KfSchools { get; set; } = new List<KfSchool>();
 
-    public virtual ICollection<UnUniversityList> UnUniversityLists { get; set; } = new List<UnUniversityList>();
+    public virtual ICollection<StudentRegistration> StudentRegistrationNationalityNavigations { get; set; } = new List<StudentRegistration>();
+
+    public virtual ICollection<StudentRegistration> StudentRegistrationResidenceCountryNavigations { get; set; } = new List<StudentRegistration>();
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrations { get; set; } = new List<UnUniversityRegistration>();
 }

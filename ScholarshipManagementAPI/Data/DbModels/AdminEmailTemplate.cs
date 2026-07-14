@@ -18,4 +18,12 @@ public partial class AdminEmailTemplate
     public DateTime CreatedDate { get; set; }
 
     public string? Template { get; set; }
+
+    public bool IsDraft { get; set; }
+
+    public long? CreatedBy { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
 }

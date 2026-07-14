@@ -54,8 +54,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 CenterName = dto.CenterName,
                 SchoolNumber = dto.SchoolNumber,
 
-                AcademicYearStartDate = dto.AcademicYearStartDate,
-                AcademicYearEndDate = dto.AcademicYearEndDate,
+                AcademicYearStartDate = dto.AcademicYearStartDate.HasValue ? DateOnly.FromDateTime(dto.AcademicYearStartDate.Value) : null,
+                AcademicYearEndDate = dto.AcademicYearEndDate.HasValue ? DateOnly.FromDateTime(dto.AcademicYearEndDate.Value) : null,
                 SchoolTeachingLanguage = dto.SchoolTeachingLanguage,
                 SchoolAccreditations = dto.SchoolAccreditations,
                 IsIslamicCurriculum = dto.IsIslamicCurriculum,
@@ -143,8 +143,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.CenterName = dto.CenterName;
             entity.SchoolNumber = dto.SchoolNumber;
 
-            entity.AcademicYearStartDate = dto.AcademicYearStartDate;
-            entity.AcademicYearEndDate = dto.AcademicYearEndDate;
+            entity.AcademicYearStartDate = dto.AcademicYearStartDate.HasValue ? DateOnly.FromDateTime(dto.AcademicYearStartDate.Value) : null;
+            entity.AcademicYearEndDate = dto.AcademicYearEndDate.HasValue ? DateOnly.FromDateTime(dto.AcademicYearEndDate.Value) : null;
             entity.SchoolTeachingLanguage = dto.SchoolTeachingLanguage;
             entity.SchoolAccreditations = dto.SchoolAccreditations;
             entity.IsIslamicCurriculum = dto.IsIslamicCurriculum;
@@ -226,7 +226,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     CenterName = x.CenterName,
                     SchoolNumber = x.SchoolNumber,
                     SchoolYearOfEstablish = x.SchoolYearOfEstablish,
-                    SchoolType = x.SchoolType,
+                    SchoolType = (byte)x.SchoolType,
                     SchoolTeachingLanguage = x.SchoolTeachingLanguage,
                     IsIslamicCurriculum = x.IsIslamicCurriculum,
                     ReligionSubjectCurriculum = x.ReligionSubjectCurriculum,
@@ -248,8 +248,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     SchoolCoordinatorName = x.SchoolCoordinatorName,
                     SchoolCoordinatorMobile = x.SchoolCoordinatorMobile,
                     SchoolCoordinatorEmail = x.SchoolCoordinatorEmail,
-                    AcademicYearStartDate = x.AcademicYearStartDate,
-                    AcademicYearEndDate = x.AcademicYearEndDate,
+                    AcademicYearStartDate = x.AcademicYearStartDate.HasValue ? x.AcademicYearStartDate.Value.ToDateTime(TimeOnly.MinValue) : null,
+                    AcademicYearEndDate = x.AcademicYearEndDate.HasValue ? x.AcademicYearEndDate.Value.ToDateTime(TimeOnly.MinValue) : null,
                     CreatedDate = x.CreatedDate,
                     DefaultCurrencyId = x.DefaultCurrencyId,
                     DefaultCurrencyName = x.DefaultCurrency != null ? x.DefaultCurrency.CurrencyName : null,
@@ -289,8 +289,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             // filter date range filter
             if (filter.AcademicYearStartFrom.HasValue || filter.AcademicYearEndTo.HasValue)
             {
-                var from = filter.AcademicYearStartFrom ?? DateTime.MinValue;
-                var to = filter.AcademicYearEndTo ?? DateTime.MaxValue;
+                var from = DateOnly.FromDateTime(filter.AcademicYearStartFrom ?? DateTime.MinValue);
+                var to = DateOnly.FromDateTime(filter.AcademicYearEndTo ?? DateTime.MaxValue);
 
                 query = query.Where(x =>
                     x.AcademicYearStartDate.HasValue &&
@@ -319,7 +319,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             var totalCount = await query.CountAsync();
 
             // ---------- Ordering ----------
-            query = query.OrderByDescending(x => x.StudentData.Count());
+            query = query.OrderByDescending(x => x.SchoolId);
 
             // ---------- Pagination rule ----------
             if (filter.PageSize > 0)
@@ -344,7 +344,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     CenterName = x.CenterName,
                     SchoolNumber = x.SchoolNumber,
                     SchoolYearOfEstablish = x.SchoolYearOfEstablish,
-                    SchoolType = x.SchoolType,
+                    SchoolType = (byte)x.SchoolType,
                     SchoolTeachingLanguage = x.SchoolTeachingLanguage,
                     IsIslamicCurriculum = x.IsIslamicCurriculum,
                     ReligionSubjectCurriculum = x.ReligionSubjectCurriculum,
@@ -366,8 +366,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     SchoolCoordinatorName = x.SchoolCoordinatorName,
                     SchoolCoordinatorMobile = x.SchoolCoordinatorMobile,
                     SchoolCoordinatorEmail = x.SchoolCoordinatorEmail,
-                    AcademicYearStartDate = x.AcademicYearStartDate,
-                    AcademicYearEndDate = x.AcademicYearEndDate,
+                    AcademicYearStartDate = x.AcademicYearStartDate.HasValue ? x.AcademicYearStartDate.Value.ToDateTime(TimeOnly.MinValue) : null,
+                    AcademicYearEndDate = x.AcademicYearEndDate.HasValue ? x.AcademicYearEndDate.Value.ToDateTime(TimeOnly.MinValue) : null,
                     CreatedDate = x.CreatedDate,
                     DefaultCurrencyId = x.DefaultCurrencyId,
                     DefaultCurrencyName = x.DefaultCurrency != null ? x.DefaultCurrency.CurrencyName : null,
@@ -376,7 +376,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     AccreditationBy = x.AccreditationBy,
                     AccreditationByName = x.AccreditationByNavigation != null ? x.AccreditationByNavigation.LoginName : null,
 
-                    TotalStudents = x.StudentData != null ? x.StudentData.Count : 0
+                   // TotalStudents = x.StudentData != null ? x.StudentData.Count : 0
                 })
                 .ToListAsync();
 

@@ -25,9 +25,13 @@ public partial class KfDocumentType
 
     public DateTime? UpdatedDate { get; set; }
 
+    public bool IsDraft { get; set; }
+
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfProgramDocument> KfProgramDocuments { get; set; } = new List<KfProgramDocument>();
+
+    public virtual ICollection<StudentProgramDocument> StudentProgramDocuments { get; set; } = new List<StudentProgramDocument>();
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

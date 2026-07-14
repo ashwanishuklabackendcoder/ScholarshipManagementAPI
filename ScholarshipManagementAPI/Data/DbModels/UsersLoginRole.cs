@@ -17,6 +17,14 @@ public partial class UsersLoginRole
 
     public string CreatedBy { get; set; } = null!;
 
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual UsersLogin Login { get; set; } = null!;
 
     public virtual UsersRole Role { get; set; } = null!;

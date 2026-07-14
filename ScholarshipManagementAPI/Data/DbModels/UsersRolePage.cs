@@ -21,6 +21,16 @@ public partial class UsersRolePage
 
     public DateTime CreatedDate { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? CreatedBy { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual UsersMenu MenuLink { get; set; } = null!;
 
     public virtual UsersRole Role { get; set; } = null!;

@@ -25,9 +25,13 @@ public partial class StudentDocument
 
     public Guid? UploadSessionId { get; set; }
 
-    public virtual UnMasterDoc MasterDoc { get; set; } = null!;
+    public bool IsDraft { get; set; }
 
-    public virtual StudentDatum Student { get; set; } = null!;
+    public long? CreatedBy { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
 
     public virtual StudentReqList? StudentReq { get; set; }
 }

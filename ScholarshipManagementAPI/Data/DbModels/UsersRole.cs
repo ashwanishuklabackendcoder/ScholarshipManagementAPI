@@ -21,6 +21,12 @@ public partial class UsersRole
 
     public long? DashboardMenuLinkId { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual UsersMenu? DashboardMenuLink { get; set; }
 
     public virtual UsersModule Module { get; set; } = null!;

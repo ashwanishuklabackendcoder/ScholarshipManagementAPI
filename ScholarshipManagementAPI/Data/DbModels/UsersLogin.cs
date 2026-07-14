@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
@@ -27,6 +27,12 @@ public partial class UsersLogin
 
     public DateTime? TempPassDateTime { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual ICollection<KfCourse> KfCourseCreatedByNavigations { get; set; } = new List<KfCourse>();
 
     public virtual ICollection<KfCourse> KfCourseUpdatedByNavigations { get; set; } = new List<KfCourse>();
@@ -43,27 +49,25 @@ public partial class UsersLogin
 
     public virtual ICollection<KfProgram> KfProgramUpdatedByNavigations { get; set; } = new List<KfProgram>();
 
-    public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeCreatedByNavigations { get; set; } = new List<KfSponsorshipType>();
-
-    public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeUpdatedByNavigations { get; set; } = new List<KfSponsorshipType>();
-
     public virtual ICollection<KfSchool> KfSchoolAccreditationByNavigations { get; set; } = new List<KfSchool>();
 
     public virtual ICollection<KfSchool> KfSchoolCreatedByNavigations { get; set; } = new List<KfSchool>();
 
     public virtual ICollection<KfSchool> KfSchoolUpdatedByNavigations { get; set; } = new List<KfSchool>();
 
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationCreatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
+    public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeCreatedByNavigations { get; set; } = new List<KfSponsorshipType>();
 
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUpdatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
+    public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeUpdatedByNavigations { get; set; } = new List<KfSponsorshipType>();
 
     public virtual HrStaffMaster Staff { get; set; } = null!;
 
-    public virtual ICollection<UnCourseReq> UnCourseReqs { get; set; } = new List<UnCourseReq>();
+    public virtual ICollection<StudentRegistration> StudentRegistrationCreatedByNavigations { get; set; } = new List<StudentRegistration>();
 
-    public virtual ICollection<UnMasterCourseType> UnMasterCourseTypes { get; set; } = new List<UnMasterCourseType>();
+    public virtual ICollection<StudentRegistration> StudentRegistrationUpdatedByNavigations { get; set; } = new List<StudentRegistration>();
 
-    public virtual ICollection<UnMasterCourse> UnMasterCourses { get; set; } = new List<UnMasterCourse>();
+    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationCreatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
+
+    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUpdatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
 
     public virtual ICollection<UsersLoginRole> UsersLoginRoles { get; set; } = new List<UsersLoginRole>();
 

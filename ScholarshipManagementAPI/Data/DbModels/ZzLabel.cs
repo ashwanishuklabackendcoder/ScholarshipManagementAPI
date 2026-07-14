@@ -18,4 +18,12 @@ public partial class ZzLabel
     public string CreatedBy { get; set; } = null!;
 
     public string? Arabic { get; set; }
+
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
 }

@@ -25,13 +25,15 @@ public partial class KfCourse
 
     public DateTime? UpdatedDate { get; set; }
 
+    public bool IsDraft { get; set; }
+
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfCourseFaculty> KfCourseFaculties { get; set; } = new List<KfCourseFaculty>();
 
     public virtual ICollection<KfProgramCourse> KfProgramCourses { get; set; } = new List<KfProgramCourse>();
 
-    public virtual UnUniversityList University { get; set; } = null!;
+    public virtual UnUniversityRegistration University { get; set; } = null!;
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

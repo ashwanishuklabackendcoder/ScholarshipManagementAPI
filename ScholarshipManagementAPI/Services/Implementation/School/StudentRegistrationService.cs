@@ -37,10 +37,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 ThirdName = dto.ThirdName,
                 LastName = dto.LastName,
                 MotherName = dto.MotherName,
-                Dob = dto.Dob,
+                Dob = dto.Dob.HasValue ? DateOnly.FromDateTime(dto.Dob.Value) : null,
                 Nationality = dto.Nationality,
-                ResidenceCountry = dto.ResidenceCountry,
-                ResidenceCountryId = dto.ResidenceCountryId,
+                ResidenceCountry = dto.ResidenceCountryId,
+              
                 Tribe = dto.Tribe,
                 Religion = dto.Religion,
                 Gender = dto.Gender,
@@ -55,7 +55,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 Phone = dto.Phone,
                 Email = dto.Email,
 
-                FromDaSchool = dto.FromDaSchool,
+                FromDaSchool = dto.FromDaSchool == true ? 1 : 0,
                 DaStudentCode = dto.DaStudentCode,
                 SchoolName = dto.SchoolName,
                 HsSpecialization = dto.HsSpecialization,
@@ -69,7 +69,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 TransferProgram = dto.TransferProgram,
                 TransferInstitutionType = dto.TransferInstitutionType,
                 TransferCredits = dto.TransferCredits,
-                TransferLastSemEnd = dto.TransferLastSemEnd,
+                TransferLastSemEnd = dto.TransferLastSemEnd.HasValue ? DateOnly.FromDateTime(dto.TransferLastSemEnd.Value) : null,
                 TransferGpa = dto.TransferGpa,
 
                 FinancialNeed = dto.FinancialNeed,
@@ -115,10 +115,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.ThirdName = dto.ThirdName;
             entity.LastName = dto.LastName;
             entity.MotherName = dto.MotherName;
-            entity.Dob = dto.Dob;
+            entity.Dob = dto.Dob.HasValue ? DateOnly.FromDateTime(dto.Dob.Value) : null;
             entity.Nationality = dto.Nationality;
-            entity.ResidenceCountry = dto.ResidenceCountry;
-            entity.ResidenceCountryId = dto.ResidenceCountryId;
+            entity.ResidenceCountry = dto.ResidenceCountryId;
             entity.Tribe = dto.Tribe;
             entity.Religion = dto.Religion;
             entity.Gender = dto.Gender;
@@ -133,7 +132,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.Phone = dto.Phone;
             entity.Email = dto.Email;
 
-            entity.FromDaSchool = dto.FromDaSchool;
+            entity.FromDaSchool = dto.FromDaSchool == true ? 1 : 0;
             entity.DaStudentCode = dto.DaStudentCode;
             entity.SchoolName = dto.SchoolName;
             entity.HsSpecialization = dto.HsSpecialization;
@@ -147,7 +146,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.TransferProgram = dto.TransferProgram;
             entity.TransferInstitutionType = dto.TransferInstitutionType;
             entity.TransferCredits = dto.TransferCredits;
-            entity.TransferLastSemEnd = dto.TransferLastSemEnd;
+            entity.TransferLastSemEnd = dto.TransferLastSemEnd.HasValue ? DateOnly.FromDateTime(dto.TransferLastSemEnd.Value) : null;
             entity.TransferGpa = dto.TransferGpa;
 
             entity.FinancialNeed = dto.FinancialNeed;
@@ -190,10 +189,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     ThirdName = x.ThirdName,
                     LastName = x.LastName,
                     MotherName = x.MotherName,
-                    Dob = x.Dob,
+                    Dob = x.Dob.HasValue ? x.Dob.Value.ToDateTime(TimeOnly.MinValue) : null,
                     Nationality = x.Nationality,
                     ResidenceCountry = x.ResidenceCountry,
-                    ResidenceCountryId = x.ResidenceCountryId,
+                 
                     Tribe = x.Tribe,
                     Religion = x.Religion,
                     Gender = x.Gender,
@@ -206,7 +205,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     House = x.House,
                     Phone = x.Phone,
                     Email = x.Email,
-                    FromDaSchool = x.FromDaSchool,
+                    FromDaSchool = x.FromDaSchool == 1,
                     DaStudentCode = x.DaStudentCode,
                     SchoolName = x.SchoolName,
                     HsSpecialization = x.HsSpecialization,
@@ -219,7 +218,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     TransferProgram = x.TransferProgram,
                     TransferInstitutionType = x.TransferInstitutionType,
                     TransferCredits = x.TransferCredits,
-                    TransferLastSemEnd = x.TransferLastSemEnd,
+                    TransferLastSemEnd = x.TransferLastSemEnd.HasValue ? x.TransferLastSemEnd.Value.ToDateTime(TimeOnly.MinValue) : null,
                     TransferGpa = x.TransferGpa,
                     FinancialNeed = x.FinancialNeed,
                     SelfReliance = x.SelfReliance,
@@ -283,10 +282,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     ThirdName = x.ThirdName,
                     LastName = x.LastName,
                     MotherName = x.MotherName,
-                    Dob = x.Dob,
+                    Dob = x.Dob.HasValue ? x.Dob.Value.ToDateTime(TimeOnly.MinValue) : null,
                     Nationality = x.Nationality,
                     ResidenceCountry = x.ResidenceCountry,
-                    ResidenceCountryId = x.ResidenceCountryId,
                     Tribe = x.Tribe,
                     Religion = x.Religion,
                     Gender = x.Gender,
@@ -299,7 +297,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     House = x.House,
                     Phone = x.Phone,
                     Email = x.Email,
-                    FromDaSchool = x.FromDaSchool,
+                    FromDaSchool = x.FromDaSchool == 1,
                     DaStudentCode = x.DaStudentCode,
                     SchoolName = x.SchoolName,
                     HsSpecialization = x.HsSpecialization,
@@ -312,7 +310,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     TransferProgram = x.TransferProgram,
                     TransferInstitutionType = x.TransferInstitutionType,
                     TransferCredits = x.TransferCredits,
-                    TransferLastSemEnd = x.TransferLastSemEnd,
+                    TransferLastSemEnd = x.TransferLastSemEnd.HasValue ? x.TransferLastSemEnd.Value.ToDateTime(TimeOnly.MinValue) : null,
                     TransferGpa = x.TransferGpa,
                     FinancialNeed = x.FinancialNeed,
                     SelfReliance = x.SelfReliance,

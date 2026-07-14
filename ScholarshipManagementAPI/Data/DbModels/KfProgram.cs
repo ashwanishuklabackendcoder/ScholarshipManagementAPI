@@ -57,7 +57,9 @@ public partial class KfProgram
 
     public virtual ICollection<KfProgramDocument> KfProgramDocuments { get; set; } = new List<KfProgramDocument>();
 
-    public virtual UnUniversityList University { get; set; } = null!;
+    public virtual ICollection<StudentProgramApplication> StudentProgramApplications { get; set; } = new List<StudentProgramApplication>();
+
+    public virtual UnUniversityRegistration University { get; set; } = null!;
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

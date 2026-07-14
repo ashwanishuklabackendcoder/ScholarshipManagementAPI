@@ -21,5 +21,13 @@ public partial class MasterDonorList
 
     public string CreatedBy { get; set; } = null!;
 
+    public bool IsDraft { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual ICollection<StudentReqList> StudentReqLists { get; set; } = new List<StudentReqList>();
 }

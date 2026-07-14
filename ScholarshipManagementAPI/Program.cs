@@ -223,6 +223,7 @@ builder.Services.AddScoped<IMasterSchoolService, MasterSchoolService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IStudentRequirementService, StudentRequirementService>();
 builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationService>();
+builder.Services.AddScoped<IStudentProgramApplicationService, StudentProgramApplicationService>();
 
 builder.Services.AddScoped<IUniversityService, UniversityService>();
 builder.Services.AddScoped<IStaffService, StaffService>();

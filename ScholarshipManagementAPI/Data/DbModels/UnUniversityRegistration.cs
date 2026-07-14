@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
@@ -9,7 +9,7 @@ public partial class UnUniversityRegistration
 
     public string UniversityName { get; set; } = null!;
 
-    public string? UniversityType { get; set; }
+    public long? UniversityType { get; set; }
 
     public string? CharterAccreditation { get; set; }
 
@@ -23,14 +23,12 @@ public partial class UnUniversityRegistration
 
     public string? Website { get; set; }
 
-    // Vice Chancellor Details
     public string? VcName { get; set; }
 
     public string? VcEmail { get; set; }
 
     public string? VcMobile { get; set; }
 
-    // Coordinator Details
     public string CoordName { get; set; } = null!;
 
     public string? CoordPosition { get; set; }
@@ -39,14 +37,12 @@ public partial class UnUniversityRegistration
 
     public string CoordPhone { get; set; } = null!;
 
-    // Staff Metrics
     public int? FacultiesCount { get; set; }
 
     public int? FacultyFulltimeCount { get; set; }
 
     public int? AdminStaffCount { get; set; }
 
-    // Programs Metrics
     public int? ProgDegreeCount { get; set; }
 
     public int? ProgDiplomaCount { get; set; }
@@ -55,7 +51,6 @@ public partial class UnUniversityRegistration
 
     public int? ProgPostgradCount { get; set; }
 
-    // Student Metrics
     public int? StudentsTotal { get; set; }
 
     public int? StudentsEnrolled { get; set; }
@@ -64,7 +59,6 @@ public partial class UnUniversityRegistration
 
     public string? StudentsGender { get; set; }
 
-    // Student Breakdown
     public int? StudDegreeCount { get; set; }
 
     public int? StudDiplomaCount { get; set; }
@@ -77,7 +71,6 @@ public partial class UnUniversityRegistration
 
     public int? AlumniCount { get; set; }
 
-    // Performance Indicators
     public decimal? OpSustainabilityPct { get; set; }
 
     public decimal? EmployabilityPct { get; set; }
@@ -96,14 +89,12 @@ public partial class UnUniversityRegistration
 
     public string? ExternalGrants { get; set; }
 
-    // Status and Bookkeeping
     public string? Notes { get; set; }
 
     public int ApprovalStatus { get; set; }
 
     public long? ApprovedBy { get; set; }
 
-    // Standard Audit Fields
     public bool IsDraft { get; set; }
 
     public bool IsActive { get; set; }
@@ -116,10 +107,19 @@ public partial class UnUniversityRegistration
 
     public DateTime? UpdatedDate { get; set; }
 
-    // Navigations
     public virtual ZzMasterCountry Country { get; set; } = null!;
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
+    public virtual ICollection<HrStaffMaster> HrStaffMasters { get; set; } = new List<HrStaffMaster>();
+
+    public virtual ICollection<KfCourse> KfCourses { get; set; } = new List<KfCourse>();
+
+    public virtual ICollection<KfFaculty> KfFaculties { get; set; } = new List<KfFaculty>();
+
+    public virtual ICollection<KfProgram> KfPrograms { get; set; } = new List<KfProgram>();
+
+    public virtual ZzMasterDropDown? UniversityTypeNavigation { get; set; }
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

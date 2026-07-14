@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
@@ -52,13 +52,17 @@ public partial class HrStaffMaster
 
     public long? NgoId { get; set; }
 
+    public bool IsDraft { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
     public virtual KfSchool? School { get; set; }
 
     public virtual UsersModule StaffTypeNavigation { get; set; } = null!;
 
-    public virtual ICollection<UnUniversityList> UnUniversityLists { get; set; } = new List<UnUniversityList>();
-
-    public virtual UnUniversityList? University { get; set; }
+    public virtual UnUniversityRegistration? University { get; set; }
 
     public virtual ICollection<UsersLogin> UsersLogins { get; set; } = new List<UsersLogin>();
 }
