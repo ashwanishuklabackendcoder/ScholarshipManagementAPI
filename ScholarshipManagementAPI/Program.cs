@@ -221,8 +221,6 @@ builder.Services.AddScoped<IAdminEmailTemplateService, AdminEmailTemplateService
 
 builder.Services.AddScoped<IMasterSchoolService, MasterSchoolService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
-builder.Services.AddScoped<IStudentRequirementService, StudentRequirementService>();
-builder.Services.AddScoped<IStudentRegistrationService, StudentRegistrationService>();
 builder.Services.AddScoped<IStudentProgramApplicationService, StudentProgramApplicationService>();
 
 builder.Services.AddScoped<IUniversityService, UniversityService>();
@@ -242,7 +240,6 @@ builder.Services.AddScoped<ICoursesService, CoursesService>();
 builder.Services.AddScoped<IDocumentTypesService, DocumentTypesService>();
 builder.Services.AddScoped<ISponsorshipTypesService, SponsorshipTypesService>();
 builder.Services.AddScoped<IProgramsService, ProgramsService>();
-builder.Services.AddScoped<IUniversityRegistrationService, UniversityRegistrationService>();
 
 
 // Swagger configuration

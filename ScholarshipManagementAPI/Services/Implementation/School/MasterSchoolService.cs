@@ -253,7 +253,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     CreatedDate = x.CreatedDate,
                     DefaultCurrencyId = x.DefaultCurrencyId,
                     DefaultCurrencyName = x.DefaultCurrency != null ? x.DefaultCurrency.CurrencyName : null,
-
+                    
                     AccreditationStatus = x.AccreditationStatus,
                     AccreditationBy = x.AccreditationBy,
                     AccreditationByName = x.AccreditationByNavigation != null ? x.AccreditationByNavigation.LoginName : null
@@ -388,5 +388,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 PageSize = filter.PageSize
             };
         }
+    
     }
 }

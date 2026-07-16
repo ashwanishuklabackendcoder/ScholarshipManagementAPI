@@ -409,35 +409,35 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.AccreditationByNavigation).WithMany(p => p.KfSchoolAccreditationByNavigations)
                 .HasForeignKey(d => d.AccreditationBy)
-                .HasConstraintName("FK_kf_schools_AccreditationBy_UsersLogin");
+                .HasConstraintName("FK_kf_schools_AccreditationBy");
 
             entity.HasOne(d => d.Country).WithMany(p => p.KfSchools)
                 .HasForeignKey(d => d.CountryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_kf_schools_country");
+                .HasConstraintName("FK_kf_schools_Country");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfSchoolCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_kf_schools_CreatedBy_UsersLogin");
+                .HasConstraintName("FK_kf_schools_CreatedBy");
 
             entity.HasOne(d => d.DefaultCurrency).WithMany(p => p.KfSchools)
                 .HasForeignKey(d => d.DefaultCurrencyId)
-                .HasConstraintName("FK_kf_schools_currency");
+                .HasConstraintName("FK_kf_schools_DefaultCurrency");
 
             entity.HasOne(d => d.SchoolStatusNavigation).WithMany(p => p.KfSchoolSchoolStatusNavigations)
                 .HasForeignKey(d => d.SchoolStatus)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_kf_schools_SchoolStatus_ZzMasterDropDown");
+                .HasConstraintName("FK_kf_schools_SchoolStatus");
 
             entity.HasOne(d => d.SchoolTypeNavigation).WithMany(p => p.KfSchoolSchoolTypeNavigations)
                 .HasForeignKey(d => d.SchoolType)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_kf_schools_SchoolType_ZzMasterDropDown");
+                .HasConstraintName("FK_kf_schools_SchoolType");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfSchoolUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_kf_schools_UpdatedBy_UsersLogin");
+                .HasConstraintName("FK_kf_schools_UpdatedBy");
         });
 
         modelBuilder.Entity<KfSponsorshipType>(entity =>
@@ -573,16 +573,12 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Block).HasMaxLength(200);
             entity.Property(e => e.City).HasMaxLength(200);
-            entity.Property(e => e.CombinedSpec).HasMaxLength(300);
             entity.Property(e => e.CreatedBy).HasDefaultValue(2L);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.DaStudentCode).HasMaxLength(100);
             entity.Property(e => e.Email).HasMaxLength(250);
             entity.Property(e => e.EnglishScore).HasColumnType("decimal(5, 1)");
-            entity.Property(e => e.FinancialNeed).HasMaxLength(100);
             entity.Property(e => e.FirstName).HasMaxLength(200);
-            entity.Property(e => e.FutureGoals).HasMaxLength(50);
-            entity.Property(e => e.Gender).HasMaxLength(50);
             entity.Property(e => e.House).HasMaxLength(200);
             entity.Property(e => e.HsSpecialization).HasMaxLength(200);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -590,18 +586,16 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.LastName).HasMaxLength(200);
             entity.Property(e => e.MaxScore).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.MotherName).HasMaxLength(200);
-            entity.Property(e => e.Motivation).HasMaxLength(50);
             entity.Property(e => e.OrphanNumber).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(100);
             entity.Property(e => e.PhotoPath).HasMaxLength(1000);
             entity.Property(e => e.RecommendationLetterNotes).HasMaxLength(2000);
             entity.Property(e => e.RecommendationLetterPath).HasMaxLength(1000);
             entity.Property(e => e.RelativeGrade).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.Religion).HasMaxLength(200);
-            entity.Property(e => e.SchoolName).HasMaxLength(300);
             entity.Property(e => e.SecondName).HasMaxLength(200);
-            entity.Property(e => e.SelfReliance).HasMaxLength(50);
             entity.Property(e => e.Street).HasMaxLength(200);
+            entity.Property(e => e.StudentCode).HasMaxLength(100);
+            entity.Property(e => e.TanzanianStudentCombination).HasMaxLength(300);
             entity.Property(e => e.ThirdName).HasMaxLength(200);
             entity.Property(e => e.TotalScore).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TransferGpa).HasColumnType("decimal(4, 2)");
@@ -614,23 +608,48 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.StudentRegistrationCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentRegistration_CreatedBy_UsersLogin");
+                .HasConstraintName("FK_StudentRegistration_CreatedBy");
 
-            entity.HasOne(d => d.FromDaSchoolNavigation).WithMany(p => p.StudentRegistrations)
-                .HasForeignKey(d => d.FromDaSchool)
-                .HasConstraintName("FK_StudentRegistration_FromDaSchool_kf_schools");
+            entity.HasOne(d => d.FinancialNeedStatus).WithMany(p => p.StudentRegistrationFinancialNeedStatuses)
+                .HasForeignKey(d => d.FinancialNeedStatusId)
+                .HasConstraintName("FK_StudentRegistration_FinancialNeedStatus");
 
-            entity.HasOne(d => d.NationalityNavigation).WithMany(p => p.StudentRegistrationNationalityNavigations)
-                .HasForeignKey(d => d.Nationality)
-                .HasConstraintName("FK_StudentRegistration_Nationality_ZzMasterCountry");
+            entity.HasOne(d => d.FutureGoalsLevel).WithMany(p => p.StudentRegistrationFutureGoalsLevels)
+                .HasForeignKey(d => d.FutureGoalsLevelId)
+                .HasConstraintName("FK_StudentRegistration_FutureGoals");
 
-            entity.HasOne(d => d.ResidenceCountryNavigation).WithMany(p => p.StudentRegistrationResidenceCountryNavigations)
-                .HasForeignKey(d => d.ResidenceCountry)
-                .HasConstraintName("FK_StudentRegistration_ResidenceCountry_ZzMasterCountry");
+            entity.HasOne(d => d.Gender).WithMany(p => p.StudentRegistrationGenders)
+                .HasForeignKey(d => d.GenderId)
+                .HasConstraintName("FK_StudentRegistration_Gender");
+
+            entity.HasOne(d => d.MotivationLevel).WithMany(p => p.StudentRegistrationMotivationLevels)
+                .HasForeignKey(d => d.MotivationLevelId)
+                .HasConstraintName("FK_StudentRegistration_Motivation");
+
+            entity.HasOne(d => d.Nationality).WithMany(p => p.StudentRegistrationNationalities)
+                .HasForeignKey(d => d.NationalityId)
+                .HasConstraintName("FK_StudentRegistration_Nationality");
+
+            entity.HasOne(d => d.Religion).WithMany(p => p.StudentRegistrationReligions)
+                .HasForeignKey(d => d.ReligionId)
+                .HasConstraintName("FK_StudentRegistration_Religion");
+
+            entity.HasOne(d => d.ResidenceCountry).WithMany(p => p.StudentRegistrationResidenceCountries)
+                .HasForeignKey(d => d.ResidenceCountryId)
+                .HasConstraintName("FK_StudentRegistration_ResidenceCountry");
+
+            entity.HasOne(d => d.School).WithMany(p => p.StudentRegistrations)
+                .HasForeignKey(d => d.SchoolId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_StudentRegistration_School");
+
+            entity.HasOne(d => d.SelfRelianceLevel).WithMany(p => p.StudentRegistrationSelfRelianceLevels)
+                .HasForeignKey(d => d.SelfRelianceLevelId)
+                .HasConstraintName("FK_StudentRegistration_SelfReliance");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.StudentRegistrationUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_StudentRegistration_UpdatedBy_UsersLogin");
+                .HasConstraintName("FK_StudentRegistration_UpdatedBy");
         });
 
         modelBuilder.Entity<StudentReqList>(entity =>
@@ -674,6 +693,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.CharterAccreditation).HasMaxLength(500);
             entity.Property(e => e.City).HasMaxLength(150);
+            entity.Property(e => e.CommitteeComment).HasMaxLength(2000);
             entity.Property(e => e.CoordEmail)
                 .HasMaxLength(150)
                 .IsUnicode(false);
@@ -691,7 +711,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IsDraft).HasDefaultValue(true);
             entity.Property(e => e.OpSustainabilityPct).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.PhdStaffPct).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.StudentsGender).HasMaxLength(50);
             entity.Property(e => e.TeachingLoadHours).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.UniversityName).HasMaxLength(300);
             entity.Property(e => e.VcEmail)
@@ -705,6 +724,10 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(250)
                 .IsUnicode(false);
 
+            entity.HasOne(d => d.AccreditationByNavigation).WithMany(p => p.UnUniversityRegistrationAccreditationByNavigations)
+                .HasForeignKey(d => d.AccreditationBy)
+                .HasConstraintName("FK_UnUniversityRegistration_AccreditationBy_UsersLogin");
+
             entity.HasOne(d => d.Country).WithMany(p => p.UnUniversityRegistrations)
                 .HasForeignKey(d => d.CountryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -715,7 +738,11 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UnUniversityRegistration_CreatedBy_UsersLogin");
 
-            entity.HasOne(d => d.UniversityTypeNavigation).WithMany(p => p.UnUniversityRegistrations)
+            entity.HasOne(d => d.StudentsGenderType).WithMany(p => p.UnUniversityRegistrationStudentsGenderTypes)
+                .HasForeignKey(d => d.StudentsGenderTypeId)
+                .HasConstraintName("FK_UnUniversityRegistration_StudentsGenderType_ZzMasterDropDown");
+
+            entity.HasOne(d => d.UniversityTypeNavigation).WithMany(p => p.UnUniversityRegistrationUniversityTypeNavigations)
                 .HasForeignKey(d => d.UniversityType)
                 .HasConstraintName("FK_UnUniversityRegistration_UniversityType_ZzMasterDropDown");
 

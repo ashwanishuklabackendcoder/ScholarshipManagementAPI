@@ -57,7 +57,7 @@ public partial class UnUniversityRegistration
 
     public decimal? IntlStudentsPct { get; set; }
 
-    public string? StudentsGender { get; set; }
+    public long? StudentsGenderTypeId { get; set; }
 
     public int? StudDegreeCount { get; set; }
 
@@ -91,9 +91,9 @@ public partial class UnUniversityRegistration
 
     public string? Notes { get; set; }
 
-    public int ApprovalStatus { get; set; }
+    public int AccreditationStatus { get; set; }
 
-    public long? ApprovedBy { get; set; }
+    public long? AccreditationBy { get; set; }
 
     public bool IsDraft { get; set; }
 
@@ -107,6 +107,12 @@ public partial class UnUniversityRegistration
 
     public DateTime? UpdatedDate { get; set; }
 
+    public DateTime? AccreditationDate { get; set; }
+
+    public string? CommitteeComment { get; set; }
+
+    public virtual UsersLogin? AccreditationByNavigation { get; set; }
+
     public virtual ZzMasterCountry Country { get; set; } = null!;
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
@@ -118,6 +124,8 @@ public partial class UnUniversityRegistration
     public virtual ICollection<KfFaculty> KfFaculties { get; set; } = new List<KfFaculty>();
 
     public virtual ICollection<KfProgram> KfPrograms { get; set; } = new List<KfProgram>();
+
+    public virtual ZzMasterDropDown? StudentsGenderType { get; set; }
 
     public virtual ZzMasterDropDown? UniversityTypeNavigation { get; set; }
 

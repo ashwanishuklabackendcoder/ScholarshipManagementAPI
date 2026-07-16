@@ -48,7 +48,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> Update(long id, [FromBody] UniversityRequestDto dto)
         {
-            dto.UniversityId = id;
+            dto.RegistrationId = id;
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)

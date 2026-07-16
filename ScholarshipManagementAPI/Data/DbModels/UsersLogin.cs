@@ -65,6 +65,8 @@ public partial class UsersLogin
 
     public virtual ICollection<StudentRegistration> StudentRegistrationUpdatedByNavigations { get; set; } = new List<StudentRegistration>();
 
+    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationAccreditationByNavigations { get; set; } = new List<UnUniversityRegistration>();
+
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationCreatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUpdatedByNavigations { get; set; } = new List<UnUniversityRegistration>();

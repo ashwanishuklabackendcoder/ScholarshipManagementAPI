@@ -483,22 +483,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<CurrentUserProfileDto?> GetMyProfileAsync(long loginId , long roleId)
         {
-            //var user = await _context.UsersLogins
-            //    .Include(x => x.UsersLoginRoles)
-            //    .ThenInclude(x => x.Role)
-            //    .ThenInclude(x => x.Module)
-            //    .Include(x => x.Staff)
-            //    .ThenInclude(s => s.University)
-            //    .Include(x => x.Staff)
-            //    .ThenInclude(s => s.School)
-            //    .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
             var user = await _context.UsersLogins
                 .Include(x => x.UsersLoginRoles)
                 .ThenInclude(x => x.Role)
                 .ThenInclude(x => x.Module)
-                .Include(x => x.Staff)            
-                             
+                .Include(x => x.Staff)
+                .ThenInclude(s => s.University)
+                .Include(x => x.Staff)
+                .ThenInclude(s => s.School)
                 .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
+
+            //var user = await _context.UsersLogins
+            //    .Include(x => x.UsersLoginRoles)
+            //    .ThenInclude(x => x.Role)
+            //    .ThenInclude(x => x.Module)
+            //    .Include(x => x.Staff)                                  
+            //    .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
 
             if (user == null)
                 throw new CustomException("User not found.");
@@ -527,6 +527,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 (long)StaffType.Ngo => "NGO Administration",
                 (long)StaffType.SuperAdmin => "System Administration",
                 (long)StaffType.Marketing => "Marketing",
+                (long)StaffType.Finance => "Finance",
                 _ => string.Empty
             };
 

@@ -124,10 +124,10 @@ namespace ScholarshipManagementAPI.DTOs.School.MasterSchool
         public byte SchoolStatus { get; set; } = 1;
 
         [MaxLength(20)]
-        public string? StudentCodeFormatPrefix { get; set; }
+        public string StudentCodeFormatPrefix { get; set; } = string.Empty;
 
         [MaxLength(20)]
-        public string? StudentCodeFormatSuffix { get; set; }
+        public string StudentCodeFormatSuffix { get; set; } = string.Empty;
 
         public int StudentSequenceNumber { get; set; } = 1;
 

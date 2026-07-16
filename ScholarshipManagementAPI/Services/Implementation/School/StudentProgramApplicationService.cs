@@ -98,7 +98,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             {
                 StudentId = studentId,
                 ProgramId = dto.ProgramId,
-                ApplicationStatus = (int)ApplicationStatus.Draft,
+                ApplicationStatus = (int)StudentApplicationStatus.Draft,
                 AppliedDate = DateTime.UtcNow,
                 Remarks = dto.Remarks,
                 CreatedBy = userId,
@@ -136,7 +136,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Application not found.");
             }
 
-            if (app.ApplicationStatus != (int)ApplicationStatus.Draft)
+            if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
             {
                 throw new CustomException("Cancellation is only allowed while the application is in Draft status.");
             }
@@ -185,12 +185,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Application not found.");
             }
 
-            if (app.ApplicationStatus != (int)ApplicationStatus.Draft)
+            if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
             {
                 throw new CustomException("Only Draft applications can be submitted.");
             }
 
-            app.ApplicationStatus = (int)ApplicationStatus.AcceptanceInProcess;
+            app.ApplicationStatus = (int)StudentApplicationStatus.AcceptanceInProcess;
             app.SubmittedDate = DateTime.UtcNow;
             app.UpdatedBy = userId;
             app.UpdatedDate = DateTime.UtcNow;
@@ -230,7 +230,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 ProgramName = app.Program.ProgramName,
                 ProgramCode = app.Program.ProgramCode,
                 ApplicationStatus = app.ApplicationStatus,
-                ApplicationStatusName = Enum.GetName(typeof(ApplicationStatus), app.ApplicationStatus) ?? app.ApplicationStatus.ToString(),
+                ApplicationStatusName = Enum.GetName(typeof(StudentApplicationStatus), app.ApplicationStatus) ?? app.ApplicationStatus.ToString(),
                 AppliedDate = app.AppliedDate,
                 SubmittedDate = app.SubmittedDate,
                 Remarks = app.Remarks,
@@ -265,7 +265,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Application not found.");
             }
 
-            if (app.ApplicationStatus != (int)ApplicationStatus.Draft)
+            if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
             {
                 throw new CustomException("Uploading documents is only allowed in Draft status.");
             }
@@ -361,7 +361,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Application not found.");
             }
 
-            if (app.ApplicationStatus != (int)ApplicationStatus.Draft)
+            if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
             {
                 throw new CustomException("Only Draft application documents can be deleted.");
             }

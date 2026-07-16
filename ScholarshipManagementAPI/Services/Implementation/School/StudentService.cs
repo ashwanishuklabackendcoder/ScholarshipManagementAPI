@@ -3,6 +3,7 @@ using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.Students;
+using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.School;
 using System;
@@ -23,59 +24,121 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<long> CreateAsync(StudentRequestDto dto)
         {
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Phone == dto.MobileNo))
+            if (await _context.StudentRegistrations.AnyAsync(x => x.Phone == dto.Phone))
             {
                 throw new CustomException("Student with same mobile number already exists");
             }
 
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Email == dto.EmailID))
+            if (await _context.StudentRegistrations.AnyAsync(x => x.Email == dto.Email))
             {
                 throw new CustomException("Student with same email already exists");
             }
 
             // Find school name from school id if possible
-            string? schoolName = null;
-            if (dto.SchoolId > 0)
+            string? studentCode = null;
+            if (dto.SchoolId <= 0)
             {
-                schoolName = await _context.KfSchools
-                    .Where(x => x.SchoolId == dto.SchoolId)
-                    .Select(x => x.SchoolName)
-                    .FirstOrDefaultAsync();
+                throw new CustomException("Please select a valid school.");
             }
+
+            var school = await _context.KfSchools
+                .Where(x => x.SchoolId == dto.SchoolId)
+                .Select(x => new
+                {
+                    x.StudentCodeFormatPrefix,
+                    x.StudentCodeFormatSuffix,
+                    x.StudentSequenceNumber,
+                })
+                .FirstOrDefaultAsync();
+
+            if (school == null)
+            {
+                throw new CustomException("Selected school does not exist.");
+            }
+
+            var prefix = string.IsNullOrWhiteSpace(school.StudentCodeFormatPrefix)
+                ? "SCH"
+                : school.StudentCodeFormatPrefix;
+
+            var suffix = string.IsNullOrWhiteSpace(school.StudentCodeFormatSuffix)
+                ? "#"
+                : school.StudentCodeFormatSuffix;
+
+            var studentCount = await _context.StudentRegistrations
+                .CountAsync(x => x.SchoolId == dto.SchoolId);
+
+            var nextSequence = school.StudentSequenceNumber + studentCount;
+
+            studentCode = $"{prefix}-{nextSequence:D4}-{suffix}";
 
             var entity = new StudentRegistration
             {
-                FirstName = dto.StudentFirstName,
-                LastName = dto.StudentLastName ?? string.Empty,
+                StudentCode = studentCode,
+                PhotoPath = dto.PhotoPath,
+
+                FirstName = dto.FirstName,
+                SecondName = dto.SecondName,
+                ThirdName = dto.ThirdName,
+                LastName = dto.LastName,
+
                 MotherName = dto.MotherName,
-                Dob = dto.DateOfBirth.HasValue ? DateOnly.FromDateTime(dto.DateOfBirth.Value) : null,
-                Gender = dto.Gender.ToString(),
+
+                Dob = dto.Dob.HasValue
+                ? DateOnly.FromDateTime(dto.Dob.Value)
+                : null,
+
+                NationalityId = dto.NationalityId,
+                ResidenceCountryId = dto.ResidenceCountryId,
+                ReligionId = dto.ReligionId,
+                GenderId = dto.GenderId,
+
                 Tribe = dto.Tribe,
-                Nationality = string.IsNullOrWhiteSpace(dto.Nationality) ? null : (long.TryParse(dto.Nationality, out var nat) ? nat : null),
-                ResidenceCountry = string.IsNullOrWhiteSpace(dto.MasterCountry) ? null : (long.TryParse(dto.MasterCountry, out var rc) ? rc : null),
-                City = dto.AddressCity,
-                Phone = dto.MobileNo,
-                Email = dto.EmailID,
-                PhotoPath = dto.Photo,
+
                 IsOrphan = dto.IsOrphan,
                 OrphanNumber = dto.OrphanNumber,
-                Religion = dto.Religion.ToString(),
-                SchoolName = schoolName,
-                HsSpecialization = dto.HighSchoolDiv,
-                CombinedSpec = dto.TanzComb,
-                TotalScore = string.IsNullOrWhiteSpace(dto.GraduationScore) ? null : (decimal.TryParse(dto.GraduationScore, out var ts) ? ts : null),
-                MaxScore = dto.MaxMarks,
-                RelativeGrade = string.IsNullOrWhiteSpace(dto.Grade) ? null : (decimal.TryParse(dto.Grade, out var rg) ? rg : null),
-                EnglishScore = dto.EnglishPlacementTest,
-                FinancialNeed = dto.SocialEcoStatus,
-                SelfReliance = dto.SelfDettoSuccess,
-                Motivation = dto.MotLevelToOverComedStudying,
-                FutureGoals = dto.ClearTargetsFutureGoals,
+
+                City = dto.City,
+                Village = dto.Village,
+                Block = dto.Block,
+                Street = dto.Street,
+                House = dto.House,
+
+                Phone = dto.Phone,
+                Email = dto.Email,
+
+                FromDaSchool = dto.FromDaSchool,
+                DaStudentCode = dto.DaStudentCode,
+                SchoolId = dto.SchoolId,
+
+                HsSpecialization = dto.HsSpecialization,
+                TanzanianStudentCombination = dto.TanzanianStudentCombination,
+
+                TotalScore = dto.TotalScore,
+                MaxScore = dto.MaxScore,
+                RelativeGrade = dto.RelativeGrade,
+                EnglishScore = dto.EnglishScore,
+
+                TransferInstitution = dto.TransferInstitution,
+                TransferProgram = dto.TransferProgram,
+                TransferInstitutionType = dto.TransferInstitutionType,
+                TransferCredits = dto.TransferCredits,
+                TransferLastSemEnd = dto.TransferLastSemEnd.HasValue
+                ? DateOnly.FromDateTime(dto.TransferLastSemEnd.Value)
+                : null,
+                TransferGpa = dto.TransferGpa,
+
+                FinancialNeedStatusId = dto.FinancialNeedStatusId,
+                SelfRelianceLevelId = dto.SelfRelianceLevelId,
+                MotivationLevelId = dto.MotivationLevelId,
+                FutureGoalsLevelId = dto.FutureGoalsLevelId,
+
                 RecommendationLetterPath = dto.RecommendationLetterPath,
-                RecommendationLetterNotes = dto.RecommendationLetter,
-                IsDraft = false,
+                RecommendationLetterNotes = dto.RecommendationLetterNotes,
+
+                IsDraft = dto.IsDraft,
                 IsActive = true,
-                CreatedBy = 2,
+
+                CreatedBy = dto.CreatedBy,
                 CreatedDate = DateTime.UtcNow
             };
 
@@ -96,12 +159,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (entity == null)
                 return false;
 
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Phone == dto.MobileNo && x.StudentId != dto.StudentId))
+            if (await _context.StudentRegistrations.AnyAsync(x => x.Phone == dto.Phone && x.StudentId != dto.StudentId))
             {
                 throw new CustomException("Student with same mobile number already exists");
             }
 
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Email == dto.EmailID && x.StudentId != dto.StudentId))
+            if (await _context.StudentRegistrations.AnyAsync(x => x.Email == dto.Email && x.StudentId != dto.StudentId))
             {
                 throw new CustomException("Student with same email already exists");
             }
@@ -115,36 +178,72 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     .FirstOrDefaultAsync();
             }
 
-            entity.FirstName = dto.StudentFirstName;
-            entity.LastName = dto.StudentLastName ?? string.Empty;
+            entity.PhotoPath = dto.PhotoPath;
+
+            //entity.StudentCode = dto.StudentCode;
+
+            entity.FirstName = dto.FirstName;
+            entity.SecondName = dto.SecondName;
+            entity.ThirdName = dto.ThirdName;
+            entity.LastName = dto.LastName;
+
             entity.MotherName = dto.MotherName;
-            entity.Dob = dto.DateOfBirth.HasValue ? DateOnly.FromDateTime(dto.DateOfBirth.Value) : null;
-            entity.Gender = dto.Gender.ToString();
+
+            entity.Dob = dto.Dob.HasValue
+                ? DateOnly.FromDateTime(dto.Dob.Value)
+                : null;
+
+            entity.NationalityId = dto.NationalityId;
+            entity.ResidenceCountryId = dto.ResidenceCountryId;
+            entity.ReligionId = dto.ReligionId;
+            entity.GenderId = dto.GenderId;
+
             entity.Tribe = dto.Tribe;
-            entity.Nationality = string.IsNullOrWhiteSpace(dto.Nationality) ? null : (long.TryParse(dto.Nationality, out var nat) ? nat : null);
-            entity.ResidenceCountry = string.IsNullOrWhiteSpace(dto.MasterCountry) ? null : (long.TryParse(dto.MasterCountry, out var rc) ? rc : null);
-            entity.City = dto.AddressCity;
-            entity.Phone = dto.MobileNo;
-            entity.Email = dto.EmailID;
-            entity.PhotoPath = dto.Photo;
+
             entity.IsOrphan = dto.IsOrphan;
             entity.OrphanNumber = dto.OrphanNumber;
-            entity.Religion = dto.Religion.ToString();
-            entity.SchoolName = schoolName;
-            entity.HsSpecialization = dto.HighSchoolDiv;
-            entity.CombinedSpec = dto.TanzComb;
-            entity.TotalScore = string.IsNullOrWhiteSpace(dto.GraduationScore) ? null : (decimal.TryParse(dto.GraduationScore, out var ts) ? ts : null);
-            entity.MaxScore = dto.MaxMarks;
-            entity.RelativeGrade = string.IsNullOrWhiteSpace(dto.Grade) ? null : (decimal.TryParse(dto.Grade, out var rg) ? rg : null);
-            entity.EnglishScore = dto.EnglishPlacementTest;
-            entity.FinancialNeed = dto.SocialEcoStatus;
-            entity.SelfReliance = dto.SelfDettoSuccess;
-            entity.Motivation = dto.MotLevelToOverComedStudying;
-            entity.FutureGoals = dto.ClearTargetsFutureGoals;
-            entity.RecommendationLetterPath = dto.RecommendationLetterPath;
-            entity.RecommendationLetterNotes = dto.RecommendationLetter;
 
-            entity.UpdatedBy = 2;
+            entity.City = dto.City;
+            entity.Village = dto.Village;
+            entity.Block = dto.Block;
+            entity.Street = dto.Street;
+            entity.House = dto.House;
+
+            entity.Phone = dto.Phone;
+            entity.Email = dto.Email;
+
+            entity.FromDaSchool = dto.FromDaSchool;
+            entity.DaStudentCode = dto.DaStudentCode;
+            entity.SchoolId = dto.SchoolId;
+
+            entity.HsSpecialization = dto.HsSpecialization;
+            entity.TanzanianStudentCombination = dto.TanzanianStudentCombination;
+
+            entity.TotalScore = dto.TotalScore;
+            entity.MaxScore = dto.MaxScore;
+            entity.RelativeGrade = dto.RelativeGrade;
+            entity.EnglishScore = dto.EnglishScore;
+
+            entity.TransferInstitution = dto.TransferInstitution;
+            entity.TransferProgram = dto.TransferProgram;
+            entity.TransferInstitutionType = dto.TransferInstitutionType;
+            entity.TransferCredits = dto.TransferCredits;
+            entity.TransferLastSemEnd = dto.TransferLastSemEnd.HasValue
+                ? DateOnly.FromDateTime(dto.TransferLastSemEnd.Value)
+                : null;
+            entity.TransferGpa = dto.TransferGpa;
+
+            entity.FinancialNeedStatusId = dto.FinancialNeedStatusId;
+            entity.SelfRelianceLevelId = dto.SelfRelianceLevelId;
+            entity.MotivationLevelId = dto.MotivationLevelId;
+            entity.FutureGoalsLevelId = dto.FutureGoalsLevelId;
+
+            entity.RecommendationLetterPath = dto.RecommendationLetterPath;
+            entity.RecommendationLetterNotes = dto.RecommendationLetterNotes;
+
+            entity.IsDraft = dto.IsDraft;
+
+            entity.UpdatedBy = dto.UpdatedBy;
             entity.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -168,50 +267,121 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         {
             var x = await _context.StudentRegistrations
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.StudentId == id && u.IsActive);
+                .Include(s => s.School)
+                .Include(s => s.Nationality)
+                .Include(s => s.ResidenceCountry)
+                .Include(s => s.Gender)
+                .Include(s => s.Religion)
+                .Include(s => s.FinancialNeedStatus)
+                .Include(s => s.SelfRelianceLevel)
+                .Include(s => s.MotivationLevel)
+                .Include(s => s.FutureGoalsLevel)
+                .Include(s => s.CreatedByNavigation)
+                .Include(s => s.UpdatedByNavigation)
+                .FirstOrDefaultAsync(s => s.StudentId == id && s.IsActive);
 
-            if (x == null) return null;
-
-            int? genderInt = null;
-            if (int.TryParse(x.Gender, out var g)) genderInt = g;
-
-            long? religionLong = null;
-            if (long.TryParse(x.Religion, out var r)) religionLong = r;
+            if (x == null)
+                return null;
 
             return new StudentRequestDto
             {
                 StudentId = x.StudentId,
-                StudentFirstName = x.FirstName,
-                StudentLastName = x.LastName,
+                StudentCode = x.StudentCode,
+
+                PhotoPath = x.PhotoPath,
+
+                FirstName = x.FirstName,
+                SecondName = x.SecondName,
+                ThirdName = x.ThirdName,
+                LastName = x.LastName,
                 MotherName = x.MotherName,
-                DateOfBirth = x.Dob.HasValue ? x.Dob.Value.ToDateTime(TimeOnly.MinValue) : null,
-                Gender = genderInt,
+
+                FullName = string.Join(" ",
+                    new[]
+                    {
+                x.FirstName,
+                x.SecondName,
+                x.ThirdName,
+                x.LastName
+                    }.Where(s => !string.IsNullOrWhiteSpace(s))),
+
+                Dob = x.Dob?.ToDateTime(TimeOnly.MinValue),
+
+                NationalityId = x.NationalityId,
+                ResidenceCountryId = x.ResidenceCountryId,
+                ReligionId = x.ReligionId,
+                GenderId = x.GenderId,
+
                 Tribe = x.Tribe,
-                Nationality = x.Nationality?.ToString(),
-                MasterCountry = x.ResidenceCountry?.ToString(),
-                AddressCity = x.City,
-                MobileNo = x.Phone,
-                EmailID = x.Email,
-                Photo = x.PhotoPath,
+
                 IsOrphan = x.IsOrphan,
                 OrphanNumber = x.OrphanNumber,
-                Religion = religionLong,
-                HighSchoolDiv = x.HsSpecialization,
-                TanzComb = x.CombinedSpec,
-                GraduationScore = x.TotalScore?.ToString(),
-                MaxMarks = x.MaxScore,
-                Grade = x.RelativeGrade?.ToString(),
-                EnglishPlacementTest = x.EnglishScore,
-                SocialEcoStatus = x.FinancialNeed,
-                SelfDettoSuccess = x.SelfReliance,
-                MotLevelToOverComedStudying = x.Motivation,
-                ClearTargetsFutureGoals = x.FutureGoals,
+
+                City = x.City,
+                Village = x.Village,
+                Block = x.Block,
+                Street = x.Street,
+                House = x.House,
+
+                Phone = x.Phone,
+                Email = x.Email,
+
+                FromDaSchool = x.FromDaSchool,
+                DaStudentCode = x.DaStudentCode,
+                SchoolId = x.SchoolId,
+
+                HsSpecialization = x.HsSpecialization,
+                TanzanianStudentCombination = x.TanzanianStudentCombination,
+
+                TotalScore = x.TotalScore,
+                MaxScore = x.MaxScore,
+                RelativeGrade = x.RelativeGrade,
+                EnglishScore = x.EnglishScore,
+
+                TransferInstitution = x.TransferInstitution,
+                TransferProgram = x.TransferProgram,
+                TransferInstitutionType = x.TransferInstitutionType,
+                TransferCredits = x.TransferCredits,
+                TransferLastSemEnd = x.TransferLastSemEnd?.ToDateTime(TimeOnly.MinValue),
+                TransferGpa = x.TransferGpa,
+
+                FinancialNeedStatusId = x.FinancialNeedStatusId,
+                SelfRelianceLevelId = x.SelfRelianceLevelId,
+                MotivationLevelId = x.MotivationLevelId,
+                FutureGoalsLevelId = x.FutureGoalsLevelId,
+
                 RecommendationLetterPath = x.RecommendationLetterPath,
-                RecommendationLetter = x.RecommendationLetterNotes,
-                CreatedDate = x.CreatedDate
+                RecommendationLetterNotes = x.RecommendationLetterNotes,
+
+                IsDraft = x.IsDraft,
+                IsActive = x.IsActive,
+
+                CreatedBy = x.CreatedBy,
+                CreatedDate = x.CreatedDate,
+                UpdatedBy = x.UpdatedBy,
+                UpdatedDate = x.UpdatedDate,
+
+                // ===========================
+                // Response Only
+                // ===========================
+
+                SchoolName = x.School?.SchoolName,
+
+                NationalityName = x.Nationality?.CountryName,
+                ResidenceCountryName = x.ResidenceCountry?.CountryName,
+
+                GenderName = x.Gender?.DisplayText,
+                ReligionName = x.Religion?.DisplayText,
+
+                FinancialNeedStatusName = x.FinancialNeedStatus?.DisplayText,
+                SelfRelianceLevelName = x.SelfRelianceLevel?.DisplayText,
+                MotivationLevelName = x.MotivationLevel?.DisplayText,
+                FutureGoalsLevelName = x.FutureGoalsLevel?.DisplayText,
+
             };
         }
-
+        
+        
         public async Task<PagedResultDto<StudentRequestDto>> GetByFilterAsync(StudentFilterDto filter)
         {
             var query = _context.StudentRegistrations
@@ -219,14 +389,55 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 .Where(x => x.IsActive)
                 .AsQueryable();
 
+            if (filter.StudentId.HasValue)
+                query = query.Where(x => x.StudentId == filter.StudentId);
+
+            if (filter.SchoolId.HasValue)
+                query = query.Where(x => x.SchoolId == filter.SchoolId);
+
+            if (filter.GenderId.HasValue)
+                query = query.Where(x => x.GenderId == filter.GenderId);
+
+            if (filter.ReligionId.HasValue)
+                query = query.Where(x => x.ReligionId == filter.ReligionId);
+
+            if (filter.FromDaSchool.HasValue)
+                query = query.Where(x => x.FromDaSchool == filter.FromDaSchool);
+
+            if (filter.IsOrphan.HasValue)
+                query = query.Where(x => x.IsOrphan == filter.IsOrphan);
+
+            if (filter.IsDraft.HasValue)
+                query = query.Where(x => x.IsDraft == filter.IsDraft);
+
+            if (filter.IsActive.HasValue)
+                query = query.Where(x => x.IsActive == filter.IsActive);
+
+            if (filter.StudentStatusId.HasValue)
+            {
+                query = query.Where(x =>
+                    x.StudentProgramApplications.Any(a => a.ApplicationStatus == filter.StudentStatusId.Value));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.HsSpecialization))
+            {
+                query = query.Where(x =>
+                    x.HsSpecialization != null &&
+                    x.HsSpecialization.Contains(filter.HsSpecialization));
+            }
+
             if (!string.IsNullOrWhiteSpace(filter.SearchText))
             {
-                var search = filter.SearchText.Trim().ToLower();
+                var search = filter.SearchText.Trim();
+
                 query = query.Where(x =>
-                    x.FirstName.ToLower().Contains(search) ||
-                    x.LastName.ToLower().Contains(search) ||
-                    (x.Email != null && x.Email.ToLower().Contains(search))
-                );
+                    x.FirstName.Contains(search) ||
+                    (x.SecondName != null && x.SecondName.Contains(search)) ||
+                    (x.ThirdName != null && x.ThirdName.Contains(search)) ||
+                    x.LastName.Contains(search) ||
+                    (x.Email != null && x.Email.Contains(search)) ||
+                    (x.Phone != null && x.Phone.Contains(search)) ||
+                    (x.DaStudentCode != null && x.DaStudentCode.Contains(search)));
             }
 
             var totalCount = await query.CountAsync();
@@ -244,34 +455,104 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 .Select(x => new StudentRequestDto
                 {
                     StudentId = x.StudentId,
-                    StudentFirstName = x.FirstName,
-                    StudentLastName = x.LastName,
-                    MotherName = x.MotherName,
-                    DateOfBirth = x.Dob.HasValue ? x.Dob.Value.ToDateTime(TimeOnly.MinValue) : null,
-                    Tribe = x.Tribe,
-                    Nationality = x.Nationality.HasValue ? x.Nationality.Value.ToString() : null,
-                    MasterCountry = x.ResidenceCountry.HasValue ? x.ResidenceCountry.Value.ToString() : null,
-                    AddressCity = x.City,
-                    MobileNo = x.Phone,
-                    EmailID = x.Email,
-                    Photo = x.PhotoPath,
+
+                    PhotoPath = x.PhotoPath,
+
+                    FirstName = x.FirstName,
+                    SecondName = x.SecondName,
+                    ThirdName = x.ThirdName,
+                    LastName = x.LastName,
+
+                    Dob = x.Dob.HasValue
+                        ? x.Dob.Value.ToDateTime(TimeOnly.MinValue)
+                        : null,
+
+                    StudentCode = x.StudentCode,
+
+                    SchoolId = x.SchoolId,
+                    SchoolName = x.School != null ? x.School.SchoolName : null,
+
+                    NationalityId = x.NationalityId,
+                    NationalityName = x.Nationality != null ? x.Nationality.CountryName : null,
+
+                    ResidenceCountryId = x.ResidenceCountryId,
+                    ResidenceCountryName = x.ResidenceCountry != null ? x.ResidenceCountry.CountryName : null,
+
+                    GenderId = x.GenderId,
+                    GenderName = x.Gender != null ? x.Gender.DisplayText : null,
+
+                    ReligionId = x.ReligionId,
+                    ReligionName = x.Religion != null ? x.Religion.DisplayText : null,
+
+                    FinancialNeedStatusId = x.FinancialNeedStatusId,
+                    FinancialNeedStatusName = x.FinancialNeedStatus != null ? x.FinancialNeedStatus.DisplayText : null,
+
+                    SelfRelianceLevelId = x.SelfRelianceLevelId,
+                    SelfRelianceLevelName = x.SelfRelianceLevel != null ? x.SelfRelianceLevel.DisplayText : null,
+
+                    MotivationLevelId = x.MotivationLevelId,
+                    MotivationLevelName = x.MotivationLevel != null ? x.MotivationLevel.DisplayText : null,
+
+                    FutureGoalsLevelId = x.FutureGoalsLevelId,
+                    FutureGoalsLevelName = x.FutureGoalsLevel != null ? x.FutureGoalsLevel.DisplayText : null,
+
+                    Phone = x.Phone,
+                    Email = x.Email,
+
                     IsOrphan = x.IsOrphan,
-                    OrphanNumber = x.OrphanNumber,
-                    HighSchoolDiv = x.HsSpecialization,
-                    TanzComb = x.CombinedSpec,
-                    GraduationScore = x.TotalScore.ToString(),
-                    MaxMarks = x.MaxScore,
-                    Grade = x.RelativeGrade.ToString(),
-                    EnglishPlacementTest = x.EnglishScore,
-                    SocialEcoStatus = x.FinancialNeed,
-                    SelfDettoSuccess = x.SelfReliance,
-                    MotLevelToOverComedStudying = x.Motivation,
-                    ClearTargetsFutureGoals = x.FutureGoals,
-                    RecommendationLetterPath = x.RecommendationLetterPath,
-                    RecommendationLetter = x.RecommendationLetterNotes,
-                    CreatedDate = x.CreatedDate
+                    FromDaSchool = x.FromDaSchool,
+                    DaStudentCode = x.DaStudentCode,
+
+                    IsDraft = x.IsDraft,
+                    IsActive = x.IsActive,
+
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    UpdatedBy = x.UpdatedBy,
+                    UpdatedDate = x.UpdatedDate,
+
+                    StudentApplicationStatusId = x.StudentProgramApplications
+                        .OrderByDescending(a => a.ApplicationId)
+                        .Select(a => (long?)a.ApplicationStatus)
+                        .FirstOrDefault(),
+
+                    StudentAssignedProgramName = x.StudentProgramApplications
+                        .OrderByDescending(a => a.ApplicationId)
+                        .Select(a => a.Program.ProgramName + " (" + a.Program.ProgramCode + ")")
+                        .FirstOrDefault(), 
+
+                    StudentAssignedUniversityName = x.StudentProgramApplications
+                        .OrderByDescending(a => a.ApplicationId)
+                        .Select(a => a.Program.University.UniversityName)
+                        .FirstOrDefault(),
+
+                    StudentAssignedUniversityId = x.StudentProgramApplications
+                        .OrderByDescending(a => a.ApplicationId)
+                        .Select(a => (long?)a.Program.UniversityId)
+                        .FirstOrDefault(),
+
+                    TotalScore = x.TotalScore,
+                    MaxScore = x.MaxScore,
+                    RelativeGrade = x.RelativeGrade,
+                    EnglishScore = x.EnglishScore,
+                    HsSpecialization = x.HsSpecialization,
+                    TanzanianStudentCombination = x.TanzanianStudentCombination
+
                 })
                 .ToListAsync();
+
+            foreach (var item in items)
+            {
+                item.FullName = string.Join(" ",
+                    new[]
+                    {
+                item.FirstName,
+                item.SecondName,
+                item.ThirdName,
+                item.LastName
+                    }
+                    .Where(s => !string.IsNullOrWhiteSpace(s)));
+            }
 
             return new PagedResultDto<StudentRequestDto>
             {
@@ -281,5 +562,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 PageSize = filter.PageSize
             };
         }
+   
+    
     }
 }

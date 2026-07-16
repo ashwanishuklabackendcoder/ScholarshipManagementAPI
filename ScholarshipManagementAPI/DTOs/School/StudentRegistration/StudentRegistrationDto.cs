@@ -184,4 +184,5 @@ namespace ScholarshipManagementAPI.DTOs.School.StudentRegistration
         public long CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
     }
+
 }

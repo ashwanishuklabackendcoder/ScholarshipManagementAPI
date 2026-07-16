@@ -5,133 +5,199 @@ namespace ScholarshipManagementAPI.DTOs.School.Students
 {
     public class StudentRequestDto
     {
-        public long? StudentId { get; set; }  // null / 0 = Create, >0 = Update
+        public long? StudentId { get; set; }  // For Update, null for Create
 
-        [Required]
-        public long SchoolId { get; set; }
-
-        public string? StudentNumber { get; set; }
+        #region Personal Information
 
         [StringLength(100)]
-        public string? StudentSalutation { get; set; }
+        public string? StudentCode { get; set; }
+
+        public string? PhotoPath { get; set; }
 
         [Required]
-        [StringLength(500)]
-        public string StudentFirstName { get; set; } = null!;
-
-        [StringLength(500)]
-        public string? StudentLastName { get; set; }
+        [StringLength(200)]
+        public string FirstName { get; set; } = string.Empty;
 
         [StringLength(200)]
-        public string? StudentOtherName { get; set; }
+        public string? SecondName { get; set; }
 
         [StringLength(200)]
-        public string? NIN { get; set; }
+        public string? ThirdName { get; set; }
 
-        public DateTime? DateOfBirth { get; set; }
-
-       
-        public int? Gender { get; set; }
-
+        [Required]
         [StringLength(200)]
-        public string? Tribe { get; set; }
-
-        [StringLength(200)]
-        public string? Nationality { get; set; }
-
-        [StringLength(500)]
-        public string? Address { get; set; }
-
-        [StringLength(200)]
-        public string? AddressCity { get; set; }
-
-        [StringLength(200)]
-        public string? MasterState { get; set; }
-
-        [StringLength(200)]
-        public string? MasterCountry { get; set; }
-
-        [StringLength(50)]
-        public string? ZipCode { get; set; }
-
-        [StringLength(500)]
-        [Phone]
-        public string? MobileNo { get; set; }
-
-        [StringLength(200)]
-        [EmailAddress]
-        public string? EmailID { get; set; }
-
-        [StringLength(1000)]
-        public string? Photo { get; set; }
-
-        public bool? IsOrphan { get; set; }
-
-        [StringLength(500)]
-        public string? OrphanNumber { get; set; }
-
-        public long? Religion { get; set; }
-
-        [StringLength(50)]
-        public string? GraduationScore { get; set; }
-
-        [StringLength(50)]
-        public string? Grade { get; set; }
-
-        [StringLength(50)]
-        public string? HighSchoolDiv { get; set; }
-
-        [StringLength(50)]
-        public string? TanzComb { get; set; }
-
-        [StringLength(200)]
-        public string? FatherName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
         [StringLength(200)]
         public string? MotherName { get; set; }
 
-        [StringLength(200)]
-        public string? GuardianName { get; set; }
+        public DateTime? Dob { get; set; }
+
+        public long? NationalityId { get; set; }
+
+        public long? ResidenceCountryId { get; set; }
 
         [StringLength(200)]
-        public string? SocialEcoStatus { get; set; }
+        public string? Tribe { get; set; }
+
+        public long? ReligionId { get; set; }
+
+        public long? GenderId { get; set; }
+
+        public bool? IsOrphan { get; set; }
+
+        [StringLength(100)]
+        public string? OrphanNumber { get; set; }
+
+        #endregion
+
+        #region Address
 
         [StringLength(200)]
-        public string? RecommendationLetter { get; set; }
+        public string? City { get; set; }
 
         [StringLength(200)]
-        public string? SelfDettoSuccess { get; set; }
+        public string? Village { get; set; }
 
         [StringLength(200)]
-        public string? MotLevelToOverComedStudying { get; set; }
+        public string? Block { get; set; }
 
         [StringLength(200)]
-        public string? ClearTargetsFutureGoals { get; set; }
+        public string? Street { get; set; }
 
-        [Range(0, 999999)]
-        public decimal? MaxMarks { get; set; }
+        [StringLength(200)]
+        public string? House { get; set; }
 
-        [Range(0, 999999)]
-        public decimal? EnglishPlacementTest { get; set; }
+        [StringLength(100)]
+        public string? Phone { get; set; }
+
+        [EmailAddress]
+        [StringLength(250)]
+        public string? Email { get; set; }
+
+        #endregion
+
+        #region Academic Information
+
+        public bool FromDaSchool { get; set; }
+
+        [StringLength(100)]
+        public string? DaStudentCode { get; set; }
+
+        [Required]
+        public long SchoolId { get; set; }
+
+        [StringLength(200)]
+        public string? HsSpecialization { get; set; }
+
+        [StringLength(300)]
+        public string? TanzanianStudentCombination { get; set; }
+
+        public decimal? TotalScore { get; set; }
+
+        public decimal? MaxScore { get; set; }
+
+        public decimal? RelativeGrade { get; set; }
+
+        public decimal? EnglishScore { get; set; }
+
+        #endregion
+
+        #region Transfer Student
+
+        [StringLength(300)]
+        public string? TransferInstitution { get; set; }
+
+        [StringLength(300)]
+        public string? TransferProgram { get; set; }
+
+        [StringLength(100)]
+        public string? TransferInstitutionType { get; set; }
+
+        public int? TransferCredits { get; set; }
+
+        public DateTime? TransferLastSemEnd { get; set; }
+
+        public decimal? TransferGpa { get; set; }
+
+        #endregion
+
+        #region Behaviour & Social Evaluation
+
+        public long? FinancialNeedStatusId { get; set; }
+
+        public long? SelfRelianceLevelId { get; set; }
+
+        public long? MotivationLevelId { get; set; }
+
+        public long? FutureGoalsLevelId { get; set; }
+
+        public string? RecommendationLetterPath { get; set; }
+
+        [StringLength(2000)]
+        public string? RecommendationLetterNotes { get; set; }
 
         [JsonIgnore]
         public IFormFile? RecommendationLetterFile { get; set; }
 
-        public string CreatedBy { get; set; } = string.Empty;
+        #endregion
 
-        public DateTime CreatedDate { get; set; }
+        #region Audit
 
+        public bool? IsDraft { get; set; }
 
-        // RESPOSNE
+        public bool IsActive { get; set; } = true;
 
-        public string? SchoolName { get; set; }
-        public string? ShortName { get; set; }
+        public long CreatedBy { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+
+        public long? UpdatedBy { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+
+        #endregion
+
+        #region Response Only
 
         public string? FullName { get; set; }
-        public string? FormatedCreatedBy { get; set; }
+
+        public string? SchoolName { get; set; }
+
+        public string? NationalityName { get; set; }
+
+        public string? ResidenceCountryName { get; set; }
+
+        public string? ReligionName { get; set; }
+
+        public string? GenderName { get; set; }
+
+        public string? FinancialNeedStatusName { get; set; }
+
+        public string? SelfRelianceLevelName { get; set; }
+
+        public string? MotivationLevelName { get; set; }
+
+        public string? FutureGoalsLevelName { get; set; }
+
+        public string? FormattedCreatedBy { get; set; }
+
         public string? FormattedCreatedDate { get; set; }
 
-        public string? RecommendationLetterPath { get; set; }
+        public string? FormattedUpdatedBy { get; set; }
+
+        public string? FormattedUpdatedDate { get; set; }
+
+
+
+        // Assigned Program
+        public string? StudentAssignedProgramName { get; set; }
+        public string? StudentAssignedUniversityName { get; set; }
+        public long? StudentAssignedUniversityId { get; set; }
+        public long? StudentApplicationStatusId { get; set; }
+
+
+        #endregion
 
     }
 }

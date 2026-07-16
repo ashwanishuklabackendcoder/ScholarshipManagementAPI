@@ -11,6 +11,6 @@ namespace ScholarshipManagementAPI.Services.Interface.University
         Task<bool> DeleteAsync(long id);
 
         Task<UniversityRequestDto?> GetByIdAsync(long id);
-        Task<PagedResultDto<UniversityRegistrationDto>> GetByFilterAsync(UniversityFilterDto filter);
+        Task<PagedResultDto<UniversityRequestDto>> GetByFilterAsync(UniversityFilterDto filter);
     }
 }

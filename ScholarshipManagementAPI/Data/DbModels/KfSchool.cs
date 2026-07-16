@@ -71,9 +71,9 @@ public partial class KfSchool
 
     public long SchoolStatus { get; set; }
 
-    public string? StudentCodeFormatPrefix { get; set; }
+    public string StudentCodeFormatPrefix { get; set; } = null!;
 
-    public string? StudentCodeFormatSuffix { get; set; }
+    public string StudentCodeFormatSuffix { get; set; } = null!;
 
     public int StudentSequenceNumber { get; set; }
 

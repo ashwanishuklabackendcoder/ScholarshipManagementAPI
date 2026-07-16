@@ -21,15 +21,15 @@ public partial class StudentRegistration
 
     public DateOnly? Dob { get; set; }
 
-    public long? Nationality { get; set; }
+    public long? NationalityId { get; set; }
 
-    public long? ResidenceCountry { get; set; }
+    public long? ResidenceCountryId { get; set; }
 
     public string? Tribe { get; set; }
 
-    public string? Religion { get; set; }
+    public long? ReligionId { get; set; }
 
-    public string? Gender { get; set; }
+    public long? GenderId { get; set; }
 
     public bool? IsOrphan { get; set; }
 
@@ -49,15 +49,15 @@ public partial class StudentRegistration
 
     public string? Email { get; set; }
 
-    public long? FromDaSchool { get; set; }
+    public bool FromDaSchool { get; set; }
 
     public string? DaStudentCode { get; set; }
 
-    public string? SchoolName { get; set; }
+    public long SchoolId { get; set; }
 
     public string? HsSpecialization { get; set; }
 
-    public string? CombinedSpec { get; set; }
+    public string? TanzanianStudentCombination { get; set; }
 
     public decimal? TotalScore { get; set; }
 
@@ -79,19 +79,19 @@ public partial class StudentRegistration
 
     public decimal? TransferGpa { get; set; }
 
-    public string? FinancialNeed { get; set; }
+    public long? FinancialNeedStatusId { get; set; }
 
-    public string? SelfReliance { get; set; }
+    public long? SelfRelianceLevelId { get; set; }
 
-    public string? Motivation { get; set; }
+    public long? MotivationLevelId { get; set; }
 
-    public string? FutureGoals { get; set; }
+    public long? FutureGoalsLevelId { get; set; }
 
     public string? RecommendationLetterPath { get; set; }
 
     public string? RecommendationLetterNotes { get; set; }
 
-    public bool IsDraft { get; set; }
+    public bool? IsDraft { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -103,13 +103,27 @@ public partial class StudentRegistration
 
     public DateTime? UpdatedDate { get; set; }
 
+    public string StudentCode { get; set; } = null!;
+
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual KfSchool? FromDaSchoolNavigation { get; set; }
+    public virtual ZzMasterDropDown? FinancialNeedStatus { get; set; }
 
-    public virtual ZzMasterCountry? NationalityNavigation { get; set; }
+    public virtual ZzMasterDropDown? FutureGoalsLevel { get; set; }
 
-    public virtual ZzMasterCountry? ResidenceCountryNavigation { get; set; }
+    public virtual ZzMasterDropDown? Gender { get; set; }
+
+    public virtual ZzMasterDropDown? MotivationLevel { get; set; }
+
+    public virtual ZzMasterCountry? Nationality { get; set; }
+
+    public virtual ZzMasterDropDown? Religion { get; set; }
+
+    public virtual ZzMasterCountry? ResidenceCountry { get; set; }
+
+    public virtual KfSchool School { get; set; } = null!;
+
+    public virtual ZzMasterDropDown? SelfRelianceLevel { get; set; }
 
     public virtual ICollection<StudentHistory> StudentHistories { get; set; } = new List<StudentHistory>();
 
