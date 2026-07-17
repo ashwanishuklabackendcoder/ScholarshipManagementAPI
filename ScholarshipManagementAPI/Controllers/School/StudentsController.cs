@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.School.MasterSchool;
-using ScholarshipManagementAPI.DTOs.School.StudentRequirements;
 using ScholarshipManagementAPI.DTOs.School.Students;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.School;
@@ -17,12 +15,10 @@ namespace ScholarshipManagementAPI.Controllers.School
     public class StudentsController : ControllerBase
     {
         private readonly IStudentService _service;
-        private readonly AppDbContext _context;
 
-        public StudentsController(IStudentService service, AppDbContext context)
+        public StudentsController(IStudentService service)
         {
             _service = service;
-            _context = context;
         }
 
         // -------- CREATE --------
@@ -147,38 +143,7 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        [HttpGet("sql")]
-        public IActionResult Sql()
-        {
-            try
-            {
-                var query = _context.StudentRegistrations
-                    .AsNoTracking()
-                    .Where(x => x.IsActive);
-
-                var selectQuery = query.Select(x => new StudentRequestDto
-                {
-                    StudentId = x.StudentId,
-                    FullName = string.Join(" ",
-    new[]
-    {
-        x.FirstName,
-        x.SecondName,
-        x.ThirdName,
-        x.LastName
-    }.Where(s => !string.IsNullOrWhiteSpace(s)))
-                });
-
-                var sql = selectQuery.ToQueryString();
-
-                return Ok(sql);
-            }
-            catch (Exception ex)
-            {
-                return Ok(ex.ToString());
-            }
-        }
-
+       
 
     }
 }

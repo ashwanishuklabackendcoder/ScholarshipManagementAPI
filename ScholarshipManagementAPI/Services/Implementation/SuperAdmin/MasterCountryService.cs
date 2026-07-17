@@ -211,7 +211,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             var query = _context.ZzMasterCountries
                 .AsNoTracking()
                 .Where(c => c.KfSchools
-                    .Any(s => s.AccreditationStatus == (byte)ApprovalStatus.Approved))
+                    .Any(s => s.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited))
                 .AsQueryable();
 
 
@@ -233,7 +233,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             var totalCount = await query.CountAsync();
 
             // ---------- Ordering ----------
-            query = query.OrderByDescending(c => c.KfSchools.Count(s => s.AccreditationStatus == (byte)ApprovalStatus.Approved));
+            query = query.OrderByDescending(c => c.KfSchools.Count(s => s.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited));
 
             // ---------- Pagination ----------
             if (filter.PageSize > 0)
@@ -251,7 +251,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     CountryName = c.CountryName,
                     CountryIsdCode = c.CountryIsdCode,
                     TotalSchools = c.KfSchools
-                        .Count(s => s.AccreditationStatus == (byte)ApprovalStatus.Approved)
+                        .Count(s => s.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited)
                 })
                 .ToListAsync();
 

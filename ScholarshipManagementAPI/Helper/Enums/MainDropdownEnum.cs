@@ -1,0 +1,19 @@
+﻿namespace ScholarshipManagementAPI.Helper.Enums
+{
+    public enum MainDropdownEnum
+    {
+        HighSchoolDivision = 1,
+        TanzanianStudentsCombination = 2,
+        Gender = 3,
+        SchoolType = 4,
+        SchoolStatus = 5,
+        SchoolTeachingLanguages = 6,
+        SchoolAccreditations = 7,
+        UniversityType = 8,
+        StudentGenderEligibility = 9,
+        Degrees = 10,
+        Religion = 11,
+        AssessmentLevel = 12,
+        FinancialNeedStatus = 13
+    }
+}

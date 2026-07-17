@@ -1,13 +1,16 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.StudentProgramApplication;
+using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.School;
 using System.Threading.Tasks;
 
 namespace ScholarshipManagementAPI.Controllers.School
 {
     [ApiController]
+    [Route("api/school/student-program")]
     public class StudentProgramApplicationController : ControllerBase
     {
         private readonly IStudentProgramApplicationService _service;
@@ -17,9 +20,9 @@ namespace ScholarshipManagementAPI.Controllers.School
             _service = service;
         }
 
-        // GET /students/{studentId}/candidate-programs
-        [HttpGet("students/{studentId:long}/candidate-programs")]
-        [HttpGet("api/students/{studentId:long}/candidate-programs")]
+
+        [HttpGet("candidate-programs/{studentId:long}")]
+        [Authorize]
         public async Task<IActionResult> GetCandidatePrograms(long studentId)
         {
             var data = await _service.GetCandidateProgramsAsync(studentId);
@@ -31,12 +34,12 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // POST /students/{studentId}/applications/apply
-        [HttpPost("students/{studentId:long}/applications/apply")]
-        [HttpPost("api/students/{studentId:long}/applications/apply")]
+
+        [HttpPost("apply/{studentId:long}")]
+        [Authorize]
         public async Task<IActionResult> Apply(long studentId, [FromBody] ApplyRequestDto dto)
         {
-            long userId = 2; // Default system/coordinator user id for audit trail
+            long userId = JwtClaimHelper.LoginId(User);
             var id = await _service.ApplyAsync(studentId, dto, userId);
             return Ok(new ApiResponseDto
             {
@@ -46,12 +49,12 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // DELETE /applications/{applicationId}
-        [HttpDelete("applications/{applicationId:long}")]
-        [HttpDelete("api/applications/{applicationId:long}")]
+
+        [HttpDelete("cancel/{applicationId:long}")]
+        [Authorize]
         public async Task<IActionResult> CancelApplication(long applicationId)
         {
-            long userId = 2;
+            long userId = JwtClaimHelper.LoginId(User);
             var success = await _service.CancelApplicationAsync(applicationId, userId);
             return Ok(new ApiResponseDto
             {
@@ -61,12 +64,12 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // POST /applications/{applicationId}/submit
-        [HttpPost("applications/{applicationId:long}/submit")]
-        [HttpPost("api/applications/{applicationId:long}/submit")]
+
+        [HttpPost("submit/{applicationId:long}")]
+        [Authorize]
         public async Task<IActionResult> SubmitApplication(long applicationId)
         {
-            long userId = 2;
+            long userId = JwtClaimHelper.LoginId(User);
             var success = await _service.SubmitApplicationAsync(applicationId, userId);
             return Ok(new ApiResponseDto
             {
@@ -76,9 +79,9 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // GET /applications/{applicationId}
-        [HttpGet("applications/{applicationId:long}")]
-        [HttpGet("api/applications/{applicationId:long}")]
+
+        [HttpGet("getById/{applicationId:long}")]
+        [Authorize]
         public async Task<IActionResult> GetApplication(long applicationId)
         {
             var data = await _service.GetApplicationAsync(applicationId);
@@ -100,13 +103,21 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // POST /applications/{applicationId}/documents
-        [HttpPost("applications/{applicationId:long}/documents")]
-        [HttpPost("api/applications/{applicationId:long}/documents")]
-        public async Task<IActionResult> UploadDocument(long applicationId, [FromForm] long programDocumentId, [FromForm] long documentTypeId, IFormFile file)
+
+        [HttpPost("upload-document/{applicationId:long}")]
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadDocument(long applicationId, [FromForm] UploadDocumentRequestDto request)
         {
-            long userId = 2;
-            var doc = await _service.UploadDocumentAsync(applicationId, programDocumentId, documentTypeId, file, userId);
+            long userId = JwtClaimHelper.LoginId(User);
+
+            var doc = await _service.UploadDocumentAsync(
+                applicationId,
+                request.ProgramDocumentId,
+                request.DocumentTypeId,
+                request.File,
+                userId);
+
             return Ok(new ApiResponseDto
             {
                 Success = true,
@@ -115,12 +126,12 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // DELETE /applications/{applicationId}/documents/{documentId}
-        [HttpDelete("applications/{applicationId:long}/documents/{documentId:long}")]
-        [HttpDelete("api/applications/{applicationId:long}/documents/{documentId:long}")]
+
+        [HttpDelete("delete-document/{applicationId:long}/{documentId:long}")]
+        [Authorize]
         public async Task<IActionResult> DeleteDocument(long applicationId, long documentId)
         {
-            long userId = 2;
+            long userId = JwtClaimHelper.LoginId(User);
             var success = await _service.DeleteDocumentAsync(applicationId, documentId, userId);
             return Ok(new ApiResponseDto
             {
@@ -130,9 +141,9 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // GET /applications/{applicationId}/documents
-        [HttpGet("applications/{applicationId:long}/documents")]
-        [HttpGet("api/applications/{applicationId:long}/documents")]
+
+        [HttpGet("documents/{applicationId:long}")]
+        [Authorize]
         public async Task<IActionResult> GetDocuments(long applicationId)
         {
             var data = await _service.GetDocumentsAsync(applicationId);
@@ -144,9 +155,9 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-        // GET /students/{studentId}/history
-        [HttpGet("students/{studentId:long}/history")]
-        [HttpGet("api/students/{studentId:long}/history")]
+
+        [HttpGet("history/{studentId:long}")]
+        [Authorize]
         public async Task<IActionResult> GetHistory(long studentId)
         {
             var data = await _service.GetHistoryAsync(studentId);
@@ -157,5 +168,6 @@ namespace ScholarshipManagementAPI.Controllers.School
                 Message = "Student history retrieved successfully."
             });
         }
+   
     }
 }

@@ -114,80 +114,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<DashboardDto> GetDashboardAsync()
         {
-            var now = DateTime.Now;
-            var lastMonth = now.AddMonths(-1);
-
-            // 🔹 TOTAL COUNTS
-            var nominatedCandidates = await _context.StudentReqLists.CountAsync();
-
-            var acceptedApplications = await _context.StudentReqLists
-                .CountAsync(x => x.UniAwardingstatus == (int)AwardingStatus.Awarded);
-
-            var sponsoredCandidates = await _context.StudentReqLists
-                .CountAsync(x => x.DaAdmissionStatus == (int)SponsoredStatus.Sponsored);
-
-            var rejectedApplications = await _context.StudentReqLists
-                .CountAsync(x => x.UniAwardingstatus == (int)AwardingStatus.Rejected);
-
-            // CURRENT MONTH (status-wise)
-            var nominatedThisMonth = await _context.StudentReqLists
-                .CountAsync(x => x.CreatedDate.Month == now.Month && x.CreatedDate.Year == now.Year);
-
-            var acceptedThisMonth = await _context.StudentReqLists
-                .CountAsync(x => x.UniAwardingstatus == (int)AwardingStatus.Awarded
-                    && x.CreatedDate.Month == now.Month && x.CreatedDate.Year == now.Year);
-
-            var sponsoredThisMonth = await _context.StudentReqLists
-                .CountAsync(x => x.DaAdmissionStatus == (int)SponsoredStatus.Sponsored
-                    && x.CreatedDate.Month == now.Month && x.CreatedDate.Year == now.Year);
-
-            var rejectedThisMonth = await _context.StudentReqLists
-                .CountAsync(x => x.UniAwardingstatus == (int)AwardingStatus.Rejected
-                    && x.CreatedDate.Month == now.Month && x.CreatedDate.Year == now.Year);
-
-            // LAST MONTH (status-wise)
-            var nominatedLastMonth = await _context.StudentReqLists
-                .CountAsync(x => x.CreatedDate.Month == lastMonth.Month && x.CreatedDate.Year == lastMonth.Year);
-
-            var acceptedLastMonth = await _context.StudentReqLists
-                .CountAsync(x => x.UniAwardingstatus == (int)AwardingStatus.Awarded
-                    && x.CreatedDate.Month == lastMonth.Month && x.CreatedDate.Year == lastMonth.Year);
-
-            var sponsoredLastMonth = await _context.StudentReqLists
-                .CountAsync(x => x.DaAdmissionStatus == (int)SponsoredStatus.Sponsored
-                    && x.CreatedDate.Month == lastMonth.Month && x.CreatedDate.Year == lastMonth.Year);
-
-            var rejectedLastMonth = await _context.StudentReqLists
-                .CountAsync(x => x.UniAwardingstatus == (int)AwardingStatus.Rejected
-                    && x.CreatedDate.Month == lastMonth.Month && x.CreatedDate.Year == lastMonth.Year);
-
-            // GROWTH (per status)
-            var nominatedGrowth = CalculateGrowth(nominatedThisMonth, nominatedLastMonth);
-            var acceptedGrowth = CalculateGrowth(acceptedThisMonth, acceptedLastMonth);
-            var sponsoredGrowth = CalculateGrowth(sponsoredThisMonth, sponsoredLastMonth);
-            var rejectedGrowth = CalculateGrowth(rejectedThisMonth, rejectedLastMonth);
-
             // DTO
             var dto = new DashboardDto
             {
-                NominatedCandidates = nominatedCandidates,
-                AcceptedApplications = acceptedApplications,
-                SponsoredCandidates = sponsoredCandidates,
-                RejectedApplications = rejectedApplications,
 
-                ApplicationsThisMonth = nominatedThisMonth,
-
-                // optional global
-                ApplicationsGrowthPercentage = nominatedGrowth ?? 0
             };
 
             // CARDS (correct growth applied)
             dto.Cards = new List<DashboardCardDto>
             {
-                CreateCard("nominated", "Nominated Candidates", nominatedCandidates, nominatedGrowth),
-                CreateCard("accepted", "Accepted Applications", acceptedApplications, acceptedGrowth),
-                CreateCard("sponsored", "Sponsored Candidates", sponsoredCandidates, sponsoredGrowth),
-                CreateCard("rejected", "Rejected Applications", rejectedApplications, rejectedGrowth)
+
             };
 
             return dto;

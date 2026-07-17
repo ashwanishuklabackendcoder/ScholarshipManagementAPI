@@ -225,10 +225,10 @@ builder.Services.AddScoped<IStudentProgramApplicationService, StudentProgramAppl
 
 builder.Services.AddScoped<IUniversityService, UniversityService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
-builder.Services.AddScoped<ICourseTypeService, CourseTypeService>();
-builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<ICourseRequirementService, CourseRequirementService>();
-builder.Services.AddScoped<IUniversityDocumentService, UniversityDocumentService>();
+//builder.Services.AddScoped<ICourseTypeService, CourseTypeService>();
+//builder.Services.AddScoped<ICourseService, CourseService>();
+//builder.Services.AddScoped<ICourseRequirementService, CourseRequirementService>();
+//builder.Services.AddScoped<IUniversityDocumentService, UniversityDocumentService>();
 
 builder.Services.AddScoped<IAccreditationService, AccreditationService>();
 builder.Services.AddScoped<IDonorService, DonorService>();
