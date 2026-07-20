@@ -34,18 +34,39 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Student registration not found.");
             }
 
+            var activeStatuses = new[]
+            {
+                (int)StudentApplicationStatus.Draft,
+                (int)StudentApplicationStatus.AcceptanceInProcess,
+                (int)StudentApplicationStatus.Sponsored,
+                (int)StudentApplicationStatus.Awarded,
+                (int)StudentApplicationStatus.Registered
+            };
+
+            var application = await _context.StudentProgramApplications
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.StudentId == studentId &&
+                    activeStatuses.Contains(x.ApplicationStatus));
+
             var programs = await _context.KfPrograms
                 .AsNoTracking()
                 .Include(p => p.University)
                 .Include(p => p.Faculty)
                 .Include(p => p.KfProgramDocuments)
                     .ThenInclude(pd => pd.DocumentType)
-                .Where(p => p.IsActive)
+                .Where(p =>
+                    p.IsActive &&
+                    p.AccreditationStatus == (int)AccreditationStatusEnum.Accredited)
                 .ToListAsync();
 
             var list = new List<CandidateProgramResponseDto>();
             foreach (var p in programs)
             {
+                var currentApplication = application != null && application.ProgramId == p.ProgramId
+                    ? application
+                    : null;
+
                 list.Add(new CandidateProgramResponseDto
                 {
                     ProgramId = p.ProgramId,
@@ -53,6 +74,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     ProgramCode = p.ProgramCode,
                     UniversityName = p.University.UniversityName,
                     FacultyName = p.Faculty.FacultyName,
+
+                    ApplicationId = currentApplication?.ApplicationId,
+                    ApplicationStatus = currentApplication?.ApplicationStatus,
+                    ApplicationStatusName = currentApplication != null
+                    ? Enum.GetName(typeof(StudentApplicationStatus), currentApplication.ApplicationStatus)
+                    : null,
+
                     RequiredDocuments = p.KfProgramDocuments.Select(pd => new RequiredDocumentDto
                     {
                         ProgramDocumentId = pd.ProgramDocumentId,
