@@ -562,7 +562,175 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 PageSize = filter.PageSize
             };
         }
-   
-    
+
+
+
+        public async Task<string> UploadProfilePhotoAsync(long studentId, IFormFile file, long userId)
+        {
+            var student = await _context.StudentRegistrations
+                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
+
+            if (student == null)
+                throw new CustomException("Student not found.");
+
+            if (file == null || file.Length == 0)
+                throw new CustomException("Please select a valid profile photo.");
+
+            var folder = Path.Combine(
+                "wwwroot",
+                "uploads",
+                "students",
+                student.StudentCode,
+                "profile-photo");
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            // Delete old photo
+            if (!string.IsNullOrWhiteSpace(student.PhotoPath))
+            {
+                var oldFile = Path.Combine(Directory.GetCurrentDirectory(),
+                    student.PhotoPath.TrimStart('/', '\\')
+                        .Replace('/', Path.DirectorySeparatorChar));
+
+                if (File.Exists(oldFile))
+                    File.Delete(oldFile);
+            }
+
+            var extension = Path.GetExtension(file.FileName);
+
+            var storedFileName = $"profile_{Guid.NewGuid():N}{extension}";
+
+            var physicalPath = Path.Combine(folder, storedFileName);
+
+            await using (var stream = new FileStream(physicalPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            student.PhotoPath =
+                $"/uploads/students/{student.StudentCode}/profile-photo/{storedFileName}";
+
+            student.UpdatedBy = userId;
+            student.UpdatedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return student.PhotoPath;
+        }
+
+        public async Task<bool> DeleteProfilePhotoAsync(long studentId, long userId)
+        {
+            var student = await _context.StudentRegistrations
+                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
+
+            if (student == null)
+                throw new CustomException("Student not found.");
+
+            if (string.IsNullOrWhiteSpace(student.PhotoPath))
+                return true;
+
+            var physicalPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                student.PhotoPath.TrimStart('/', '\\')
+                    .Replace('/', Path.DirectorySeparatorChar));
+
+            if (File.Exists(physicalPath))
+                File.Delete(physicalPath);
+
+            student.PhotoPath = null;
+            student.UpdatedBy = userId;
+            student.UpdatedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<string> UploadRecommendationLetterAsync(long studentId, IFormFile file, long userId)
+        {
+            var student = await _context.StudentRegistrations
+                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
+
+            if (student == null)
+                throw new CustomException("Student not found.");
+
+            if (file == null || file.Length == 0)
+                throw new CustomException("Please select a valid recommendation letter.");
+
+            var folder = Path.Combine(
+                "wwwroot",
+                "uploads",
+                "students",
+                student.StudentCode,
+                "recommendation-letter");
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            // Delete old letter
+            if (!string.IsNullOrWhiteSpace(student.RecommendationLetterPath))
+            {
+                var oldFile = Path.Combine(Directory.GetCurrentDirectory(),
+                    student.RecommendationLetterPath.TrimStart('/', '\\')
+                        .Replace('/', Path.DirectorySeparatorChar));
+
+                if (File.Exists(oldFile))
+                    File.Delete(oldFile);
+            }
+
+            var extension = Path.GetExtension(file.FileName);
+
+            var storedFileName =
+                $"recommendation_{Guid.NewGuid():N}{extension}";
+
+            var physicalPath = Path.Combine(folder, storedFileName);
+
+            await using (var stream = new FileStream(physicalPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            student.RecommendationLetterPath =
+                $"/uploads/students/{student.StudentCode}/recommendation-letter/{storedFileName}";
+
+            student.UpdatedBy = userId;
+            student.UpdatedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return student.RecommendationLetterPath;
+        }
+
+        public async Task<bool> DeleteRecommendationLetterAsync(long studentId, long userId)
+        {
+            var student = await _context.StudentRegistrations
+                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
+
+            if (student == null)
+                throw new CustomException("Student not found.");
+
+            if (string.IsNullOrWhiteSpace(student.RecommendationLetterPath))
+                return true;
+
+            var physicalPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                student.RecommendationLetterPath.TrimStart('/', '\\')
+                    .Replace('/', Path.DirectorySeparatorChar));
+
+            if (File.Exists(physicalPath))
+                File.Delete(physicalPath);
+
+            student.RecommendationLetterPath = null;
+            student.UpdatedBy = userId;
+            student.UpdatedDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+
+
     }
 }

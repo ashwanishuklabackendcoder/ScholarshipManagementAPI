@@ -17,10 +17,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
     public class StudentProgramApplicationService : IStudentProgramApplicationService
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public StudentProgramApplicationService(AppDbContext context)
+        public StudentProgramApplicationService(AppDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         public async Task<List<CandidateProgramResponseDto>> GetCandidateProgramsAsync(long studentId)
@@ -456,8 +458,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 }
 
                 // Create Upload Folder
+                //var oldFolder = Path.Combine(
+                //    "wwwroot",
+                //    "uploads",
+                //    "student-applications",
+                //    applicationId.ToString());
+                //var filePath = Path.Combine(folder, storedFileName);
+
+
                 var folder = Path.Combine(
-                    "wwwroot",
+                    _environment.WebRootPath,
                     "uploads",
                     "student-applications",
                     applicationId.ToString());
@@ -473,10 +483,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 var storedFileName =
                     $"{Guid.NewGuid():N}{extension}";
 
-                var filePath = Path.Combine(folder, storedFileName);
+                
+                var physicalPath = Path.Combine(folder, storedFileName);
+
+                var relativePath =
+                    $"/uploads/student-applications/{applicationId}/{storedFileName}";
 
                 // Save File
-                await using (var stream = new FileStream(filePath, FileMode.Create))
+                await using (var stream = new FileStream(physicalPath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
@@ -489,7 +503,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
                     OriginalFileName = file.FileName,
                     StoredFileName = storedFileName,
-                    StoragePath = filePath,
+                    StoragePath = relativePath,
 
                     ContentType = file.ContentType,
                     FileSize = file.Length,
@@ -573,11 +587,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 }
 
                 // Delete physical file
-                if (File.Exists(document.StoragePath))
+
+                var physicalPath = Path.Combine(
+                    _environment.WebRootPath,
+                    document.StoragePath.TrimStart('/')
+                    .Replace('/', Path.DirectorySeparatorChar));
+
+                if (File.Exists(physicalPath))
                 {
                     try
                     {
-                        File.Delete(document.StoragePath);
+                        File.Delete(physicalPath);
                     }
                     catch
                     {

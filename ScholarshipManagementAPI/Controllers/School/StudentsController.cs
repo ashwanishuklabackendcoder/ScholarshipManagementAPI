@@ -143,7 +143,86 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-       
+
+
+
+
+        [HttpPost("upload-profile-photo/{studentId:long}")]
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadProfilePhoto(long studentId, [FromForm] UploadFileRequestDto request)
+        {
+            long userId = JwtClaimHelper.LoginId(User);
+
+            var result = await _service.UploadProfilePhotoAsync(
+                studentId,
+                request.File,
+                userId);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Message = "Profile photo uploaded successfully.",
+                Result = result
+            });
+        }
+
+
+        [HttpDelete("delete-profile-photo/{studentId:long}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteProfilePhoto(long studentId)
+        {
+            long userId = JwtClaimHelper.LoginId(User);
+
+            await _service.DeleteProfilePhotoAsync(
+                studentId,
+                userId);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Message = "Profile photo deleted successfully."
+            });
+        }
+
+        [HttpPost("upload-recommendation-letter/{studentId:long}")]
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadRecommendationLetter(long studentId, [FromForm] UploadFileRequestDto request)
+        {
+            long userId = JwtClaimHelper.LoginId(User);
+
+            var result = await _service.UploadRecommendationLetterAsync(
+                studentId,
+                request.File,
+                userId);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Message = "Recommendation letter uploaded successfully.",
+                Result = result
+            });
+        }
+
+        [HttpDelete("delete-recommendation-letter/{studentId:long}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteRecommendationLetter(long studentId)
+        {
+            long userId = JwtClaimHelper.LoginId(User);
+
+            await _service.DeleteRecommendationLetterAsync(
+                studentId,
+                userId);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Message = "Recommendation letter deleted successfully."
+            });
+        }
+
+
 
     }
 }

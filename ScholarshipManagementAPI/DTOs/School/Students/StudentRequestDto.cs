@@ -200,4 +200,11 @@ namespace ScholarshipManagementAPI.DTOs.School.Students
         #endregion
 
     }
+
+
+    public class UploadFileRequestDto
+    {
+        public IFormFile File { get; set; } = default!;
+    }
+
 }

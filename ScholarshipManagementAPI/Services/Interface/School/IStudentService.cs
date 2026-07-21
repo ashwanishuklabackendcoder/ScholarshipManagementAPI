@@ -11,5 +11,15 @@ namespace ScholarshipManagementAPI.Services.Interface.School
 
         Task<StudentRequestDto?> GetByIdAsync(long id);
         Task<PagedResultDto<StudentRequestDto>> GetByFilterAsync(StudentFilterDto filter);
+
+
+        Task<string> UploadProfilePhotoAsync(long studentId, IFormFile file, long userId);
+
+        Task<bool> DeleteProfilePhotoAsync(long studentId, long userId);
+
+        Task<string> UploadRecommendationLetterAsync(long studentId, IFormFile file, long userId);
+
+        Task<bool> DeleteRecommendationLetterAsync(long studentId, long userId);
+    
     }
 }
