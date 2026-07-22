@@ -389,8 +389,35 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 .Where(x => x.IsActive)
                 .AsQueryable();
 
-            if (filter.StudentId.HasValue)
-                query = query.Where(x => x.StudentId == filter.StudentId);
+
+            // for coordinator nominations
+
+            if (filter.CreatedBy.HasValue)
+            {
+                //query = query.Where(x =>
+                //    x.CreatedBy == filter.CreatedBy &&
+                //    x.StudentProgramApplications.Any());
+
+                query = query.Where(x => x.StudentProgramApplications.Any(a =>
+                      a.CreatedBy == filter.CreatedBy.Value));
+
+            }
+
+            if (filter.UniversityId.HasValue)
+            {
+                query = query.Where(x =>
+                    x.StudentProgramApplications.Any(a =>
+                        a.Program.UniversityId == filter.UniversityId.Value));
+            }
+
+            if (filter.FacultyId.HasValue)
+            {
+                query = query.Where(x =>
+                    x.StudentProgramApplications.Any(a =>
+                        a.Program.FacultyId == filter.FacultyId.Value));
+            }
+
+
 
             if (filter.SchoolId.HasValue)
                 query = query.Where(x => x.SchoolId == filter.SchoolId);
@@ -437,7 +464,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     x.LastName.Contains(search) ||
                     (x.Email != null && x.Email.Contains(search)) ||
                     (x.Phone != null && x.Phone.Contains(search)) ||
-                    (x.DaStudentCode != null && x.DaStudentCode.Contains(search)));
+                    (x.DaStudentCode != null && x.DaStudentCode.Contains(search)) ||
+
+                    // for coordinator nominations
+                    x.StudentProgramApplications.Any(a =>
+                         a.Program.ProgramName.Contains(search) ||
+                         a.Program.ProgramCode.Contains(search) ||
+                         a.Program.Faculty.FacultyName.Contains(search) ||
+                         a.Program.University.UniversityName.Contains(search))
+
+                );
             }
 
             var totalCount = await query.CountAsync();

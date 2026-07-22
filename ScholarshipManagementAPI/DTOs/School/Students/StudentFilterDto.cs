@@ -4,6 +4,7 @@ namespace ScholarshipManagementAPI.DTOs.School.Students
 {
     public class StudentFilterDto : BaseFilterDto
     {
+        
         public long? StudentId { get; set; }
 
         public long? SchoolId { get; set; }
@@ -41,6 +42,11 @@ namespace ScholarshipManagementAPI.DTOs.School.Students
         public long? StudentStatusId { get; set; }
 
 
+
+        // for coordinator nominations
+        public long? CreatedBy { get; set; }
+        public long? FacultyId { get; set; }
+        public long? UniversityId { get; set; }
 
     }
 }
