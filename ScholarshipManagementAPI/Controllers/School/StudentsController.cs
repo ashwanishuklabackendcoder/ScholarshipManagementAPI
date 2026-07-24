@@ -128,7 +128,7 @@ namespace ScholarshipManagementAPI.Controllers.School
 
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetByFilter(StudentFilterDto filter)
         {
             var result = await _service.GetByFilterAsync(filter);
