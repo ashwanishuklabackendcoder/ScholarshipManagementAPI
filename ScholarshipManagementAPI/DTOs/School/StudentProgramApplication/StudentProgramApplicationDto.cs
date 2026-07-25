@@ -1,108 +1,71 @@
 using System;
-using System.Collections.Generic;
 
-namespace ScholarshipManagementAPI.DTOs.School.StudentProgramApplication
+namespace ScholarshipManagementAPI.DTOs.School.StudentProgramApplication;
+
+
+public class StudentProgramApplicationDto
 {
-    public class ApplyRequestDto
-    {
-        public long ProgramId { get; set; }
-        public string? Remarks { get; set; }
+    // Student
+    public long StudentId { get; set; }
+    public string? StudentCode { get; set; }
+    public string? PhotoPath { get; set; }
 
-    }
+    public string? FirstName { get; set; }
+    public string? SecondName { get; set; }
+    public string? ThirdName { get; set; }
+    public string? LastName { get; set; }
+    public string? FullName { get; set; }
 
-    public class StudentProgramApplicationResponseDto
-    {
-        public long ApplicationId { get; set; }
-        public long StudentId { get; set; }
+    // Personal Information
+    public string? MotherName { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public long? GenderId { get; set; }
+    public string? GenderName { get; set; }
+    public long? ReligionId { get; set; }
+    public string? ReligionName { get; set; }
+    public string? Nationality { get; set; }
+    public string? CountryOfResidence { get; set; }
+    public bool? IsDirectAidOrphan { get; set; }
+    public string? OrphanNumber { get; set; }
 
-        public long ProgramId { get; set; }
-        public string ProgramName { get; set; } = null!;
-        public string ProgramCode { get; set; } = null!;
+    // Contact
+    public string? PhoneNumber { get; set; }
+    public string? EmailAddress { get; set; }
+    public string? City { get; set; }
+    public string? Village { get; set; }
+    public string? Block { get; set; }
+    public string? Street { get; set; }
 
-        public int ApplicationStatus { get; set; }
-        public string ApplicationStatusName { get; set; } = null!;
+    // Academic Information
+    public decimal? HighSchoolTotalScore { get; set; }
+    public decimal? HighSchoolMaxScore { get; set; }
+    public decimal? HighSchoolRelativeGradeOrPercentage { get; set; }
+    public decimal? EnglishScore { get; set; }
+    public string? HsSpecialization { get; set; }
+    public string? TanzanianStudentCombination { get; set; }
 
-        public DateTime AppliedDate { get; set; }
-        public DateTime? SubmittedDate { get; set; }
+    // School
+    public long? SchoolId { get; set; }
+    public string? SchoolName { get; set; }
 
-        public string? Remarks { get; set; }
+    // Application
+    public long ApplicationId { get; set; }
+    public long ApplicationStatusId { get; set; }
+    public string? ApplicationStatusName { get; set; }
+    public DateTime? ActionDate { get; set; }
 
-        public long CreatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
+    // Program
+    public long ProgramId { get; set; }
+    public string? ProgramName { get; set; }
+    public string? ProgramCode { get; set; }
 
-        public bool IsAllRequiredDocumentsUploaded { get; set; }
+    // Faculty
+    public long FacultyId { get; set; }
+    public string? FacultyName { get; set; }
 
-        public List<RequiredDocumentDto> RequiredDocuments { get; set; } = new();
-        public List<StudentProgramDocumentResponseDto> Documents { get; set; } = new();
-
-        public string UniversityName { get; set; } = null!;
-        public string FacultyName { get; set; } = null!;
-
-    }
-
-    public class StudentProgramDocumentResponseDto
-    {
-        public long StudentProgramDocumentId { get; set; }
-        public long ApplicationId { get; set; }
-        public long ProgramDocumentId { get; set; }
-        public long DocumentTypeId { get; set; }
-        public string DocumentTypeName { get; set; } = null!;
-        public string OriginalFileName { get; set; } = null!;
-        public string StoredFileName { get; set; } = null!;
-        public string StoragePath { get; set; } = null!;
-        public string ContentType { get; set; } = null!;
-        public long FileSize { get; set; }
-        public string? ReviewerRemark { get; set; }
-        public long UploadedBy { get; set; }
-        public DateTime UploadedDate { get; set; }
-        public bool IsRequired { get; set; }
-    }
-
-    public class StudentHistoryResponseDto
-    {
-        public long StudentHistoryId { get; set; }
-        public long StudentId { get; set; }
-        public long? ApplicationId { get; set; }
-        public string Title { get; set; } = null!;
-        public string? Description { get; set; }
-        public int HistoryType { get; set; }
-        public long CreatedBy { get; set; }
-        public DateTime CreatedDate { get; set; }
-    }
-
-    public class CandidateProgramResponseDto
-    {
-        public long ProgramId { get; set; }
-        public string ProgramName { get; set; } = null!;
-        public string ProgramCode { get; set; } = null!;
-        public string UniversityName { get; set; } = null!;
-        public string FacultyName { get; set; } = null!;
+    // University
+    public long UniversityId { get; set; }
+    public string? UniversityName { get; set; }
 
 
-
-        // NEW -- if any candidate applied to any program , then this will be filled with the application id and status
-        public long? ApplicationId { get; set; }
-        public int? ApplicationStatus { get; set; }
-        public string? ApplicationStatusName { get; set; }
-
-        public List<RequiredDocumentDto> RequiredDocuments { get; set; } = new();
-    }
-
-    public class RequiredDocumentDto
-    {
-        public long ProgramDocumentId { get; set; }
-        public long DocumentTypeId { get; set; }
-        public string DocumentTypeName { get; set; } = null!;
-        public bool IsRequired { get; set; }
-        public string? Description { get; set; }
-    }
-
-    public class UploadDocumentRequestDto
-    {
-        public long ProgramDocumentId { get; set; }
-
-        public long DocumentTypeId { get; set; }
-
-        public IFormFile File { get; set; } = default!;
-    }
 }

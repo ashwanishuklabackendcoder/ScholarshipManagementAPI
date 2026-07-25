@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
+using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.StudentProgramApplication;
 using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Helper.Utilities;
@@ -167,9 +169,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 await AddHistoryAsync(
                     studentId: application.StudentId,
                     applicationId: application.ApplicationId,
-                    title: "Application Draft Created",
-                    description: $"Created draft application for program '{program.ProgramName}' ({program.ProgramCode}).",
-                    historyType: StudentHistoryTypeEnum.ApplicationDraftCreated,
+                    title: GetHistoryTitle(StudentApplicationStatus.Draft),
+                    description: GetHistoryDescription(StudentApplicationStatus.Draft),
+                    historyType: GetHistoryType(StudentApplicationStatus.Draft),
                     userId: userId);
 
                 await _context.SaveChangesAsync();
@@ -228,11 +230,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 // History
                 await AddHistoryAsync(
                     studentId: app.StudentId,
-                    applicationId: null,
+                    applicationId: app.ApplicationId,
                     title: "Application Draft Cancelled",
                     description: $"Cancelled draft application for program '{app.Program.ProgramName}'.",
                     historyType: StudentHistoryTypeEnum.ApplicationDraftCancelled,
                     userId: userId);
+
 
                 // Delete application (documents will be deleted by cascade)
                 _context.StudentProgramApplications.Remove(app);
@@ -298,12 +301,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
                 await _context.SaveChangesAsync();
 
+
                 await AddHistoryAsync(
                     studentId: app.StudentId,
                     applicationId: app.ApplicationId,
-                    title: "Application Submitted",
-                    description: $"Submitted application for program '{app.Program.ProgramName}'. Status changed to Acceptance In Process.",
-                    historyType: StudentHistoryTypeEnum.ApplicationSubmitted,
+                    title: GetHistoryTitle(StudentApplicationStatus.AcceptanceInProcess),
+                    description: GetHistoryDescription(StudentApplicationStatus.AcceptanceInProcess),
+                    historyType: GetHistoryType(StudentApplicationStatus.AcceptanceInProcess),
                     userId: userId);
 
                 await transaction.CommitAsync();
@@ -458,14 +462,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 }
 
                 // Create Upload Folder
-                //var oldFolder = Path.Combine(
-                //    "wwwroot",
-                //    "uploads",
-                //    "student-applications",
-                //    applicationId.ToString());
-                //var filePath = Path.Combine(folder, storedFileName);
-
-
                 var folder = Path.Combine(
                     _environment.WebRootPath,
                     "uploads",
@@ -704,7 +700,401 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
-        private Task AddHistoryAsync( long studentId, long? applicationId, string title,
+
+
+
+
+
+        public async Task<PagedResultDto<StudentProgramApplicationDto>> SearchAsync(
+            StudentProgramApplicationFilterDto filter,
+            LoggedInUserDto currentUser)
+        {
+            var query = _context.StudentProgramApplications
+                .AsNoTracking()
+                .AsQueryable();
+
+            // Role filter
+            switch (currentUser.StaffType)
+            {
+                case StaffType.University:
+                    {
+                        var universityId = currentUser.UniversityId
+                            ?? throw new UnauthorizedAccessException("User is not associated with a university.");
+
+                        query = query.Where(x => x.Program.UniversityId == universityId);
+                        break;
+                    }
+
+                case StaffType.Ngo:
+                    // Future NGO restriction
+                    break;
+            }
+
+            query = query.Where(x => x.ApplicationStatus != (int)StudentApplicationStatus.Draft);
+
+            if (filter.SchoolCoordinatorId.HasValue)
+            {
+                query = query.Where(x => x.Program.CreatedBy == filter.SchoolCoordinatorId);
+            }
+
+            if (filter.UniversityId.HasValue)
+                query = query.Where(x => x.Program.UniversityId == filter.UniversityId);
+
+            if (filter.FacultyId.HasValue)
+                query = query.Where(x => x.Program.FacultyId == filter.FacultyId);
+
+            if (filter.ProgramId.HasValue)
+                query = query.Where(x => x.ProgramId == filter.ProgramId);
+
+            if (filter.ApplicationStatusId.HasValue)
+                query = query.Where(x => x.ApplicationStatus == filter.ApplicationStatusId);
+
+            if (!string.IsNullOrWhiteSpace(filter.SearchText))
+            {
+                var search = filter.SearchText.Trim();
+
+                query = query.Where(x =>
+                    x.Student.FirstName.Contains(search) ||
+                    (x.Student.SecondName != null && x.Student.SecondName.Contains(search)) ||
+                    (x.Student.ThirdName != null && x.Student.ThirdName.Contains(search)) ||
+                    x.Student.LastName.Contains(search) ||
+                    (x.Student.Email != null && x.Student.Email.Contains(search)) ||
+                    (x.Student.Phone != null && x.Student.Phone.Contains(search)) ||
+                    x.Student.StudentCode.Contains(search) ||
+                    x.Program.ProgramName.Contains(search) ||
+                    x.Program.ProgramCode.Contains(search) ||
+                    x.Program.Faculty.FacultyName.Contains(search));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            query = query.OrderByDescending(x => x.SubmittedDate ?? x.AppliedDate);
+
+            if (filter.PageSize > 0)
+            {
+                query = query
+                    .Skip((filter.PageNumber - 1) * filter.PageSize)
+                    .Take(filter.PageSize);
+            }
+
+            var items = await query
+                .Select(x => new StudentProgramApplicationDto
+                {
+                    StudentId = x.StudentId,
+                    StudentCode = x.Student.StudentCode,
+                    PhotoPath = x.Student.PhotoPath,
+
+                    FirstName = x.Student.FirstName,
+                    SecondName = x.Student.SecondName,
+                    ThirdName = x.Student.ThirdName,
+                    LastName = x.Student.LastName,
+
+                    SchoolId = x.Student.SchoolId,
+                    SchoolName = x.Student.School != null ? x.Student.School.SchoolName : null,
+
+                    HighSchoolTotalScore = x.Student.TotalScore,
+                    HighSchoolMaxScore = x.Student.MaxScore,
+                    HighSchoolRelativeGradeOrPercentage = x.Student.RelativeGrade,
+                    EnglishScore = x.Student.EnglishScore,
+                    HsSpecialization = x.Student.HsSpecialization,
+                    TanzanianStudentCombination = x.Student.TanzanianStudentCombination,
+
+                    ApplicationId = x.ApplicationId,
+                    ApplicationStatusId = x.ApplicationStatus,
+                    ApplicationStatusName = ((StudentApplicationStatus)x.ApplicationStatus).ToString(),
+                    ActionDate = x.UpdatedDate ?? x.SubmittedDate ?? x.AppliedDate,
+
+                    ProgramId = x.ProgramId,
+                    ProgramName = x.Program.ProgramName,
+                    ProgramCode = x.Program.ProgramCode,
+
+                    FacultyId = x.Program.FacultyId,
+                    FacultyName = x.Program.Faculty.FacultyName,
+
+                    UniversityId = x.Program.UniversityId,
+                    UniversityName = x.Program.University.UniversityName
+                })
+                .ToListAsync();
+
+            foreach (var item in items)
+            {
+                item.FullName = string.Join(" ",
+                    new[]
+                    {
+                item.FirstName,
+                item.SecondName,
+                item.ThirdName,
+                item.LastName
+                    }.Where(s => !string.IsNullOrWhiteSpace(s)));
+            }
+
+            return new PagedResultDto<StudentProgramApplicationDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = filter.PageNumber,
+                PageSize = filter.PageSize
+            };
+        }
+
+
+        public async Task<StudentProgramApplicationDto?> GetByIdAsync(
+            long applicationId,
+            LoggedInUserDto currentUser)
+        {
+            var query = _context.StudentProgramApplications
+                .AsNoTracking()
+                .Where(x => x.ApplicationId == applicationId);
+
+            switch (currentUser.StaffType)
+            {
+                case StaffType.University:
+
+                    var universityId = currentUser.UniversityId
+                        ?? throw new UnauthorizedAccessException("User is not associated with a university.");
+
+                    query = query.Where(x => x.Program.UniversityId == universityId);
+                    break;
+
+                case StaffType.Ngo:
+                    // Future NGO restriction
+                    break;
+            }
+
+            var item = await query
+                .Select(x => new StudentProgramApplicationDto
+                {
+                    StudentId = x.StudentId,
+                    StudentCode = x.Student.StudentCode,
+                    PhotoPath = x.Student.PhotoPath,
+
+                    FirstName = x.Student.FirstName,
+                    SecondName = x.Student.SecondName,
+                    ThirdName = x.Student.ThirdName,
+                    LastName = x.Student.LastName,
+
+                    MotherName = x.Student.MotherName,
+                    DateOfBirth = x.Student.Dob.HasValue
+                        ? x.Student.Dob.Value.ToDateTime(TimeOnly.MinValue)
+                        : null,
+
+                    GenderId = x.Student.GenderId,
+                    GenderName = x.Student.Gender != null ? x.Student.Gender.DisplayText : null,
+
+                    ReligionId = x.Student.ReligionId,
+                    ReligionName = x.Student.Religion != null ? x.Student.Religion.DisplayText : null,
+
+                    Nationality = x.Student.Nationality != null ? x.Student.Nationality.CountryName : null,
+                    CountryOfResidence = x.Student.ResidenceCountry != null ? x.Student.ResidenceCountry.CountryName : null,
+
+                    IsDirectAidOrphan = x.Student.IsOrphan,
+                    OrphanNumber = x.Student.OrphanNumber,
+
+                    PhoneNumber = x.Student.Phone,
+                    EmailAddress = x.Student.Email,
+
+                    City = x.Student.City,
+                    Village = x.Student.Village,
+                    Block = x.Student.Block,
+                    Street = x.Student.Street,
+
+                    SchoolId = x.Student.SchoolId,
+                    SchoolName = x.Student.School != null ? x.Student.School.SchoolName : null,
+
+                    HighSchoolTotalScore = x.Student.TotalScore,
+                    HighSchoolMaxScore = x.Student.MaxScore,
+                    HighSchoolRelativeGradeOrPercentage = x.Student.RelativeGrade,
+                    EnglishScore = x.Student.EnglishScore,
+                    HsSpecialization = x.Student.HsSpecialization,
+                    TanzanianStudentCombination = x.Student.TanzanianStudentCombination,
+
+                    ApplicationId = x.ApplicationId,
+                    ApplicationStatusId = x.ApplicationStatus,
+                    ApplicationStatusName = ((StudentApplicationStatus)x.ApplicationStatus).ToString(),
+                    ActionDate = x.UpdatedDate ?? x.SubmittedDate ?? x.AppliedDate,
+
+                    ProgramId = x.ProgramId,
+                    ProgramName = x.Program.ProgramName,
+                    ProgramCode = x.Program.ProgramCode,
+
+                    FacultyId = x.Program.FacultyId,
+                    FacultyName = x.Program.Faculty.FacultyName,
+
+                    UniversityId = x.Program.UniversityId,
+                    UniversityName = x.Program.University.UniversityName
+                })
+                .FirstOrDefaultAsync();
+
+            if (item == null)
+                return null;
+
+            item.FullName = string.Join(" ",
+                new[]
+                {
+            item.FirstName,
+            item.SecondName,
+            item.ThirdName,
+            item.LastName
+                }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+            return item;
+        }
+
+
+        public async Task<bool> ChangeStatusAsync(long applicationId,
+            ChangeStudentProgramStatusDto dto,LoggedInUserDto currentUser)
+        {
+            var application = await _context.StudentProgramApplications
+                .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
+
+            if (application == null)
+                throw new CustomException("Application not found.");
+
+            if (!Enum.IsDefined(typeof(StudentApplicationStatus), dto.ApplicationStatusId))
+                throw new CustomException("Invalid application status.");
+
+            var currentStatus = (StudentApplicationStatus)application.ApplicationStatus;
+            var newStatus = (StudentApplicationStatus)dto.ApplicationStatusId;
+
+            if (currentStatus == newStatus)
+                throw new CustomException("Application is already in the selected status.");
+
+            if (!CanChangeStatus(currentStatus, newStatus, currentUser))
+                throw new CustomException("Invalid application status transition.");
+
+            application.ApplicationStatus = dto.ApplicationStatusId;
+
+            if (!string.IsNullOrWhiteSpace(dto.Remarks))
+                application.Remarks = dto.Remarks.Trim();
+
+            application.UpdatedBy = currentUser.LoginId;
+            application.UpdatedDate = DateTime.UtcNow;
+
+            await AddHistoryAsync(
+                application.StudentId,
+                application.ApplicationId,
+                GetHistoryTitle(newStatus),
+                GetHistoryDescription(newStatus),
+                GetHistoryType(newStatus),
+                currentUser.LoginId);
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+
+
+
+
+        private StudentHistoryTypeEnum GetHistoryType(StudentApplicationStatus status)
+        {
+            return status switch
+            {
+                StudentApplicationStatus.Draft => StudentHistoryTypeEnum.ApplicationDraftCreated,
+                StudentApplicationStatus.AcceptanceInProcess => StudentHistoryTypeEnum.ApplicationSubmittedForReview,
+
+                StudentApplicationStatus.Accepted => StudentHistoryTypeEnum.ApplicationAccepted,
+                StudentApplicationStatus.AcceptanceRejected => StudentHistoryTypeEnum.ApplicationAcceptanceRejected,
+
+                StudentApplicationStatus.AwardingInProcess => StudentHistoryTypeEnum.ApplicationAwardingInProcess,
+                StudentApplicationStatus.Awarded => StudentHistoryTypeEnum.ApplicationAwarded,
+                StudentApplicationStatus.AwardingRejected => StudentHistoryTypeEnum.ApplicationAwardingRejected,
+
+                StudentApplicationStatus.SponsoringInProcess => StudentHistoryTypeEnum.ApplicationSponsoringInProcess,
+                StudentApplicationStatus.Sponsored => StudentHistoryTypeEnum.ApplicationSponsored,
+                StudentApplicationStatus.SponsoringRejected => StudentHistoryTypeEnum.ApplicationSponsoringRejected,
+
+                StudentApplicationStatus.Registered => StudentHistoryTypeEnum.StudentRegistered,
+                StudentApplicationStatus.Graduated => StudentHistoryTypeEnum.StudentGraduated,
+
+                StudentApplicationStatus.Failed => StudentHistoryTypeEnum.StudentFailed,
+
+                StudentApplicationStatus.Dismissed => StudentHistoryTypeEnum.StudentDismissed,
+
+                _ => StudentHistoryTypeEnum.ApplicationUpdated
+            };
+        }
+
+        private string GetHistoryTitle(StudentApplicationStatus status)
+        {
+            return status switch
+            {
+                StudentApplicationStatus.Draft => "Application Draft Created",
+                StudentApplicationStatus.AcceptanceInProcess => "Application Submitted",
+
+                StudentApplicationStatus.Accepted => "Application Accepted",
+                StudentApplicationStatus.AcceptanceRejected => "Application Rejected",
+
+                StudentApplicationStatus.AwardingInProcess => "Awarding Started",
+                StudentApplicationStatus.Awarded => "Application Awarded",
+                StudentApplicationStatus.AwardingRejected => "Awarding Rejected",
+
+                StudentApplicationStatus.SponsoringInProcess => "Sponsoring Started",
+                StudentApplicationStatus.Sponsored => "Application Sponsored",
+                StudentApplicationStatus.SponsoringRejected => "Sponsoring Rejected",
+
+                StudentApplicationStatus.Registered => "Student Registered",
+                StudentApplicationStatus.Failed => "Student Failed",
+                StudentApplicationStatus.Dismissed => "Student Dismissed",
+                StudentApplicationStatus.Graduated => "Student Graduated",
+
+                _ => "Application Updated"
+            };
+        }
+
+        private string GetHistoryDescription(StudentApplicationStatus status)
+        {
+            return status switch
+            {
+                StudentApplicationStatus.Draft  => 
+                    "Student started a new program application.",
+
+                StudentApplicationStatus.Accepted =>
+                    "University accepted the student's application.",
+
+                StudentApplicationStatus.AcceptanceInProcess =>
+                    "Application submitted successfully and is awaiting university document review.",
+
+                StudentApplicationStatus.AcceptanceRejected =>
+                    "University rejected the student's application.",
+
+                StudentApplicationStatus.AwardingInProcess =>
+                    "University started the awarding review process.",
+
+                StudentApplicationStatus.Awarded =>
+                    "University completed the awarding process.",
+
+                StudentApplicationStatus.AwardingRejected =>
+                    "University rejected the application during awarding review.",
+
+                StudentApplicationStatus.SponsoringInProcess =>
+                    "Direct Aid Committee started sponsorship review.",
+
+                StudentApplicationStatus.Sponsored =>
+                    "Direct Aid Committee approved the scholarship sponsorship.",
+
+                StudentApplicationStatus.SponsoringRejected =>
+                    "Direct Aid Committee rejected the scholarship sponsorship.",
+
+                StudentApplicationStatus.Registered =>
+                    "Student registered successfully.",
+
+                StudentApplicationStatus.Graduated =>
+                    "Student graduated successfully.",
+
+                StudentApplicationStatus.Failed =>
+                    "Student was marked as failed.",
+
+                StudentApplicationStatus.Dismissed =>
+                    "Student was dismissed from the program.",
+
+                _ => "Application status updated."
+            };
+        }
+
+
+        private Task AddHistoryAsync(long studentId, long applicationId, string title,
             string description, StudentHistoryTypeEnum historyType, long userId)
         {
             _context.StudentHistories.Add(new StudentHistory
@@ -722,6 +1112,71 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
-    }
+        private bool CanChangeStatus(StudentApplicationStatus currentStatus,
+            StudentApplicationStatus newStatus, LoggedInUserDto currentUser)
+        {
+            switch (currentUser.StaffType)
+            {
+                // ======================================================
+                // University
+                // ======================================================
+                case StaffType.University:
 
+                    switch (currentStatus)
+                    {
+                        // Acceptance Review
+                        case StudentApplicationStatus.AcceptanceInProcess:
+                            return newStatus == StudentApplicationStatus.Accepted ||
+                                   newStatus == StudentApplicationStatus.AcceptanceRejected;
+
+                        // Start Awarding Review
+                        case StudentApplicationStatus.Accepted:
+                            return newStatus == StudentApplicationStatus.AwardingInProcess;
+
+                        // Awarding Review
+                        case StudentApplicationStatus.AwardingInProcess:
+                            return newStatus == StudentApplicationStatus.Awarded ||
+                                   newStatus == StudentApplicationStatus.AwardingRejected;
+
+                        // Registration
+                        case StudentApplicationStatus.Sponsored:
+                            return newStatus == StudentApplicationStatus.Registered;
+
+                        // Graduation
+                        case StudentApplicationStatus.Registered:
+                            return newStatus == StudentApplicationStatus.Graduated;
+
+                        default:
+                            return false;
+                    }
+
+
+                // ======================================================
+                // Direct Aid Committee (NGO)
+                // ======================================================
+                case StaffType.Ngo:
+
+                    switch (currentStatus)
+                    {
+                        // Start Sponsoring Review
+                        case StudentApplicationStatus.Awarded:
+                            return newStatus == StudentApplicationStatus.SponsoringInProcess;
+
+                        // Sponsoring Review
+                        case StudentApplicationStatus.SponsoringInProcess:
+                            return newStatus == StudentApplicationStatus.Sponsored ||
+                                   newStatus == StudentApplicationStatus.SponsoringRejected;
+
+                        default:
+                            return false;
+                    }
+
+                default:
+                    return false;
+            }
+        }
+
+
+
+    }
 }

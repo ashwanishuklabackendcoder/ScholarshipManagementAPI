@@ -5,23 +5,35 @@
         // Application
         ApplicationDraftCreated = 1,
         ApplicationDraftCancelled = 2,
-        ApplicationSubmitted = 3,
+        ApplicationSubmittedForReview = 3,
+        // application acceptance in process
 
         // Documents
         DocumentUploaded = 4,
         DocumentDeleted = 5,
 
-        // Future Workflow
-        ApplicationRejected = 6,
-        ApplicationSponsored = 7,
-        ApplicationAwarded = 8,
-        StudentRegistered = 9,
-        StudentFailed = 10,
-        StudentDismissed = 11,
-        StudentGraduated = 12,
+        // University - Acceptance
+        ApplicationAccepted = 6,
+        ApplicationAcceptanceRejected = 7,
+
+        // University - Awarding
+        ApplicationAwardingInProcess = 8,
+        ApplicationAwarded = 9,
+        ApplicationAwardingRejected = 10,
+
+        // Direct Aid Committee - Sponsoring
+        ApplicationSponsoringInProcess = 11,
+        ApplicationSponsored = 12,
+        ApplicationSponsoringRejected = 13,
+
+        // Student Lifecycle
+        StudentRegistered = 14,
+        StudentFailed = 15,
+        StudentDismissed = 16,
+        StudentGraduated = 17,
 
         // Administration
-        ApplicationUpdated = 13,
-        RemarksUpdated = 14
+        ApplicationUpdated = 18,
+        RemarksUpdated = 19
     }
 }

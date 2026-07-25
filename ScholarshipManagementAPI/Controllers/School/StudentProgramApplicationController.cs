@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.StudentProgramApplication;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.School;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ScholarshipManagementAPI.Controllers.School
 {
@@ -14,10 +16,12 @@ namespace ScholarshipManagementAPI.Controllers.School
     public class StudentProgramApplicationController : ControllerBase
     {
         private readonly IStudentProgramApplicationService _service;
+        private readonly CurrentUserContextService _currentUser;
 
-        public StudentProgramApplicationController(IStudentProgramApplicationService service)
+        public StudentProgramApplicationController(IStudentProgramApplicationService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
 
@@ -168,6 +172,65 @@ namespace ScholarshipManagementAPI.Controllers.School
                 Message = "Student history retrieved successfully."
             });
         }
-   
+
+
+
+        
+        [HttpPost("search")]
+        [Authorize]
+        public async Task<IActionResult> Search([FromBody] StudentProgramApplicationFilterDto filter)
+        {
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.SearchAsync(filter, currentUser);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Result = result,
+                Message = "Records loaded successfully."
+            });
+        }
+
+
+        [HttpGet("{applicationId:long}")]
+        [Authorize]
+        public async Task<IActionResult> GetById(long applicationId)
+        {
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByIdAsync(applicationId, currentUser);
+
+            if (result == null)
+                return NotFound(new ApiResponseDto
+                {
+                    Success = false,
+                    Result = result,
+                    Message = "Application not found."
+                });
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Result = result,
+                Message = "Record found."
+            });
+        }
+
+
+        [HttpPut("change-status/{applicationId:long}")]
+        [Authorize]
+        public async Task<IActionResult> ChangeStatus(long applicationId,[FromBody] ChangeStudentProgramStatusDto dto)
+        {
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            await _service.ChangeStatusAsync(applicationId, dto, currentUser);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Result = true,
+                Message = "Application status updated successfully."
+            });
+        }
+
+
     }
 }

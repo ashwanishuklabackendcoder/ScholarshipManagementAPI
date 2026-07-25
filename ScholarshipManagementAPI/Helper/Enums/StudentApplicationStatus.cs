@@ -4,18 +4,25 @@ namespace ScholarshipManagementAPI.Helper.Enums
     {
         Draft = 0,
 
+        // University - Document & Admission Review
         AcceptanceInProcess = 1,
-        AcceptanceRejected = 2,
+        Accepted = 2,
+        AcceptanceRejected = 3,
 
-        Sponsored = 3,
-        SponsoredRejected = 4,
-
+        // University - Final Award Approval
+        AwardingInProcess = 4,
         Awarded = 5,
-        AwardedRejected = 6,
+        AwardingRejected = 6,
 
-        Registered = 7,
-        Failed = 8,
-        Dismissed = 9,
-        Graduate = 10
+        // Direct Aid Committee - Scholarship Funding
+        SponsoringInProcess = 7,
+        Sponsored = 8,
+        SponsoringRejected = 9,
+
+        // University - Student Lifecycle
+        Registered = 10,
+        Failed = 11,
+        Dismissed = 12,
+        Graduated = 13
     }
 }
