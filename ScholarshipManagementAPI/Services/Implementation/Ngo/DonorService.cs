@@ -105,7 +105,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
         public async Task<DonorRequestDto?> GetByIdAsync(long id)
         {
             return await _context.MasterDonorLists
-                .Include(x => x.StudentReqLists)
                 .AsNoTracking()
                 .Where(x => x.DonorId == id)
                 .Select(x => new DonorRequestDto
@@ -119,7 +118,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
 
-                    AssociatedStudentCount = x.StudentReqLists.Count
                 })
                 .FirstOrDefaultAsync();
         }
@@ -130,7 +128,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
         public async Task<PagedResultDto<DonorRequestDto>> GetByFilterAsync(DonorFilterDto filter)
         {
             var query = _context.MasterDonorLists
-                .Include(x => x.StudentReqLists)
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -181,7 +178,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
 
-                    AssociatedStudentCount = x.StudentReqLists.Count
                 })
                 .ToListAsync();
 

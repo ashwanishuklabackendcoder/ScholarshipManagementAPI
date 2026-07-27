@@ -136,6 +136,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     (long)StaffType.Ngo => "NGO Administration",
                     (long)StaffType.SuperAdmin => "System Administration",
                     (long)StaffType.Marketing => "Marketing",
+                    (long)StaffType.Finance => "Finance",
                     _ => string.Empty
                 };
 
@@ -329,6 +330,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                                        x.StaffType == (long)StaffType.SuperAdmin ? "Super Admin" :
                                        x.StaffType == (long)StaffType.Ngo ? "NGO Admin" :
                                        x.StaffType == (long)StaffType.Marketing ? "Marketing" :
+                                       x.StaffType == (long)StaffType.Finance ? "Finance" :
                                        null,
 
                     StaffSalutation = x.StaffSalutation,
@@ -462,6 +464,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                                        x.StaffType == (long)StaffType.SuperAdmin ? "Super Admin" :
                                        x.StaffType == (long)StaffType.Ngo ? "NGO Admin" :
                                        x.StaffType == (long)StaffType.Marketing ? "Marketing" :
+                                       x.StaffType == (long)StaffType.Finance ? "Finance" :
                                        null,
 
                     StaffSalutation = x.StaffSalutation,

@@ -33,6 +33,14 @@ public partial class UsersLogin
 
     public DateTime? UpdatedDate { get; set; }
 
+    public virtual ICollection<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappingCreatedByNavigations { get; set; } = new List<HrStaffSchoolCoordinatorMapping>();
+
+    public virtual ICollection<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappingUpdatedByNavigations { get; set; } = new List<HrStaffSchoolCoordinatorMapping>();
+
+    public virtual ICollection<HrStaffUniversityCoordinatorMapping> HrStaffUniversityCoordinatorMappingCreatedByNavigations { get; set; } = new List<HrStaffUniversityCoordinatorMapping>();
+
+    public virtual ICollection<HrStaffUniversityCoordinatorMapping> HrStaffUniversityCoordinatorMappingUpdatedByNavigations { get; set; } = new List<HrStaffUniversityCoordinatorMapping>();
+
     public virtual ICollection<KfCourse> KfCourseCreatedByNavigations { get; set; } = new List<KfCourse>();
 
     public virtual ICollection<KfCourse> KfCourseUpdatedByNavigations { get; set; } = new List<KfCourse>();
@@ -55,9 +63,17 @@ public partial class UsersLogin
 
     public virtual ICollection<KfSchool> KfSchoolUpdatedByNavigations { get; set; } = new List<KfSchool>();
 
+    public virtual ICollection<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappingCreatedByNavigations { get; set; } = new List<KfSponsorshipCategoryMapping>();
+
+    public virtual ICollection<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappingUpdatedByNavigations { get; set; } = new List<KfSponsorshipCategoryMapping>();
+
     public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeCreatedByNavigations { get; set; } = new List<KfSponsorshipType>();
 
     public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeUpdatedByNavigations { get; set; } = new List<KfSponsorshipType>();
+
+    public virtual ICollection<KfStudentCategory> KfStudentCategoryCreatedByNavigations { get; set; } = new List<KfStudentCategory>();
+
+    public virtual ICollection<KfStudentCategory> KfStudentCategoryUpdatedByNavigations { get; set; } = new List<KfStudentCategory>();
 
     public virtual HrStaffMaster Staff { get; set; } = null!;
 

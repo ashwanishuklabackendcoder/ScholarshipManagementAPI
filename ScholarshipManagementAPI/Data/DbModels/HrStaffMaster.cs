@@ -52,11 +52,13 @@ public partial class HrStaffMaster
 
     public long? NgoId { get; set; }
 
-    public bool IsDraft { get; set; }
-
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
+
+    public virtual ICollection<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappings { get; set; } = new List<HrStaffSchoolCoordinatorMapping>();
+
+    public virtual ICollection<HrStaffUniversityCoordinatorMapping> HrStaffUniversityCoordinatorMappings { get; set; } = new List<HrStaffUniversityCoordinatorMapping>();
 
     public virtual KfSchool? School { get; set; }
 

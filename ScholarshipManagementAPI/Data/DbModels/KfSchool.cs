@@ -107,6 +107,8 @@ public partial class KfSchool
 
     public virtual ICollection<HrStaffMaster> HrStaffMasters { get; set; } = new List<HrStaffMaster>();
 
+    public virtual ICollection<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappings { get; set; } = new List<HrStaffSchoolCoordinatorMapping>();
+
     public virtual ZzMasterDropDown SchoolStatusNavigation { get; set; } = null!;
 
     public virtual ZzMasterDropDown SchoolTypeNavigation { get; set; } = null!;

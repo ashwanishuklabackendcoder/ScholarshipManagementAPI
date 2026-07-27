@@ -28,6 +28,4 @@ public partial class MasterDonorList
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
-
-    public virtual ICollection<StudentReqList> StudentReqLists { get; set; } = new List<StudentReqList>();
 }

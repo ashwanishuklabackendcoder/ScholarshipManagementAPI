@@ -238,7 +238,9 @@ builder.Services.AddScoped<IDonorService, DonorService>();
 builder.Services.AddScoped<IFacultiesService, FacultiesService>();
 builder.Services.AddScoped<ICoursesService, CoursesService>();
 builder.Services.AddScoped<IDocumentTypesService, DocumentTypesService>();
+builder.Services.AddScoped<ISponsorshipMatrixService, SponsorshipMatrixService>();
 builder.Services.AddScoped<ISponsorshipTypesService, SponsorshipTypesService>();
+builder.Services.AddScoped<IStudentCategoryService, StudentCategoryService>();
 builder.Services.AddScoped<IProgramsService, ProgramsService>();
 
 
