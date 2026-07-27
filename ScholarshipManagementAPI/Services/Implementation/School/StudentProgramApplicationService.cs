@@ -67,9 +67,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             var list = new List<CandidateProgramResponseDto>();
             foreach (var p in programs)
             {
-                var currentApplication = application != null && application.ProgramId == p.ProgramId
-                    ? application
-                    : null;
+                if (!IsEligible(student, p))
+                    continue;
+
+                var currentApplication = (application != null && application.ProgramId == p.ProgramId) ? application : null;
 
                 list.Add(new CandidateProgramResponseDto
                 {
@@ -1186,6 +1187,45 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     return false;
             }
         }
+
+
+
+
+
+        private bool IsEligible(StudentRegistration student, KfProgram program)
+        {
+            // Minimum Percentage
+            if (program.MinAcceptanceRate.HasValue &&
+                student.RelativeGrade < program.MinAcceptanceRate)
+            {
+                return false;
+            }
+
+            // High School Division
+            if (program.AllowedHighSchoolDivisions != null)
+            {
+                var allowedDivisions = program.AllowedHighSchoolDivisions
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim());
+
+                if (!allowedDivisions.Contains(student.HsSpecialization))
+                    return false;
+            }
+
+            // Tanzanian Combination
+            if (program.AllowedTanzanianCombinations != null)
+            {
+                var allowedCombinations = program.AllowedTanzanianCombinations
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim());
+
+                if (!allowedCombinations.Contains(student.TanzanianStudentCombination))
+                    return false;
+            }
+
+            return true;
+        }
+
 
 
 
