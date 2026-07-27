@@ -16,18 +16,18 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.MasterCountry
         [StringLength(5, ErrorMessage = "Alpha code cannot exceed 5 characters")]
         public string? CountryAlphaCode3 { get; set; }
 
-        [StringLength(50, ErrorMessage = "Currency name cannot exceed 50 characters")]
-        public string? CurrencyName { get; set; }
+        //[StringLength(50, ErrorMessage = "Currency name cannot exceed 50 characters")]
+        //public string? CurrencyName { get; set; }
 
-        [StringLength(250, ErrorMessage = "Currency fractional unit cannot exceed 250 characters")]
-        public string? CurrencyFracUnit { get; set; }
+        //[StringLength(250, ErrorMessage = "Currency fractional unit cannot exceed 250 characters")]
+        //public string? CurrencyFracUnit { get; set; }
 
-        [StringLength(250, ErrorMessage = "Currency symbol cannot exceed 250 characters")]
-        public string? CurrencySymbol { get; set; }
+        //[StringLength(250, ErrorMessage = "Currency symbol cannot exceed 250 characters")]
+        //public string? CurrencySymbol { get; set; }
 
-        [StringLength(10, ErrorMessage = "Currency abbreviation cannot exceed 10 characters")]
-        public string? CurrencyAbb { get; set; }
+        //[StringLength(10, ErrorMessage = "Currency abbreviation cannot exceed 10 characters")]
+        //public string? CurrencyAbb { get; set; }
 
-        public bool IsActive { get; set; }
+        //public bool IsActive { get; set; }
     }
 }

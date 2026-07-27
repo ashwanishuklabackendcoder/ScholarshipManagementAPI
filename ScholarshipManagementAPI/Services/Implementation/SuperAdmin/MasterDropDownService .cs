@@ -69,7 +69,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 DisplayText = dto.DisplayText,
                 ParentId = dto.ParentId == null || dto.ParentId == 0 ? null : dto.ParentId,
                 DisplaySequence = displaySequence,
-                IsActive = dto.IsActive,
+                IsActive = true,
                 IsEditable = dto.ParentId == null || dto.ParentId == 0 ? false : true,
                 IsShow = dto.IsShow,
                 ModuleId = dto.ParentId == null || dto.ParentId == 0 ? dto.ModuleId : null,
@@ -121,7 +121,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity.ParentId != null)
                 entity.DisplaySequence = dto.DisplaySequence;
 
-            entity.IsActive = dto.IsActive;
+            //entity.IsActive = dto.IsActive;
             entity.IsEditable = dto.IsEditable;
             entity.IsShow = dto.IsShow;
             entity.ModuleId = dto.ModuleId == 0 ? null : dto.ModuleId;
@@ -146,7 +146,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity.ParentId == null && !entity.IsEditable)
                 throw new CustomException("System dropdown cannot be deleted");
 
-            _context.ZzMasterDropDowns.Remove(entity);
+            entity.IsActive = false;
+            //_context.ZzMasterDropDowns.Remove(entity);
             await _context.SaveChangesAsync();
 
             return true;
@@ -159,7 +160,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             return await _context.ZzMasterDropDowns
                 .AsNoTracking()
                 .Include(x => x.Module)
-                .Where(x => x.UniqueId == id)
+                .Where(x => x.UniqueId == id && x.IsActive)
                 .Select(x => new MasterDropDownRequestDto
                 {
                     UniqueId = x.UniqueId,
@@ -182,6 +183,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         public async Task<PagedResultDto<MasterDropDownRequestDto>> GetByFilterAsync(MasterDropDownFilterDto filter)
         {
             var query = _context.ZzMasterDropDowns
+                .Where(x => x.IsActive)
                 .AsNoTracking()
                 .Include(x => x.Module)
                 .AsQueryable();

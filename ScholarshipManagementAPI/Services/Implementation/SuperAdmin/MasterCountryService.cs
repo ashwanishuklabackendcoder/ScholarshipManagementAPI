@@ -35,11 +35,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 CountryName = dto.CountryName,
                 CountryIsdCode = dto.CountryIsdCode,
                 CountryAlphaCode3 = dto.CountryAlphaCode3,
-                CurrencyName = dto.CurrencyName,
-                CurrencyFracUnit = dto.CurrencyFracUnit,
-                CurrencySymbol = dto.CurrencySymbol,
-                CurrencyAbb = dto.CurrencyAbb,
-                IsActive = dto.IsActive,
+                //CurrencyName = dto.CurrencyName,
+                //CurrencyFracUnit = dto.CurrencyFracUnit,
+                //CurrencySymbol = dto.CurrencySymbol,
+                //CurrencyAbb = dto.CurrencyAbb,
+                IsActive = true,
 
             };
 
@@ -72,11 +72,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.CountryName = dto.CountryName;
             entity.CountryIsdCode = dto.CountryIsdCode;
             entity.CountryAlphaCode3 = dto.CountryAlphaCode3;
-            entity.CurrencyName = dto.CurrencyName;
-            entity.CurrencyFracUnit = dto.CurrencyFracUnit;
-            entity.CurrencySymbol = dto.CurrencySymbol;
-            entity.CurrencyAbb = dto.CurrencyAbb;
-            entity.IsActive = dto.IsActive;
+            //entity.CurrencyName = dto.CurrencyName;
+            //entity.CurrencyFracUnit = dto.CurrencyFracUnit;
+            //entity.CurrencySymbol = dto.CurrencySymbol;
+            //entity.CurrencyAbb = dto.CurrencyAbb;
+            //
 
             await _context.SaveChangesAsync();
             return true;
@@ -92,7 +92,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity == null)
                 return false;
 
-            _context.ZzMasterCountries.Remove(entity);
+            entity.IsActive = false;
+            //_context.ZzMasterCountries.Remove(entity);
             await _context.SaveChangesAsync();
 
             return true;
@@ -104,18 +105,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         {
             return await _context.ZzMasterCountries
                 .AsNoTracking()
-                .Where(x => x.CountryId == id)
+                .Where(x => x.CountryId == id && x.IsActive)
                 .Select(x => new MasterCountryRequestDto
                 {
                     CountryId = x.CountryId,
                     CountryName = x.CountryName,
                     CountryIsdCode = x.CountryIsdCode,
                     CountryAlphaCode3 = x.CountryAlphaCode3,
-                    CurrencyName = x.CurrencyName,
-                    CurrencyFracUnit = x.CurrencyFracUnit,
-                    CurrencySymbol = x.CurrencySymbol,
-                    CurrencyAbb = x.CurrencyAbb,
-                    IsActive = x.IsActive
+                    //CurrencyName = x.CurrencyName,
+                    //CurrencyFracUnit = x.CurrencyFracUnit,
+                    //CurrencySymbol = x.CurrencySymbol,
+                    //CurrencyAbb = x.CurrencyAbb,
+                    //IsActive = x.IsActive
                 })
                 .FirstOrDefaultAsync();
         }
@@ -125,6 +126,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         public async Task<PagedResultDto<MasterCountryRequestDto>> GetByFilterAsync(MasterCountryFilterDto filter)
         {
             var query = _context.ZzMasterCountries
+                .Where(x => x.IsActive)
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -137,8 +139,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (!string.IsNullOrWhiteSpace(filter.CountryAlphaCode3))
                 query = query.Where(x => x.CountryAlphaCode3 == filter.CountryAlphaCode3);
 
-            if (!string.IsNullOrWhiteSpace(filter.CurrencyName))
-                query = query.Where(x => x.CurrencyName == filter.CurrencyName);
+            //if (!string.IsNullOrWhiteSpace(filter.CurrencyName))
+            //    query = query.Where(x => x.CurrencyName == filter.CurrencyName);
 
             if (filter.IsActive.HasValue)
                 query = query.Where(x => x.IsActive == filter.IsActive);
@@ -186,11 +188,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     CountryName = x.CountryName,
                     CountryIsdCode = x.CountryIsdCode,
                     CountryAlphaCode3 = x.CountryAlphaCode3,
-                    CurrencyName = x.CurrencyName,
-                    CurrencyFracUnit = x.CurrencyFracUnit,
-                    CurrencySymbol = x.CurrencySymbol,
-                    CurrencyAbb = x.CurrencyAbb,
-                    IsActive = x.IsActive
+                    //CurrencyName = x.CurrencyName,
+                    //CurrencyFracUnit = x.CurrencyFracUnit,
+                    //CurrencySymbol = x.CurrencySymbol,
+                    //CurrencyAbb = x.CurrencyAbb,
+                    //IsActive = x.IsActive
                 })
                 .ToListAsync();
 
