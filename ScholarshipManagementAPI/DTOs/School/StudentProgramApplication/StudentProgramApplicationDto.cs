@@ -68,4 +68,9 @@ public class StudentProgramApplicationDto
     public string? UniversityName { get; set; }
 
 
+    // UniversityCountry
+    public long? UniversityCountryId { get; set; }
+    public string? UniversityCountryName { get; set; }
+
+
 }

@@ -6,6 +6,8 @@ public class StudentProgramApplicationFilterDto : BaseFilterDto
 {
     public long? SchoolCoordinatorId { get; set; }
 
+    public long? CountryId { get; set; }
+
     public long? UniversityId { get; set; }
 
     public long? FacultyId { get; set; }

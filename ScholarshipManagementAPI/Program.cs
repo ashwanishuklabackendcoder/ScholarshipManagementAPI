@@ -240,7 +240,6 @@ builder.Services.AddScoped<ICoursesService, CoursesService>();
 builder.Services.AddScoped<IDocumentTypesService, DocumentTypesService>();
 builder.Services.AddScoped<ISponsorshipTypesService, SponsorshipTypesService>();
 builder.Services.AddScoped<IProgramsService, ProgramsService>();
-builder.Services.AddScoped<IUniversityStudentService, UniversityStudentService>();
 
 
 // Swagger configuration

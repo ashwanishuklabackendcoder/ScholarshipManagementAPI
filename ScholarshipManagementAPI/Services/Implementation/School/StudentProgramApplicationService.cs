@@ -705,14 +705,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
 
-        public async Task<PagedResultDto<StudentProgramApplicationDto>> SearchAsync(
-            StudentProgramApplicationFilterDto filter,
-            LoggedInUserDto currentUser)
+        public async Task<PagedResultDto<StudentProgramApplicationDto>> SearchAsync(StudentProgramApplicationFilterDto filter, LoggedInUserDto currentUser)
         {
             var query = _context.StudentProgramApplications
                 .AsNoTracking()
                 .AsQueryable();
 
+            // Role filter
             // Role filter
             switch (currentUser.StaffType)
             {
@@ -721,13 +720,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                         var universityId = currentUser.UniversityId
                             ?? throw new UnauthorizedAccessException("User is not associated with a university.");
 
-                        query = query.Where(x => x.Program.UniversityId == universityId);
+                        query = query.Where(x =>
+                            x.Program.UniversityId == universityId &&
+                            x.ApplicationStatus >= (int)StudentApplicationStatus.AcceptanceInProcess);
+
                         break;
                     }
 
                 case StaffType.Ngo:
-                    // Future NGO restriction
-                    break;
+                    {
+                        // NGO should only see applications after they have been awarded
+                        query = query.Where(x =>
+                            x.ApplicationStatus >= (int)StudentApplicationStatus.Awarded &&
+                            x.ApplicationStatus <= (int)StudentApplicationStatus.Sponsored);
+
+                        break;
+                    }
             }
 
             query = query.Where(x => x.ApplicationStatus != (int)StudentApplicationStatus.Draft);
@@ -736,6 +744,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             {
                 query = query.Where(x => x.Program.CreatedBy == filter.SchoolCoordinatorId);
             }
+
+            if (filter.CountryId.HasValue)
+                query = query.Where(x => x.Program.University.CountryId == filter.CountryId);
 
             if (filter.UniversityId.HasValue)
                 query = query.Where(x => x.Program.UniversityId == filter.UniversityId);
@@ -812,7 +823,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     FacultyName = x.Program.Faculty.FacultyName,
 
                     UniversityId = x.Program.UniversityId,
-                    UniversityName = x.Program.University.UniversityName
+                    UniversityName = x.Program.University.UniversityName,
+
+                    UniversityCountryId = x.Program.University.CountryId,
+                    UniversityCountryName = x.Program.University.Country != null ? x.Program.University.Country.CountryName : null
                 })
                 .ToListAsync();
 
@@ -838,9 +852,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
-        public async Task<StudentProgramApplicationDto?> GetByIdAsync(
-            long applicationId,
-            LoggedInUserDto currentUser)
+        public async Task<StudentProgramApplicationDto?> GetByIdAsync(long applicationId, LoggedInUserDto currentUser)
         {
             var query = _context.StudentProgramApplications
                 .AsNoTracking()
@@ -941,8 +953,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
-        public async Task<bool> ChangeStatusAsync(long applicationId,
-            ChangeStudentProgramStatusDto dto,LoggedInUserDto currentUser)
+        public async Task<bool> ChangeStatusAsync(long applicationId, ChangeStudentProgramStatusDto dto, LoggedInUserDto currentUser)
         {
             var application = await _context.StudentProgramApplications
                 .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
