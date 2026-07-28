@@ -561,7 +561,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                 Address = staff.PermAddress,
                 City = staff.PermCity,
-                Country = staff.PremCountry,
+                Country = staff.PermCountry?.CountryName,
                 Zip = staff.PermZipCode,
 
                 DefaultCurrencyCode = currency.code,
@@ -595,7 +595,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             staff.PermAddress = dto.Address;
             staff.PermCity = dto.City;
-            staff.PremCountry = dto.Country;
+            staff.PermCountryId = dto.Country;
             staff.PermZipCode = dto.Zip;
 
             await _context.SaveChangesAsync();

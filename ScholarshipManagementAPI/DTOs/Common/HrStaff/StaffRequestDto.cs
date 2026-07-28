@@ -44,8 +44,7 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         [StringLength(100)]
         public string? PermState { get; set; }
 
-        [StringLength(100)]
-        public string? PermCountry { get; set; }
+
 
         // ===== Contact =====
         [Required, StringLength(100)]
@@ -68,16 +67,30 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         [StringLength(500)]
         public string? Remarks { get; set; }
 
-        public string? Language { get; set; }
+        
 
         public bool IsActive { get; set; }
 
         // ===== Audit (Response mostly) =====
-        public DateTime CreatedDate { get; set; }
-        public string CreatedBy { get; set; } = string.Empty;
 
         // ===== Extra (Response convenience) =====
         public string? StaffTypeName { get; set; }      // From UsersModule
         public string? OrganisationName { get; set; }   // School / University name
+
+
+        public long? PermCountryId { get; set; }
+
+        [StringLength(100)]
+        public string? PermCountry { get; set; }
+
+        public DateTime CreatedDate { get; set; }
+        public long CreatedBy { get; set; }
+        public string? CreatedByName { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedBy { get; set; }
+        public string? UpdatedByName { get; set; }
+
+
     }
 }

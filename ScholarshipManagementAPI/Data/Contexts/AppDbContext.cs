@@ -86,7 +86,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -140,7 +139,6 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("HrStaffMaster");
 
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
@@ -154,12 +152,20 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PermZipCode).HasMaxLength(50);
             entity.Property(e => e.PersonalEmail).HasMaxLength(100);
             entity.Property(e => e.Photo).HasMaxLength(200);
-            entity.Property(e => e.PremCountry).HasMaxLength(100);
             entity.Property(e => e.Remarks).HasMaxLength(500);
             entity.Property(e => e.StaffFirstName).HasMaxLength(100);
             entity.Property(e => e.StaffLastName).HasMaxLength(100);
             entity.Property(e => e.StaffSalutation).HasMaxLength(100);
             entity.Property(e => e.StaffType).HasComment("university, school, ngo");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.HrStaffMasterCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staffs_CreatedBy");
+
+            entity.HasOne(d => d.PermCountry).WithMany(p => p.HrStaffMasters)
+                .HasForeignKey(d => d.PermCountryId)
+                .HasConstraintName("FK_kf_staffs_Country");
 
             entity.HasOne(d => d.School).WithMany(p => p.HrStaffMasters)
                 .HasForeignKey(d => d.SchoolId)
@@ -173,6 +179,10 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.University).WithMany(p => p.HrStaffMasters)
                 .HasForeignKey(d => d.UniversityId)
                 .HasConstraintName("FK_kf_staffs_University");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.HrStaffMasterUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_staffs_UpdatedBy");
         });
 
         modelBuilder.Entity<KfCourse>(entity =>
@@ -829,25 +839,29 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => e.LoginName, "UQ_UsersLogin_LoginName").IsUnique();
 
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.Language)
-                .HasMaxLength(50)
-                .HasColumnName("language");
             entity.Property(e => e.LoginName).HasMaxLength(200);
             entity.Property(e => e.Password).HasMaxLength(200);
             entity.Property(e => e.RecoveryEmail).HasMaxLength(200);
             entity.Property(e => e.TempPassDateTime).HasColumnType("datetime");
             entity.Property(e => e.TempPassword).HasMaxLength(200);
 
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InverseCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLogin_CreatedBy");
+
             entity.HasOne(d => d.Staff).WithMany(p => p.UsersLogins)
                 .HasForeignKey(d => d.StaffId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersLogin_kf_staffs");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InverseUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersLogin_UpdatedBy");
         });
 
         modelBuilder.Entity<UsersLoginRole>(entity =>

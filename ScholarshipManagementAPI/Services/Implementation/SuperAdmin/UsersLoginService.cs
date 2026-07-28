@@ -39,7 +39,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 RecoveryEmail = dto.RecoveryEmail,
 
                 IsActive = dto.IsActive,
-                Language = dto.Language,
 
                 //nullable fields - can be set later
                 //TempPassDateTime = dto.TempPassDateTime,
@@ -83,7 +82,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.IsActive = dto.IsActive;
             entity.TempPassDateTime = dto.TempPassDateTime;
             entity.TempPassword = dto.TempPassword;
-            entity.Language = dto.Language;
 
             // CREATEDBY and CREATEDDATE not updated on purpose
 
@@ -126,7 +124,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     IsActive = x.IsActive,
                     TempPassword = x.TempPassword,
                     TempPassDateTime = x.TempPassDateTime,
-                    Language = x.Language,
                     CreatedDate = x.CreatedDate,
                     CreatedBy = x.CreatedBy
                 })
@@ -154,8 +151,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 var search = filter.SearchText.Trim().ToLower();
                 query = query.Where(x =>
                     x.LoginName.ToLower().Contains(search) ||
-                    (x.RecoveryEmail != null && x.RecoveryEmail.ToLower().Contains(search)) ||
-                    (x.Language != null && x.Language.ToLower().Contains(search))
+                    (x.RecoveryEmail != null && x.RecoveryEmail.ToLower().Contains(search)) 
                 );
             }
 
@@ -185,7 +181,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     IsActive = x.IsActive,
                     TempPassword = x.TempPassword,
                     TempPassDateTime = x.TempPassDateTime,
-                    Language = x.Language,
                     CreatedDate = x.CreatedDate,
                     CreatedBy = x.CreatedBy
                 })

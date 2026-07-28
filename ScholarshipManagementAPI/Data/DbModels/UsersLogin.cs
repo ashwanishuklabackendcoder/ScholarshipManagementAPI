@@ -19,19 +19,25 @@ public partial class UsersLogin
 
     public DateTime CreatedDate { get; set; }
 
-    public string CreatedBy { get; set; } = null!;
-
-    public string? Language { get; set; }
+    public long CreatedBy { get; set; }
 
     public string? TempPassword { get; set; }
 
     public DateTime? TempPassDateTime { get; set; }
 
-    public bool IsDraft { get; set; }
-
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
+
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
+    public virtual ICollection<HrStaffMaster> HrStaffMasterCreatedByNavigations { get; set; } = new List<HrStaffMaster>();
+
+    public virtual ICollection<HrStaffMaster> HrStaffMasterUpdatedByNavigations { get; set; } = new List<HrStaffMaster>();
+
+    public virtual ICollection<UsersLogin> InverseCreatedByNavigation { get; set; } = new List<UsersLogin>();
+
+    public virtual ICollection<UsersLogin> InverseUpdatedByNavigation { get; set; } = new List<UsersLogin>();
 
     public virtual ICollection<KfCourse> KfCourseCreatedByNavigations { get; set; } = new List<KfCourse>();
 
@@ -86,6 +92,8 @@ public partial class UsersLogin
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationCreatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUpdatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<UsersLoginRole> UsersLoginRoles { get; set; } = new List<UsersLoginRole>();
 

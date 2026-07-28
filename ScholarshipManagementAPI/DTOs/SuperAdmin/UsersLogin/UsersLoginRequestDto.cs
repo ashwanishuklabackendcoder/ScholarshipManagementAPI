@@ -24,18 +24,20 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin
         [Required]
         public bool IsActive { get; set; }
 
-        [StringLength(50)]
-        public string? Language { get; set; }
+
 
         [StringLength(50)]
         public string? TempPassword { get; set; }
 
         public DateTime? TempPassDateTime { get; set; }
 
-        public DateTime? CreatedDate { get; set; }   // server-side preferred
+        public DateTime? CreatedDate { get; set; }
+        public long CreatedBy { get; set; }
+        public string? CreatedByName { get; set; }
 
-        [StringLength(200)]
-        public string CreatedBy { get; set; } = string.Empty;   // server-side preferred (from JWT claim)
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedBy { get; set; }
+        public string? UpdatedByName { get; set; }
 
 
 

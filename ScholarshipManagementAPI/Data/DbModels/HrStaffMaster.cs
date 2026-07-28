@@ -28,7 +28,7 @@ public partial class HrStaffMaster
 
     public string? PermState { get; set; }
 
-    public string? PremCountry { get; set; }
+    public long? PermCountryId { get; set; }
 
     public string OfficialEmail { get; set; } = null!;
 
@@ -44,7 +44,7 @@ public partial class HrStaffMaster
 
     public DateTime CreatedDate { get; set; }
 
-    public string CreatedBy { get; set; } = null!;
+    public long CreatedBy { get; set; }
 
     public long? UniversityId { get; set; }
 
@@ -54,15 +54,21 @@ public partial class HrStaffMaster
 
     public DateTime? UpdatedDate { get; set; }
 
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
     public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappings { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
 
     public virtual ICollection<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappings { get; set; } = new List<KfStaffUniversityCoordinatorMapping>();
+
+    public virtual ZzMasterCountry? PermCountry { get; set; }
 
     public virtual KfSchool? School { get; set; }
 
     public virtual UsersModule StaffTypeNavigation { get; set; } = null!;
 
     public virtual UnUniversityRegistration? University { get; set; }
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<UsersLogin> UsersLogins { get; set; } = new List<UsersLogin>();
 }

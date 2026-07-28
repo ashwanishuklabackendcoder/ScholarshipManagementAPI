@@ -69,7 +69,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PermCity = dto.PermCity,
                     PermZipCode = dto.PermZipCode,
                     PermState = dto.PermState,
-                    PremCountry = dto.PermCountry,
+                    PermCountryId = dto.PermCountryId,
 
                     OfficialEmail = dto.OfficialEmail,
                     PersonalEmail = dto.PersonalEmail,
@@ -104,7 +104,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                     RecoveryEmail = dto.OfficialEmail,
                     IsActive = true,
-                    Language = dto.Language,
 
                     CreatedBy = dto.CreatedBy,
                     CreatedDate = dto.CreatedDate
@@ -222,7 +221,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 staff.PermCity = dto.PermCity;
                 staff.PermZipCode = dto.PermZipCode;
                 staff.PermState = dto.PermState;
-                staff.PremCountry = dto.PermCountry;
+                staff.PermCountryId = dto.PermCountryId;
 
                 staff.OfficialEmail = dto.OfficialEmail;
                 staff.PersonalEmail = dto.PersonalEmail;
@@ -244,7 +243,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 // update from login name api
                 //usersLogin.LoginName = dto.LoginName;
                 usersLogin.RecoveryEmail = dto.OfficialEmail;
-                usersLogin.Language = dto.Language;
                 usersLogin.IsActive = dto.IsActive;
 
                 _context.UsersLogins.Update(usersLogin);
@@ -342,7 +340,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PermCity = x.PermCity,
                     PermZipCode = x.PermZipCode,
                     PermState = x.PermState,
-                    PermCountry = x.PremCountry,
+                    PermCountryId = x.PermCountryId,
                     Photo = _commonService.GetProfileImageUrl(x.Photo),
 
                     OfficialEmail = x.OfficialEmail,
@@ -354,7 +352,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                     LoginName = x.UsersLogins.Select(u => u.LoginName).FirstOrDefault(),
 
-                    Language = x.UsersLogins.Select(u => u.Language).FirstOrDefault(),
 
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate
@@ -471,7 +468,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PermCity = x.PermCity,
                     PermZipCode = x.PermZipCode,
                     PermState = x.PermState,
-                    PermCountry = x.PremCountry,
+                    PermCountryId = x.PermCountryId,
                     Photo = _commonService.GetProfileImageUrl(x.Photo),
            
                     OfficialEmail = x.OfficialEmail,
@@ -483,7 +480,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                     LoginName = x.UsersLogins.Select(u => u.LoginName).FirstOrDefault(),
 
-                    Language = x.UsersLogins.Select(u => u.Language).FirstOrDefault(),
 
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate
