@@ -92,6 +92,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
             await _context.SaveChangesAsync();
             return true;
+
+
         }
    
 

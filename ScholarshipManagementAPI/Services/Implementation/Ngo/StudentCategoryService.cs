@@ -29,10 +29,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 throw new CustomException("Student category with same name already exists.");
             }
 
+            // Automatically assign the next display order.
+            // This can be replaced later if manual ordering is introduced.
+            var nextDisplayOrder = await _context.KfStudentCategories
+                .Select(x => (int?)x.DisplayOrder)
+                .MaxAsync() ?? 0;
+
             var entity = new KfStudentCategory
             {
                 CategoryName = dto.CategoryName,
-                DisplayOrder = dto.DisplayOrder,                  
+                DisplayOrder = nextDisplayOrder + 1,                    // Assign the next display order
                 IsActive = true,
 
                 CreatedDate = dto.CreatedDate ?? DateTime.UtcNow,       // always server-side
@@ -67,7 +73,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             }
 
             entity.CategoryName = dto.CategoryName;
-            entity.DisplayOrder = dto.DisplayOrder;
+            //entity.DisplayOrder = dto.DisplayOrder;
 
             entity.UpdatedDate = dto.UpdatedDate;     // always server-side
             entity.UpdatedBy = dto.UpdatedBy;         // always server-side
@@ -153,7 +159,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             var totalCount = await query.CountAsync();
 
             // ---------- Ordering ----------
-            query = query.OrderBy(x => x.StudentCategoryId);
+            query = query.OrderBy(x => x.DisplayOrder);
 
             // ---------- Pagination rule ----------
             if (filter.PageSize > 0)

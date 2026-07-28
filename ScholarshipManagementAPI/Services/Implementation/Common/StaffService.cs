@@ -37,12 +37,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             ValidateOrganisation(dto);
             //ApplyStaffTypeAndOrganisationRules(dto,)
 
-            // ---------- 2. Duplicate login check ----------
-            //if (await _context.UsersLogins
-            //    .AnyAsync(x => x.LoginName == dto.LoginName))
-            //{
-            //    throw new CustomException("User with same login name already exists");
-            //}
+            // ---------- 2. Duplicate email check ----------
+            if (await _context.UsersLogins
+                .AnyAsync(x => x.ForgotEmail == dto.OfficeEmail))
+            {
+                throw new CustomException("User with same email already exists");
+            }
 
             // ---------- 3. Begin transaction ----------
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -189,12 +189,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 }
             }
 
-            // ---------- 4. Begin transaction ----------
+            // ---------- 4. Duplicate email check ----------
+            if (await _context.UsersLogins
+                .AnyAsync(x => x.ForgotEmail == dto.OfficeEmail && x.StaffId != dto.StaffId))
+            {
+                throw new CustomException("User with same email already exists");
+            }
+
+            // ---------- 5. Begin transaction ----------
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                // ---------- 5. Update HrStaffMaster ----------
+                // ---------- 6. Update HrStaffMaster ----------
                 staff.StaffType = dto.StaffType;
 
                 // reset all organisation mappings first
@@ -233,7 +240,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 _context.HrStaffMasters.Update(staff);
                 await _context.SaveChangesAsync();
 
-                // ---------- 6. Update UsersLogin ----------
+                // ---------- 7. Update UsersLogin ----------
                 var usersLogin = await _context.UsersLogins
                     .FirstOrDefaultAsync(x => x.StaffId == dto.StaffId);
 
@@ -249,7 +256,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 _context.UsersLogins.Update(usersLogin);
                 await _context.SaveChangesAsync();
 
-                // ---------- 6. Commit ----------
+                // ---------- 8. Commit ----------
                 await transaction.CommitAsync();
 
                 return true;
