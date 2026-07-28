@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
@@ -36,7 +36,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
                 LoginName = dto.LoginName,
                 Password = dto.Password,
-                ForgotEmail = dto.ForgotEmail,
+                RecoveryEmail = dto.RecoveryEmail,
 
                 IsActive = dto.IsActive,
                 Language = dto.Language,
@@ -79,7 +79,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.StaffId = dto.StaffId;
             entity.LoginName = dto.LoginName;
             entity.Password = dto.Password;
-            entity.ForgotEmail = dto.ForgotEmail;
+            entity.RecoveryEmail = dto.RecoveryEmail;
             entity.IsActive = dto.IsActive;
             entity.TempPassDateTime = dto.TempPassDateTime;
             entity.TempPassword = dto.TempPassword;
@@ -122,7 +122,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     StaffId = x.StaffId,
                     LoginName = x.LoginName,
                     Password = x.Password,
-                    ForgotEmail = x.ForgotEmail,
+                    RecoveryEmail = x.RecoveryEmail,
                     IsActive = x.IsActive,
                     TempPassword = x.TempPassword,
                     TempPassDateTime = x.TempPassDateTime,
@@ -154,7 +154,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 var search = filter.SearchText.Trim().ToLower();
                 query = query.Where(x =>
                     x.LoginName.ToLower().Contains(search) ||
-                    (x.ForgotEmail != null && x.ForgotEmail.ToLower().Contains(search)) ||
+                    (x.RecoveryEmail != null && x.RecoveryEmail.ToLower().Contains(search)) ||
                     (x.Language != null && x.Language.ToLower().Contains(search))
                 );
             }
@@ -181,7 +181,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     StaffId = x.StaffId,
                     LoginName = x.LoginName,
                     Password = x.Password,
-                    ForgotEmail = x.ForgotEmail,
+                    RecoveryEmail = x.RecoveryEmail,
                     IsActive = x.IsActive,
                     TempPassword = x.TempPassword,
                     TempPassDateTime = x.TempPassDateTime,

@@ -22,10 +22,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
 
-    public virtual DbSet<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappings { get; set; }
-
-    public virtual DbSet<HrStaffUniversityCoordinatorMapping> HrStaffUniversityCoordinatorMappings { get; set; }
-
     public virtual DbSet<KfCourse> KfCourses { get; set; }
 
     public virtual DbSet<KfCourseFaculty> KfCourseFaculties { get; set; }
@@ -47,6 +43,10 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappings { get; set; }
 
     public virtual DbSet<KfSponsorshipType> KfSponsorshipTypes { get; set; }
+
+    public virtual DbSet<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappings { get; set; }
+
+    public virtual DbSet<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappings { get; set; }
 
     public virtual DbSet<KfStudentCategory> KfStudentCategories { get; set; }
 
@@ -86,9 +86,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -139,7 +136,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<HrStaffMaster>(entity =>
         {
-            entity.HasKey(e => e.StaffId);
+            entity.HasKey(e => e.StaffId).HasName("PK_kf_staffs");
 
             entity.ToTable("HrStaffMaster");
 
@@ -149,13 +146,13 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("smalldatetime");
             entity.Property(e => e.Gender).HasMaxLength(50);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.MobileNo).HasMaxLength(100);
-            entity.Property(e => e.OfficeEmail).HasMaxLength(100);
+            entity.Property(e => e.MobileNumber).HasMaxLength(100);
+            entity.Property(e => e.OfficialEmail).HasMaxLength(100);
             entity.Property(e => e.PermAddress).HasMaxLength(200);
             entity.Property(e => e.PermCity).HasMaxLength(100);
             entity.Property(e => e.PermState).HasMaxLength(100);
             entity.Property(e => e.PermZipCode).HasMaxLength(50);
-            entity.Property(e => e.PersonelEmail).HasMaxLength(100);
+            entity.Property(e => e.PersonalEmail).HasMaxLength(100);
             entity.Property(e => e.Photo).HasMaxLength(200);
             entity.Property(e => e.PremCountry).HasMaxLength(100);
             entity.Property(e => e.Remarks).HasMaxLength(500);
@@ -166,86 +163,16 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.School).WithMany(p => p.HrStaffMasters)
                 .HasForeignKey(d => d.SchoolId)
-                .HasConstraintName("FK_Staff_kf_schools");
+                .HasConstraintName("FK_kf_staffs_School");
 
             entity.HasOne(d => d.StaffTypeNavigation).WithMany(p => p.HrStaffMasters)
                 .HasForeignKey(d => d.StaffType)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HrStaff_StaffType");
+                .HasConstraintName("FK_kf_staffs_StaffType");
 
             entity.HasOne(d => d.University).WithMany(p => p.HrStaffMasters)
                 .HasForeignKey(d => d.UniversityId)
-                .HasConstraintName("FK_HrStaffMaster_UniversityId_UnUniversityRegistration");
-        });
-
-        modelBuilder.Entity<HrStaffSchoolCoordinatorMapping>(entity =>
-        {
-            entity.HasKey(e => e.StaffSchoolCoordinatorMappingId);
-
-            entity.ToTable("HrStaffSchoolCoordinatorMapping");
-
-            entity.HasIndex(e => e.SchoolId, "IX_HrStaffSchoolCoordinatorMapping_SchoolId");
-
-            entity.HasIndex(e => e.StaffId, "IX_HrStaffSchoolCoordinatorMapping_StaffId");
-
-            entity.HasIndex(e => new { e.StaffId, e.SchoolId }, "UQ_HrStaffSchoolCoordinatorMapping").IsUnique();
-
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.HrStaffSchoolCoordinatorMappingCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HrStaffSchoolCoordinatorMapping_CreatedBy");
-
-            entity.HasOne(d => d.School).WithMany(p => p.HrStaffSchoolCoordinatorMappings)
-                .HasForeignKey(d => d.SchoolId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HrStaffSchoolCoordinatorMapping_School");
-
-            entity.HasOne(d => d.Staff).WithMany(p => p.HrStaffSchoolCoordinatorMappings)
-                .HasForeignKey(d => d.StaffId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HrStaffSchoolCoordinatorMapping_Staff");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.HrStaffSchoolCoordinatorMappingUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_HrStaffSchoolCoordinatorMapping_UpdatedBy");
-        });
-
-        modelBuilder.Entity<HrStaffUniversityCoordinatorMapping>(entity =>
-        {
-            entity.HasKey(e => e.StaffUniversityCoordinatorMappingId);
-
-            entity.ToTable("HrStaffUniversityCoordinatorMapping");
-
-            entity.HasIndex(e => e.StaffId, "IX_HrStaffUniversityCoordinatorMapping_StaffId");
-
-            entity.HasIndex(e => e.UniversityId, "IX_HrStaffUniversityCoordinatorMapping_UniversityId");
-
-            entity.HasIndex(e => new { e.StaffId, e.UniversityId }, "UQ_HrStaffUniversityCoordinatorMapping").IsUnique();
-
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.HrStaffUniversityCoordinatorMappingCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HrStaffUniversityCoordinatorMapping_CreatedBy");
-
-            entity.HasOne(d => d.Staff).WithMany(p => p.HrStaffUniversityCoordinatorMappings)
-                .HasForeignKey(d => d.StaffId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HrStaffUniversityCoordinatorMapping_Staff");
-
-            entity.HasOne(d => d.University).WithMany(p => p.HrStaffUniversityCoordinatorMappings)
-                .HasForeignKey(d => d.UniversityId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_HrStaffUniversityCoordinatorMapping_University");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.HrStaffUniversityCoordinatorMappingUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_HrStaffUniversityCoordinatorMapping_UpdatedBy");
+                .HasConstraintName("FK_kf_staffs_University");
         });
 
         modelBuilder.Entity<KfCourse>(entity =>
@@ -567,6 +494,76 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_kf_sponsorship_types_UpdatedBy_UsersLogin");
         });
 
+        modelBuilder.Entity<KfStaffSchoolCoordinatorMapping>(entity =>
+        {
+            entity.HasKey(e => e.StaffSchoolCoordinatorMappingId);
+
+            entity.ToTable("kf_staff_school_coordinator_mapping");
+
+            entity.HasIndex(e => e.SchoolId, "IX_HrStaffSchoolCoordinatorMapping_SchoolId");
+
+            entity.HasIndex(e => e.StaffId, "IX_HrStaffSchoolCoordinatorMapping_StaffId");
+
+            entity.HasIndex(e => new { e.StaffId, e.SchoolId }, "UQ_kf_staff_school_coordinator_mapping").IsUnique();
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStaffSchoolCoordinatorMappingCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staff_school_coordinator_mapping_CreatedBy");
+
+            entity.HasOne(d => d.School).WithMany(p => p.KfStaffSchoolCoordinatorMappings)
+                .HasForeignKey(d => d.SchoolId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staff_school_coordinator_mapping_School");
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.KfStaffSchoolCoordinatorMappings)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staff_school_coordinator_mapping_Staff");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStaffSchoolCoordinatorMappingUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_staff_school_coordinator_mapping_UpdatedBy");
+        });
+
+        modelBuilder.Entity<KfStaffUniversityCoordinatorMapping>(entity =>
+        {
+            entity.HasKey(e => e.StaffUniversityCoordinatorMappingId);
+
+            entity.ToTable("kf_staff_university_coordinator_mapping");
+
+            entity.HasIndex(e => e.StaffId, "IX_HrStaffUniversityCoordinatorMapping_StaffId");
+
+            entity.HasIndex(e => e.UniversityId, "IX_HrStaffUniversityCoordinatorMapping_UniversityId");
+
+            entity.HasIndex(e => new { e.StaffId, e.UniversityId }, "UQ_kf_staff_university_coordinator_mapping").IsUnique();
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStaffUniversityCoordinatorMappingCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staff_university_coordinator_mapping_CreatedBy");
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.KfStaffUniversityCoordinatorMappings)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staff_university_coordinator_mapping_Staff");
+
+            entity.HasOne(d => d.University).WithMany(p => p.KfStaffUniversityCoordinatorMappings)
+                .HasForeignKey(d => d.UniversityId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staff_university_coordinator_mapping_University");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStaffUniversityCoordinatorMappingUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_staff_university_coordinator_mapping_UpdatedBy");
+        });
+
         modelBuilder.Entity<KfStudentCategory>(entity =>
         {
             entity.HasKey(e => e.StudentCategoryId);
@@ -836,7 +833,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
-            entity.Property(e => e.ForgotEmail).HasMaxLength(200);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDraft).HasDefaultValue(true);
             entity.Property(e => e.Language)
@@ -844,12 +840,14 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("language");
             entity.Property(e => e.LoginName).HasMaxLength(200);
             entity.Property(e => e.Password).HasMaxLength(200);
+            entity.Property(e => e.RecoveryEmail).HasMaxLength(200);
             entity.Property(e => e.TempPassDateTime).HasColumnType("datetime");
             entity.Property(e => e.TempPassword).HasMaxLength(200);
 
             entity.HasOne(d => d.Staff).WithMany(p => p.UsersLogins)
                 .HasForeignKey(d => d.StaffId)
-                .HasConstraintName("FK_UsersLogin_HrStaffMaster");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLogin_kf_staffs");
         });
 
         modelBuilder.Entity<UsersLoginRole>(entity =>

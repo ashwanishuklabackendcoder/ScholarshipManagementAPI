@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
 {
@@ -16,7 +16,6 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         // explicit organisation mapping
         public long? UniversityId { get; set; }
         public long? SchoolId { get; set; }
-        public long? NgoId { get; set; }
 
 
         // ===== Personal Info =====
@@ -50,13 +49,13 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
 
         // ===== Contact =====
         [Required, StringLength(100)]
-        public string OfficeEmail { get; set; } = string.Empty;
+        public string OfficialEmail { get; set; } = string.Empty;
 
         [EmailAddress, StringLength(100)]
-        public string? PersonelEmail { get; set; }
+        public string? PersonalEmail { get; set; }
 
         [StringLength(100)]
-        public string? MobileNo { get; set; }
+        public string? MobileNumber { get; set; }
 
         // ===== Login Info =====
         [StringLength(200)]

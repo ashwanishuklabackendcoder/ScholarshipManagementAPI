@@ -186,12 +186,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             var user = await _context.UsersLogins
                 .Where(x =>
-                    x.ForgotEmail == request.EmailOrUsername.Trim() &&
+                    x.RecoveryEmail == request.EmailOrUsername.Trim() &&
                     x.IsActive)
                 .Select(x => new
                 {
                     x.LoginName,
-                    x.ForgotEmail,
+                    x.RecoveryEmail,
                     x.IsActive,
                     x.Staff.StaffSalutation,
                     x.Staff.StaffFirstName,
@@ -219,7 +219,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
 
                 await _notificationService.SendForgotUsernameAsync(
-                    user.ForgotEmail,
+                    user.RecoveryEmail,
                     user.LoginName,
                     fullName,
                     organizationName
@@ -241,7 +241,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 .Include(x => x.Staff)
                     .ThenInclude(s => s.School)
                 .FirstOrDefaultAsync(x =>
-                    (x.ForgotEmail.Trim() == request.EmailOrUsername.Trim() 
+                    (x.RecoveryEmail.Trim() == request.EmailOrUsername.Trim() 
                     || x.LoginName.Trim() == request.EmailOrUsername.Trim())
                     && x.IsActive);
 
@@ -285,7 +285,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 .Trim();
 
             await _notificationService.SendForgotPasswordAsync(
-                user.ForgotEmail,
+                user.RecoveryEmail,
                 user.LoginName,
                 fullName,
                 organizationName,
@@ -371,7 +371,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             //var user = await _context.UsersLogins
             //    .Where(x =>
             //        (x.LoginName == request.EmailOrUsername.Trim() ||
-            //        x.ForgotEmail == request.EmailOrUsername.Trim()) &&
+            //        x.RecoveryEmail == request.EmailOrUsername.Trim()) &&
             //        x.IsActive)
             //    .FirstOrDefaultAsync();
 
@@ -382,7 +382,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     .ThenInclude(s => s.School)
                 .FirstOrDefaultAsync(x =>
                     (x.LoginName == request.EmailOrUsername.Trim() ||
-                    x.ForgotEmail == request.EmailOrUsername.Trim()) &&
+                    x.RecoveryEmail == request.EmailOrUsername.Trim()) &&
                     x.IsActive);
 
             if (user != null)
@@ -421,7 +421,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     .Trim();
 
                 await _notificationService.SendLoginCodeAsync(
-                    user.ForgotEmail,
+                    user.RecoveryEmail,
                     user.LoginName,
                     fullName,
                     organizationName,
@@ -445,7 +445,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             var user = await _context.UsersLogins
                 .Where(x =>
                     (x.LoginName == request.EmailOrUsername ||
-                     x.ForgotEmail == request.EmailOrUsername) &&
+                     x.RecoveryEmail == request.EmailOrUsername) &&
                     x.IsActive)
                 .FirstOrDefaultAsync();
 
@@ -493,12 +493,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 .ThenInclude(s => s.School)
                 .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
 
-            //var user = await _context.UsersLogins
-            //    .Include(x => x.UsersLoginRoles)
-            //    .ThenInclude(x => x.Role)
-            //    .ThenInclude(x => x.Module)
-            //    .Include(x => x.Staff)                                  
-            //    .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
 
             if (user == null)
                 throw new CustomException("User not found.");
@@ -552,7 +546,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 StaffType = (StaffType)staff.StaffType,
                 UniversityId = staff.UniversityId,
                 SchoolId = staff.SchoolId,
-                NgoId = staff.NgoId,
                 OrganizationName = organizationName,
 
                 ProfilePhoto = _commonService.GetProfileImageUrl(staff.Photo),
@@ -560,10 +553,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 Salutation = staff.StaffSalutation,
                 FirstName = staff.StaffFirstName ?? string.Empty,
                 LastName = staff.StaffLastName ?? string.Empty,
-                Mobile = staff.MobileNo,
-                PersonalEmail = staff.PersonelEmail,
+                Mobile = staff.MobileNumber,
+                PersonalEmail = staff.PersonalEmail,
 
-                OfficialEmail = user.ForgotEmail ?? string.Empty,
+                OfficialEmail = user.RecoveryEmail ?? string.Empty,
                 Status = user.IsActive,
 
                 Address = staff.PermAddress,
@@ -597,8 +590,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             staff.StaffSalutation = dto.Saluatation;
             staff.StaffFirstName = dto.FirstName;
             staff.StaffLastName = dto.LastName;
-            staff.MobileNo = dto.Mobile;
-            staff.PersonelEmail = dto.PersonalEmail;
+            staff.MobileNumber = dto.Mobile;
+            staff.PersonalEmail = dto.PersonalEmail;
 
             staff.PermAddress = dto.Address;
             staff.PermCity = dto.City;

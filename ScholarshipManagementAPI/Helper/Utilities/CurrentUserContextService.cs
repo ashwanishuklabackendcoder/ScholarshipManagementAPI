@@ -46,7 +46,6 @@ namespace ScholarshipManagementAPI.Helper.Utilities
                     x.Staff.StaffType,
                     x.Staff.UniversityId,
                     x.Staff.SchoolId,
-                    x.Staff.NgoId,
                     x.Staff
                 })
                 .FirstOrDefaultAsync();
@@ -72,7 +71,6 @@ namespace ScholarshipManagementAPI.Helper.Utilities
                 StaffId = staffInfo.StaffId,
                 UniversityId = staffInfo.UniversityId,
                 SchoolId = staffInfo.SchoolId,
-                NgoId = staffInfo.NgoId,
 
                 DefaultCurrencyCode = currency.code,
                 DefaultCurrencyName = currency.name,

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin
 {
@@ -19,7 +19,7 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin
 
         [EmailAddress(ErrorMessage = "Invalid email format")]
         [StringLength(200)]
-        public string ForgotEmail { get; set; } = string.Empty;
+        public string RecoveryEmail { get; set; } = string.Empty;
 
         [Required]
         public bool IsActive { get; set; }

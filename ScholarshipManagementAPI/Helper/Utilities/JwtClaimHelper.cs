@@ -1,4 +1,4 @@
-﻿using ScholarshipManagementAPI.DTOs.Common.Auth;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.Helper.Enums;
 using System.Reflection;
 using System.Security.Claims;
@@ -85,7 +85,6 @@ namespace ScholarshipManagementAPI.Helper.Utilities
 
                 //UniversityId = GetNullableLongClaim(user, JwtClaimTypes.UniversityId),
                 //SchoolId = GetNullableLongClaim(user, JwtClaimTypes.SchoolId),
-                //NgoId = GetNullableLongClaim(user, JwtClaimTypes.NgoId)
             };
         }
 

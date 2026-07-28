@@ -39,7 +39,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             // ---------- 2. Duplicate email check ----------
             if (await _context.UsersLogins
-                .AnyAsync(x => x.ForgotEmail == dto.OfficeEmail))
+                .AnyAsync(x => x.RecoveryEmail == dto.OfficialEmail))
             {
                 throw new CustomException("User with same email already exists");
             }
@@ -60,8 +60,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                     SchoolId = dto.StaffType == (long)StaffType.School? dto.SchoolId: null,
 
-                    NgoId = dto.StaffType == (long)StaffType.Ngo? dto.NgoId: null,
-
                     StaffSalutation = dto.StaffSalutation,
                     StaffFirstName = dto.StaffFirstName,
                     StaffLastName = dto.StaffLastName,
@@ -73,9 +71,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PermState = dto.PermState,
                     PremCountry = dto.PermCountry,
 
-                    OfficeEmail = dto.OfficeEmail,
-                    PersonelEmail = dto.PersonelEmail,
-                    MobileNo = dto.MobileNo,
+                    OfficialEmail = dto.OfficialEmail,
+                    PersonalEmail = dto.PersonalEmail,
+                    MobileNumber = dto.MobileNumber,
 
                     Remarks = dto.Remarks,
                     IsActive = true,
@@ -104,7 +102,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     TempPassword = null,
                     TempPassDateTime = null,
 
-                    ForgotEmail = dto.OfficeEmail,
+                    RecoveryEmail = dto.OfficialEmail,
                     IsActive = true,
                     Language = dto.Language,
 
@@ -144,7 +142,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                                  .Trim();
 
                 await _notificationService.SendNewUserAccountAsync(
-                    usersLogin.ForgotEmail,
+                    usersLogin.RecoveryEmail,
                     usersLogin.LoginName,
                     fullName,
                     organizationName,
@@ -191,7 +189,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             // ---------- 4. Duplicate email check ----------
             if (await _context.UsersLogins
-                .AnyAsync(x => x.ForgotEmail == dto.OfficeEmail && x.StaffId != dto.StaffId))
+                .AnyAsync(x => x.RecoveryEmail == dto.OfficialEmail && x.StaffId != dto.StaffId))
             {
                 throw new CustomException("User with same email already exists");
             }
@@ -207,7 +205,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 // reset all organisation mappings first
                 staff.UniversityId = null;
                 staff.SchoolId = null;
-                staff.NgoId = null;
 
                 // set only the relevant one
                 if (dto.StaffType == (long)StaffType.University)
@@ -215,9 +212,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                 else if (dto.StaffType == (long)StaffType.School)
                     staff.SchoolId = dto.SchoolId;
-
-                else if (dto.StaffType == (long)StaffType.Ngo)
-                    staff.NgoId = dto.NgoId;
 
                 staff.StaffSalutation = dto.StaffSalutation;
                 staff.StaffFirstName = dto.StaffFirstName;
@@ -230,9 +224,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 staff.PermState = dto.PermState;
                 staff.PremCountry = dto.PermCountry;
 
-                staff.OfficeEmail = dto.OfficeEmail;
-                staff.PersonelEmail = dto.PersonelEmail;
-                staff.MobileNo = dto.MobileNo;
+                staff.OfficialEmail = dto.OfficialEmail;
+                staff.PersonalEmail = dto.PersonalEmail;
+                staff.MobileNumber = dto.MobileNumber;
 
                 staff.Remarks = dto.Remarks;
                 staff.IsActive = dto.IsActive;
@@ -249,7 +243,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                 // update from login name api
                 //usersLogin.LoginName = dto.LoginName;
-                usersLogin.ForgotEmail = dto.OfficeEmail;
+                usersLogin.RecoveryEmail = dto.OfficialEmail;
                 usersLogin.Language = dto.Language;
                 usersLogin.IsActive = dto.IsActive;
 
@@ -329,7 +323,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                     UniversityId = x.UniversityId,
                     SchoolId = x.SchoolId,
-                    NgoId = x.NgoId,
 
                     // organisation name (CLEAN)
                     OrganisationName = x.StaffType == (long)StaffType.University ? x.University!.UniversityName :
@@ -352,9 +345,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PermCountry = x.PremCountry,
                     Photo = _commonService.GetProfileImageUrl(x.Photo),
 
-                    OfficeEmail = x.OfficeEmail,
-                    PersonelEmail = x.PersonelEmail,
-                    MobileNo = x.MobileNo,
+                    OfficialEmail = x.OfficialEmail,
+                    PersonalEmail = x.PersonalEmail,
+                    MobileNumber = x.MobileNumber,
 
                     Remarks = x.Remarks,
                     IsActive = x.IsActive,
@@ -394,10 +387,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 {
                     query = query.Where(x => x.SchoolId == currentUser.SchoolId);
                 }
-                else if (currentUser.StaffType == StaffType.Ngo)
-                {
-                    query = query.Where(x => x.NgoId == currentUser.NgoId);
-                }
+
             }
 
 
@@ -412,8 +402,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             {
                 query = query.Where(x =>
                     (x.StaffType == (long)StaffType.University && x.UniversityId == filter.OrganisationId) ||
-                    (x.StaffType == (long)StaffType.School && x.SchoolId == filter.OrganisationId) ||
-                    (x.StaffType == (long)StaffType.Ngo && x.NgoId == filter.OrganisationId)
+                    (x.StaffType == (long)StaffType.School && x.SchoolId == filter.OrganisationId)
                 );
             }
 
@@ -431,8 +420,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 query = query.Where(x =>
                     x.StaffFirstName.ToLower().Contains(search) ||
                     x.StaffLastName.ToLower().Contains(search) ||
-                    x.OfficeEmail.ToLower().Contains(search) ||
-                    (x.MobileNo != null && x.MobileNo.ToLower().Contains(search)) ||
+                    x.OfficialEmail.ToLower().Contains(search) ||
+                    (x.MobileNumber != null && x.MobileNumber.ToLower().Contains(search)) ||
                     x.UsersLogins.Any(u => u.LoginName.ToLower().Contains(search))
                 );
             }
@@ -463,7 +452,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                     UniversityId = x.UniversityId,
                     SchoolId = x.SchoolId,
-                    NgoId = x.NgoId,
 
                     // organisation name (CLEAN)
                     OrganisationName = x.StaffType == (long)StaffType.University ? x.University!.UniversityName :
@@ -486,9 +474,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PermCountry = x.PremCountry,
                     Photo = _commonService.GetProfileImageUrl(x.Photo),
            
-                    OfficeEmail = x.OfficeEmail,
-                    PersonelEmail = x.PersonelEmail,
-                    MobileNo = x.MobileNo,
+                    OfficialEmail = x.OfficialEmail,
+                    PersonalEmail = x.PersonalEmail,
+                    MobileNumber = x.MobileNumber,
 
                     Remarks = x.Remarks,
                     IsActive = x.IsActive,
@@ -518,8 +506,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         {
             var count =
                 (dto.UniversityId.HasValue ? 1 : 0) +
-                (dto.SchoolId.HasValue ? 1 : 0) +
-                (dto.NgoId.HasValue ? 1 : 0);
+                (dto.SchoolId.HasValue ? 1 : 0);
 
             if (count > 1)
                 throw new CustomException("Only one organisation can be assigned to staff.");
@@ -529,9 +516,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             if (dto.StaffType == (long)StaffType.School && dto.SchoolId == null)
                 throw new CustomException("SchoolId is required for School staff.");
-
-            if (dto.StaffType == (long)StaffType.Ngo && dto.NgoId == null)
-                throw new CustomException("NgoId is required for NGO staff.");
 
             if (dto.StaffType == (long)StaffType.SuperAdmin && count > 0)
                 throw new CustomException("SuperAdmin cannot be assigned to any organisation.");
@@ -558,21 +542,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     dto.StaffType = (long)StaffType.Ngo;
                     dto.UniversityId = null;
                     dto.SchoolId = null;
-                    dto.NgoId = currentUser.NgoId;
                     break;
 
                 case StaffType.School:
                     dto.StaffType = (long)StaffType.School;
                     dto.UniversityId = null;
                     dto.SchoolId = currentUser.SchoolId;
-                    dto.NgoId = null;
                     break;
 
                 case StaffType.University:
                     dto.StaffType = (long)StaffType.University;
                     dto.UniversityId = currentUser.UniversityId;
                     dto.SchoolId = null;
-                    dto.NgoId = null;
                     break;
 
                 default:
@@ -588,17 +569,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 case (long)StaffType.SuperAdmin:
                     dto.UniversityId = null;
                     dto.SchoolId = null;
-                    dto.NgoId = null;
                     break;
 
                 case (long)StaffType.University:
                     dto.SchoolId = null;
-                    dto.NgoId = null;
                     break;
 
                 case (long)StaffType.School:
                     dto.UniversityId = null;
-                    dto.NgoId = null;
                     break;
 
                 case (long)StaffType.Ngo:

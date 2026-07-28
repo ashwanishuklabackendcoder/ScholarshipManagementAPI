@@ -30,13 +30,13 @@ public partial class HrStaffMaster
 
     public string? PremCountry { get; set; }
 
-    public string OfficeEmail { get; set; } = null!;
+    public string OfficialEmail { get; set; } = null!;
 
-    public string? PersonelEmail { get; set; }
+    public string? PersonalEmail { get; set; }
 
     public string? Photo { get; set; }
 
-    public string? MobileNo { get; set; }
+    public string? MobileNumber { get; set; }
 
     public string? Remarks { get; set; }
 
@@ -50,15 +50,13 @@ public partial class HrStaffMaster
 
     public long? SchoolId { get; set; }
 
-    public long? NgoId { get; set; }
-
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual ICollection<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappings { get; set; } = new List<HrStaffSchoolCoordinatorMapping>();
+    public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappings { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
 
-    public virtual ICollection<HrStaffUniversityCoordinatorMapping> HrStaffUniversityCoordinatorMappings { get; set; } = new List<HrStaffUniversityCoordinatorMapping>();
+    public virtual ICollection<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappings { get; set; } = new List<KfStaffUniversityCoordinatorMapping>();
 
     public virtual KfSchool? School { get; set; }
 

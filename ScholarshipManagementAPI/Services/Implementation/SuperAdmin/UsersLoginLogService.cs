@@ -113,10 +113,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 {
                     query = query.Where(x => x.Login.Staff.SchoolId == currentUser.SchoolId);
                 }
-                else if (currentUser.StaffType == StaffType.Ngo)
-                {
-                    query = query.Where(x => x.Login.Staff.NgoId == currentUser.NgoId);
-                }
+
             }
 
 

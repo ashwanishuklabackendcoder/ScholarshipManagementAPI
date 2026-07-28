@@ -13,7 +13,7 @@ public partial class UsersLogin
 
     public string Password { get; set; } = null!;
 
-    public string ForgotEmail { get; set; } = null!;
+    public string RecoveryEmail { get; set; } = null!;
 
     public bool IsActive { get; set; }
 
@@ -32,14 +32,6 @@ public partial class UsersLogin
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
-
-    public virtual ICollection<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappingCreatedByNavigations { get; set; } = new List<HrStaffSchoolCoordinatorMapping>();
-
-    public virtual ICollection<HrStaffSchoolCoordinatorMapping> HrStaffSchoolCoordinatorMappingUpdatedByNavigations { get; set; } = new List<HrStaffSchoolCoordinatorMapping>();
-
-    public virtual ICollection<HrStaffUniversityCoordinatorMapping> HrStaffUniversityCoordinatorMappingCreatedByNavigations { get; set; } = new List<HrStaffUniversityCoordinatorMapping>();
-
-    public virtual ICollection<HrStaffUniversityCoordinatorMapping> HrStaffUniversityCoordinatorMappingUpdatedByNavigations { get; set; } = new List<HrStaffUniversityCoordinatorMapping>();
 
     public virtual ICollection<KfCourse> KfCourseCreatedByNavigations { get; set; } = new List<KfCourse>();
 
@@ -70,6 +62,14 @@ public partial class UsersLogin
     public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeCreatedByNavigations { get; set; } = new List<KfSponsorshipType>();
 
     public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeUpdatedByNavigations { get; set; } = new List<KfSponsorshipType>();
+
+    public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappingCreatedByNavigations { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
+
+    public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappingUpdatedByNavigations { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
+
+    public virtual ICollection<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappingCreatedByNavigations { get; set; } = new List<KfStaffUniversityCoordinatorMapping>();
+
+    public virtual ICollection<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappingUpdatedByNavigations { get; set; } = new List<KfStaffUniversityCoordinatorMapping>();
 
     public virtual ICollection<KfStudentCategory> KfStudentCategoryCreatedByNavigations { get; set; } = new List<KfStudentCategory>();
 

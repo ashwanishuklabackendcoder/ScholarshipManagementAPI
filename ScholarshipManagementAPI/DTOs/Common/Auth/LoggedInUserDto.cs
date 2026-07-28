@@ -1,4 +1,4 @@
-﻿using ScholarshipManagementAPI.Helper.Enums;
+using ScholarshipManagementAPI.Helper.Enums;
 
 namespace ScholarshipManagementAPI.DTOs.Common.Auth
 {
@@ -24,7 +24,6 @@ namespace ScholarshipManagementAPI.DTOs.Common.Auth
         public long? StaffId { get; set; }
         public long? UniversityId { get; set; }
         public long? SchoolId { get; set; }
-        public long? NgoId { get; set; }
 
 
 
