@@ -242,6 +242,7 @@ builder.Services.AddScoped<ISponsorshipMatrixService, SponsorshipMatrixService>(
 builder.Services.AddScoped<ISponsorshipTypesService, SponsorshipTypesService>();
 builder.Services.AddScoped<IStudentCategoryService, StudentCategoryService>();
 builder.Services.AddScoped<IProgramsService, ProgramsService>();
+builder.Services.AddScoped<IMarketingAdministrativeFeeService, MarketingAdministrativeFeeService>();
 
 
 // Swagger configuration

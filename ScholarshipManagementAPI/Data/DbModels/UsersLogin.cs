@@ -47,6 +47,10 @@ public partial class UsersLogin
 
     public virtual ICollection<KfFaculty> KfFacultyUpdatedByNavigations { get; set; } = new List<KfFaculty>();
 
+    public virtual ICollection<KfMarketingAdministrativeFee> KfMarketingAdministrativeFeeCreatedByNavigations { get; set; } = new List<KfMarketingAdministrativeFee>();
+
+    public virtual ICollection<KfMarketingAdministrativeFee> KfMarketingAdministrativeFeeUpdatedByNavigations { get; set; } = new List<KfMarketingAdministrativeFee>();
+
     public virtual ICollection<KfProgram> KfProgramCreatedByNavigations { get; set; } = new List<KfProgram>();
 
     public virtual ICollection<KfProgram> KfProgramUpdatedByNavigations { get; set; } = new List<KfProgram>();

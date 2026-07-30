@@ -28,6 +28,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfFaculty> KfFaculties { get; set; }
 
+    public virtual DbSet<KfMarketingAdministrativeFee> KfMarketingAdministrativeFees { get; set; }
+
     public virtual DbSet<KfProgram> KfPrograms { get; set; }
 
     public virtual DbSet<KfProgramCost> KfProgramCosts { get; set; }
@@ -86,7 +88,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -234,6 +236,23 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfFacultyUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_kf_faculties_UpdatedBy_UsersLogin");
+        });
+
+        modelBuilder.Entity<KfMarketingAdministrativeFee>(entity =>
+        {
+            entity.HasKey(e => e.MarketingAdministrativeFeeId).HasName("PK__kf_marke__100B757136F1207E");
+
+            entity.ToTable("kf_marketing_administrative_fees");
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.FeePercentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.IsCurrent).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfMarketingAdministrativeFeeCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfMarketingAdministrativeFeeUpdatedByNavigations).HasForeignKey(d => d.UpdatedBy);
         });
 
         modelBuilder.Entity<KfProgram>(entity =>
