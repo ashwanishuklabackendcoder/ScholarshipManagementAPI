@@ -747,7 +747,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
 
         // helper method to get default currency based on staff's organization or fallback to base currency
-        private async Task<(string code, string name, string symbol)> GetDefaultCurrencyAsync(HrStaffMaster staff)
+        private async Task<(string code, string name, string symbol)> GetDefaultCurrencyAsync(KfStaff staff)
         {
             var config = await _generalSettingsService.GetGeneralConfigAsync();
 

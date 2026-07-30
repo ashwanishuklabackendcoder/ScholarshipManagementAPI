@@ -50,7 +50,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             try
             {
                 // ---------- 4. Create HrStaffMaster ----------
-                var staff = new HrStaffMaster
+                var staff = new KfStaff
                 {
                     StaffType = dto.StaffType,
                     //OrganisationId = dto.OrganisationId,
@@ -82,7 +82,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     CreatedDate = dto.CreatedDate
                 };
 
-                _context.HrStaffMasters.Add(staff);
+                _context.KfStaffs.Add(staff);
                 await _context.SaveChangesAsync();
 
                 var generatedPassword = HelperMethods.GeneratePassword();
@@ -165,7 +165,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
 
             // ---------- 2. Fetch existing staff ----------
-            var staff = await _context.HrStaffMasters
+            var staff = await _context.KfStaffs
                 .FirstOrDefaultAsync(x => x.StaffId == dto.StaffId);
 
             if (staff == null)
@@ -230,7 +230,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 staff.Remarks = dto.Remarks;
                 staff.IsActive = dto.IsActive;
 
-                _context.HrStaffMasters.Update(staff);
+                _context.KfStaffs.Update(staff);
                 await _context.SaveChangesAsync();
 
                 // ---------- 7. Update UsersLogin ----------
@@ -269,7 +269,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             try
             {
-                var staff = await _context.HrStaffMasters
+                var staff = await _context.KfStaffs
                     .FirstOrDefaultAsync(x => x.StaffId == staffId);
 
                 if (staff == null)
@@ -286,7 +286,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 staff.Remarks += "[Deleted]";
                 usersLogin.IsActive = false;
 
-                _context.HrStaffMasters.Update(staff);
+                _context.KfStaffs.Update(staff);
                 _context.UsersLogins.Update(usersLogin);
 
                 await _context.SaveChangesAsync();
@@ -305,7 +305,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         // ---------------- GET BY ID ----------------
         public async Task<StaffRequestDto?> GetByIdAsync(long id)
         {
-            var staff = await _context.HrStaffMasters
+            var staff = await _context.KfStaffs
                 .AsNoTracking()
                 .Include(x => x.University)
                 .Include(x => x.School)
@@ -366,7 +366,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<StaffRequestDto>> GetByFilterAsync(StaffFilterDto filter, LoggedInUserDto currentUser)
         {
-            var query = _context.HrStaffMasters
+            var query = _context.KfStaffs
                 .AsNoTracking()
                 .Include(x => x.University)
                 .Include(x => x.School)

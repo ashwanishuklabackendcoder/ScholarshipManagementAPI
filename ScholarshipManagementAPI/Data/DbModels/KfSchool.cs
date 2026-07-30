@@ -105,9 +105,9 @@ public partial class KfSchool
 
     public virtual ZzMasterCurrency? DefaultCurrency { get; set; }
 
-    public virtual ICollection<HrStaffMaster> HrStaffMasters { get; set; } = new List<HrStaffMaster>();
-
     public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappings { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
+
+    public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
     public virtual ZzMasterDropDown SchoolStatusNavigation { get; set; } = null!;
 

@@ -21,7 +21,7 @@ public partial class UsersModule
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual ICollection<HrStaffMaster> HrStaffMasters { get; set; } = new List<HrStaffMaster>();
+    public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
     public virtual ICollection<UsersMenu> UsersMenus { get; set; } = new List<UsersMenu>();
 

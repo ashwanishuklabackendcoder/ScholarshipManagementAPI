@@ -33,9 +33,9 @@ public partial class ZzMasterCountry
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual ICollection<HrStaffMaster> HrStaffMasters { get; set; } = new List<HrStaffMaster>();
-
     public virtual ICollection<KfSchool> KfSchools { get; set; } = new List<KfSchool>();
+
+    public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
     public virtual ICollection<StudentRegistration> StudentRegistrationNationalities { get; set; } = new List<StudentRegistration>();
 

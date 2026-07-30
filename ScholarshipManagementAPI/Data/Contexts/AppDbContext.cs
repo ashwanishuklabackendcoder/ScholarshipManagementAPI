@@ -20,8 +20,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<AdminEmailTemplate> AdminEmailTemplates { get; set; }
 
-    public virtual DbSet<HrStaffMaster> HrStaffMasters { get; set; }
-
     public virtual DbSet<KfCourse> KfCourses { get; set; }
 
     public virtual DbSet<KfCourseFaculty> KfCourseFaculties { get; set; }
@@ -43,6 +41,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappings { get; set; }
 
     public virtual DbSet<KfSponsorshipType> KfSponsorshipTypes { get; set; }
+
+    public virtual DbSet<KfStaff> KfStaffs { get; set; }
 
     public virtual DbSet<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappings { get; set; }
 
@@ -85,6 +85,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ZzMasterCurrency> ZzMasterCurrencies { get; set; }
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -131,58 +132,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.TemplateName)
                 .HasMaxLength(200)
                 .HasDefaultValue("");
-        });
-
-        modelBuilder.Entity<HrStaffMaster>(entity =>
-        {
-            entity.HasKey(e => e.StaffId).HasName("PK_kf_staffs");
-
-            entity.ToTable("HrStaffMaster");
-
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.Gender).HasMaxLength(50);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.MobileNumber).HasMaxLength(100);
-            entity.Property(e => e.OfficialEmail).HasMaxLength(100);
-            entity.Property(e => e.PermAddress).HasMaxLength(200);
-            entity.Property(e => e.PermCity).HasMaxLength(100);
-            entity.Property(e => e.PermState).HasMaxLength(100);
-            entity.Property(e => e.PermZipCode).HasMaxLength(50);
-            entity.Property(e => e.PersonalEmail).HasMaxLength(100);
-            entity.Property(e => e.Photo).HasMaxLength(200);
-            entity.Property(e => e.Remarks).HasMaxLength(500);
-            entity.Property(e => e.StaffFirstName).HasMaxLength(100);
-            entity.Property(e => e.StaffLastName).HasMaxLength(100);
-            entity.Property(e => e.StaffSalutation).HasMaxLength(100);
-            entity.Property(e => e.StaffType).HasComment("university, school, ngo");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.HrStaffMasterCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_kf_staffs_CreatedBy");
-
-            entity.HasOne(d => d.PermCountry).WithMany(p => p.HrStaffMasters)
-                .HasForeignKey(d => d.PermCountryId)
-                .HasConstraintName("FK_kf_staffs_Country");
-
-            entity.HasOne(d => d.School).WithMany(p => p.HrStaffMasters)
-                .HasForeignKey(d => d.SchoolId)
-                .HasConstraintName("FK_kf_staffs_School");
-
-            entity.HasOne(d => d.StaffTypeNavigation).WithMany(p => p.HrStaffMasters)
-                .HasForeignKey(d => d.StaffType)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_kf_staffs_StaffType");
-
-            entity.HasOne(d => d.University).WithMany(p => p.HrStaffMasters)
-                .HasForeignKey(d => d.UniversityId)
-                .HasConstraintName("FK_kf_staffs_University");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.HrStaffMasterUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_kf_staffs_UpdatedBy");
         });
 
         modelBuilder.Entity<KfCourse>(entity =>
@@ -502,6 +451,58 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfSponsorshipTypeUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_kf_sponsorship_types_UpdatedBy_UsersLogin");
+        });
+
+        modelBuilder.Entity<KfStaff>(entity =>
+        {
+            entity.HasKey(e => e.StaffId);
+
+            entity.ToTable("kf_staffs");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.Gender).HasMaxLength(50);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.MobileNumber).HasMaxLength(100);
+            entity.Property(e => e.OfficialEmail).HasMaxLength(100);
+            entity.Property(e => e.PermAddress).HasMaxLength(200);
+            entity.Property(e => e.PermCity).HasMaxLength(100);
+            entity.Property(e => e.PermState).HasMaxLength(100);
+            entity.Property(e => e.PermZipCode).HasMaxLength(50);
+            entity.Property(e => e.PersonalEmail).HasMaxLength(100);
+            entity.Property(e => e.Photo).HasMaxLength(200);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.StaffFirstName).HasMaxLength(100);
+            entity.Property(e => e.StaffLastName).HasMaxLength(100);
+            entity.Property(e => e.StaffSalutation).HasMaxLength(100);
+            entity.Property(e => e.StaffType).HasComment("university, school, ngo");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStaffCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staffs_CreatedBy");
+
+            entity.HasOne(d => d.PermCountry).WithMany(p => p.KfStaffs)
+                .HasForeignKey(d => d.PermCountryId)
+                .HasConstraintName("FK_kf_staffs_Country");
+
+            entity.HasOne(d => d.School).WithMany(p => p.KfStaffs)
+                .HasForeignKey(d => d.SchoolId)
+                .HasConstraintName("FK_kf_staffs_School");
+
+            entity.HasOne(d => d.StaffTypeNavigation).WithMany(p => p.KfStaffs)
+                .HasForeignKey(d => d.StaffType)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staffs_StaffType");
+
+            entity.HasOne(d => d.University).WithMany(p => p.KfStaffs)
+                .HasForeignKey(d => d.UniversityId)
+                .HasConstraintName("FK_kf_staffs_University");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStaffUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_staffs_UpdatedBy");
         });
 
         modelBuilder.Entity<KfStaffSchoolCoordinatorMapping>(entity =>

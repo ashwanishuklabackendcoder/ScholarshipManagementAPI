@@ -23,7 +23,7 @@ public partial class KfStaffUniversityCoordinatorMapping
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual HrStaffMaster Staff { get; set; } = null!;
+    public virtual KfStaff Staff { get; set; } = null!;
 
     public virtual UnUniversityRegistration University { get; set; } = null!;
 

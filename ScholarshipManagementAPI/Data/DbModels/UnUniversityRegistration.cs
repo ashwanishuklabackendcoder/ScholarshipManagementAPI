@@ -117,8 +117,6 @@ public partial class UnUniversityRegistration
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<HrStaffMaster> HrStaffMasters { get; set; } = new List<HrStaffMaster>();
-
     public virtual ICollection<KfCourse> KfCourses { get; set; } = new List<KfCourse>();
 
     public virtual ICollection<KfFaculty> KfFaculties { get; set; } = new List<KfFaculty>();
@@ -126,6 +124,8 @@ public partial class UnUniversityRegistration
     public virtual ICollection<KfProgram> KfPrograms { get; set; } = new List<KfProgram>();
 
     public virtual ICollection<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappings { get; set; } = new List<KfStaffUniversityCoordinatorMapping>();
+
+    public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
     public virtual ZzMasterDropDown? StudentsGenderType { get; set; }
 

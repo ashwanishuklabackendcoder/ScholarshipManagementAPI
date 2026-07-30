@@ -31,10 +31,6 @@ public partial class UsersLogin
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<HrStaffMaster> HrStaffMasterCreatedByNavigations { get; set; } = new List<HrStaffMaster>();
-
-    public virtual ICollection<HrStaffMaster> HrStaffMasterUpdatedByNavigations { get; set; } = new List<HrStaffMaster>();
-
     public virtual ICollection<UsersLogin> InverseCreatedByNavigation { get; set; } = new List<UsersLogin>();
 
     public virtual ICollection<UsersLogin> InverseUpdatedByNavigation { get; set; } = new List<UsersLogin>();
@@ -69,6 +65,8 @@ public partial class UsersLogin
 
     public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeUpdatedByNavigations { get; set; } = new List<KfSponsorshipType>();
 
+    public virtual ICollection<KfStaff> KfStaffCreatedByNavigations { get; set; } = new List<KfStaff>();
+
     public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappingCreatedByNavigations { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
 
     public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappingUpdatedByNavigations { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
@@ -77,11 +75,13 @@ public partial class UsersLogin
 
     public virtual ICollection<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappingUpdatedByNavigations { get; set; } = new List<KfStaffUniversityCoordinatorMapping>();
 
+    public virtual ICollection<KfStaff> KfStaffUpdatedByNavigations { get; set; } = new List<KfStaff>();
+
     public virtual ICollection<KfStudentCategory> KfStudentCategoryCreatedByNavigations { get; set; } = new List<KfStudentCategory>();
 
     public virtual ICollection<KfStudentCategory> KfStudentCategoryUpdatedByNavigations { get; set; } = new List<KfStudentCategory>();
 
-    public virtual HrStaffMaster Staff { get; set; } = null!;
+    public virtual KfStaff Staff { get; set; } = null!;
 
     public virtual ICollection<StudentRegistration> StudentRegistrationCreatedByNavigations { get; set; } = new List<StudentRegistration>();
 
