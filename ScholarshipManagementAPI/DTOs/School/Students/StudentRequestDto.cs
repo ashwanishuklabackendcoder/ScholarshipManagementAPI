@@ -120,6 +120,9 @@ namespace ScholarshipManagementAPI.DTOs.School.Students
 
         public decimal? TransferGpa { get; set; }
 
+        // 0 = Spring, 1 = Summer, 2 = Fall
+        public int? TransferPlacementSemester { get; set; }
+
         #endregion
 
         #region Behaviour & Social Evaluation

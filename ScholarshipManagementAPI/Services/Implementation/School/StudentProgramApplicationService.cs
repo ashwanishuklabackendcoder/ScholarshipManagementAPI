@@ -59,10 +59,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 .Include(p => p.Faculty)
                 .Include(p => p.KfProgramDocuments)
                     .ThenInclude(pd => pd.DocumentType)
+                .Include(p => p.KfProgramRegistrationWindows)
                 .Where(p =>
                     p.IsActive &&
                     p.AccreditationStatus == (int)AccreditationStatusEnum.Accredited)
                 .ToListAsync();
+
+            var today = DateTime.UtcNow;
+            var targetSemester = GetTargetSemester(student);
 
             var list = new List<CandidateProgramResponseDto>();
             foreach (var p in programs)
@@ -71,6 +75,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     continue;
 
                 var currentApplication = (application != null && application.ProgramId == p.ProgramId) ? application : null;
+
+                if (!IsRegistrationOpen(p, targetSemester, today))
+                    continue;
 
                 list.Add(new CandidateProgramResponseDto
                 {
@@ -1227,6 +1234,26 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
+        private bool IsRegistrationOpen(KfProgram program, int semesterNo, DateTime currentDate)
+        {
+            var result = program.KfProgramRegistrationWindows.Any(r =>
+                r.SemesterNo == semesterNo &&
+                r.RegistrationFrom <= currentDate &&
+                r.RegistrationTo >= currentDate);
+
+            return result;
+        }
+
+
+        public static int GetTargetSemester(StudentRegistration student)
+        {
+            // Future:
+            // if (student.IsTransferStudent)
+            //     return student.TransferSemester;
+
+            // Normal admission
+            return 1;
+        }
 
 
     }

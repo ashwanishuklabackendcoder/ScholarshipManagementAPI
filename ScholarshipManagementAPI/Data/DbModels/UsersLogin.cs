@@ -53,6 +53,10 @@ public partial class UsersLogin
 
     public virtual ICollection<KfProgram> KfProgramCreatedByNavigations { get; set; } = new List<KfProgram>();
 
+    public virtual ICollection<KfProgramRegistrationWindow> KfProgramRegistrationWindowCreatedByNavigations { get; set; } = new List<KfProgramRegistrationWindow>();
+
+    public virtual ICollection<KfProgramRegistrationWindow> KfProgramRegistrationWindowUpdatedByNavigations { get; set; } = new List<KfProgramRegistrationWindow>();
+
     public virtual ICollection<KfProgram> KfProgramUpdatedByNavigations { get; set; } = new List<KfProgram>();
 
     public virtual ICollection<KfSchool> KfSchoolAccreditationByNavigations { get; set; } = new List<KfSchool>();

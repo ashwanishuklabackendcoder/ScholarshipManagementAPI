@@ -5,6 +5,7 @@ using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.University.Faculties;
 using ScholarshipManagementAPI.DTOs.University.Programs;
 using ScholarshipManagementAPI.Helper.Utilities;
+using ScholarshipManagementAPI.Services.Implementation.University;
 using ScholarshipManagementAPI.Services.Interface.University;
 
 namespace ScholarshipManagementAPI.Controllers.University
@@ -140,6 +141,21 @@ namespace ScholarshipManagementAPI.Controllers.University
             });
         }
 
+
+        [HttpGet("semesters/{programId:long}")]
+        public async Task<IActionResult> GetSemesters(long programId)
+        {
+            var result = await _service.GetSemestersAsync(programId);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = result.Count == 0 ? false : true,
+                Result = result,
+                Message = result.Count == 0
+                    ? "Data not found"
+                    : "Data fetched successfully"
+            });
+        }
 
 
 

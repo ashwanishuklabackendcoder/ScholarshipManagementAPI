@@ -26,7 +26,6 @@ namespace ScholarshipManagementAPI.Controllers.School
 
 
         [HttpGet("candidate-programs/{studentId:long}")]
-        [Authorize]
         public async Task<IActionResult> GetCandidatePrograms(long studentId)
         {
             var data = await _service.GetCandidateProgramsAsync(studentId);

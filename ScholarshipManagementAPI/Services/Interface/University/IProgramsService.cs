@@ -14,5 +14,10 @@ namespace ScholarshipManagementAPI.Services.Interface.University
         Task<ProgramRequestDto?> GetByIdAsync(long id);
 
         Task<PagedResultDto<ProgramRequestDto>> GetByFilterAsync(ProgramFilterDto filter);
+
+
+
+        Task<List<ProgramSemesterDto>> GetSemestersAsync(long programId);
+
     }
 }

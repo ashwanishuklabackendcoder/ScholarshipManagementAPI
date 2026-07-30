@@ -57,6 +57,8 @@ public partial class KfProgram
 
     public virtual ICollection<KfProgramDocument> KfProgramDocuments { get; set; } = new List<KfProgramDocument>();
 
+    public virtual ICollection<KfProgramRegistrationWindow> KfProgramRegistrationWindows { get; set; } = new List<KfProgramRegistrationWindow>();
+
     public virtual ICollection<StudentProgramApplication> StudentProgramApplications { get; set; } = new List<StudentProgramApplication>();
 
     public virtual UnUniversityRegistration University { get; set; } = null!;

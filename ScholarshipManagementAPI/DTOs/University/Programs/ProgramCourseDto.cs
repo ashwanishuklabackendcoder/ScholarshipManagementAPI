@@ -18,5 +18,6 @@
         public int? DisplayOrder { get; set; }
 
         public int SemesterNo { get; set; }
+        public string SemesterName { get; set; } = string.Empty;
     }
 }

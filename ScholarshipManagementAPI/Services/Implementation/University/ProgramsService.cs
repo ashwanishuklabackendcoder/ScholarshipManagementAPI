@@ -405,7 +405,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                             CourseType = c.CourseType,
                             Credits = c.Credits,
                             DisplayOrder = c.DisplayOrder,
-                            SemesterNo = c.SemesterNo
+                            SemesterNo = c.SemesterNo,
+                            SemesterName = $"Semester {c.SemesterNo}"
                         })
                         .ToList()
                 })
@@ -525,6 +526,30 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
 
+
+        public async Task<List<ProgramSemesterDto>> GetSemestersAsync(long programId)
+        {
+            var program = await _context.KfPrograms
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.ProgramId == programId);
+
+            if (program == null)
+            {
+                throw new CustomException("Program not found");
+            }
+
+            var semesters = new List<ProgramSemesterDto>();
+            for (int i = 1; i <= program.NumberOfSemesters; i++)
+            {
+                semesters.Add(new ProgramSemesterDto
+                {
+                    SemesterNo = i,
+                    SemesterName = $"Semester {i}"
+                });
+            }
+
+            return semesters;   
+        }
 
 
 

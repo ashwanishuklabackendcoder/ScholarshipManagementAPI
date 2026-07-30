@@ -38,6 +38,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfProgramDocument> KfProgramDocuments { get; set; }
 
+    public virtual DbSet<KfProgramRegistrationWindow> KfProgramRegistrationWindows { get; set; }
+
     public virtual DbSet<KfSchool> KfSchools { get; set; }
 
     public virtual DbSet<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappings { get; set; }
@@ -88,7 +90,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-    
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -356,6 +358,35 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.ProgramId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_kf_program_documents_Program");
+        });
+
+        modelBuilder.Entity<KfProgramRegistrationWindow>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__kf_progr__3214EC07B6B61B15");
+
+            entity.ToTable("kf_program_registration_windows");
+
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.RegistrationFrom).HasColumnType("datetime");
+            entity.Property(e => e.RegistrationTo).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfProgramRegistrationWindowCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_program_registration_windows_createdby");
+
+            entity.HasOne(d => d.Program).WithMany(p => p.KfProgramRegistrationWindows)
+                .HasForeignKey(d => d.ProgramId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_program_registration_windows_program");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfProgramRegistrationWindowUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_program_registration_windows_updatedby");
         });
 
         modelBuilder.Entity<KfSchool>(entity =>
