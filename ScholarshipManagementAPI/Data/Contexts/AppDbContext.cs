@@ -44,6 +44,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappings { get; set; }
 
+    public virtual DbSet<KfSponsorshipStudentCategory> KfSponsorshipStudentCategories { get; set; }
+
     public virtual DbSet<KfSponsorshipType> KfSponsorshipTypes { get; set; }
 
     public virtual DbSet<KfStaff> KfStaffs { get; set; }
@@ -54,17 +56,15 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfStudentAcademicRegistration> KfStudentAcademicRegistrations { get; set; }
 
-    public virtual DbSet<KfStudentCategory> KfStudentCategories { get; set; }
+    public virtual DbSet<KfStudentHistory> KfStudentHistories { get; set; }
+
+    public virtual DbSet<KfStudentProgramApplication> KfStudentProgramApplications { get; set; }
+
+    public virtual DbSet<KfStudentProgramDocument> KfStudentProgramDocuments { get; set; }
+
+    public virtual DbSet<KfStudentRegistration> KfStudentRegistrations { get; set; }
 
     public virtual DbSet<MasterDonorList> MasterDonorLists { get; set; }
-
-    public virtual DbSet<StudentHistory> StudentHistories { get; set; }
-
-    public virtual DbSet<StudentProgramApplication> StudentProgramApplications { get; set; }
-
-    public virtual DbSet<StudentProgramDocument> StudentProgramDocuments { get; set; }
-
-    public virtual DbSet<StudentRegistration> StudentRegistrations { get; set; }
 
     public virtual DbSet<UnUniversityRegistration> UnUniversityRegistrations { get; set; }
 
@@ -92,7 +92,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -485,6 +485,26 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_kf_sponsorship_category_mapping_UpdatedBy");
         });
 
+        modelBuilder.Entity<KfSponsorshipStudentCategory>(entity =>
+        {
+            entity.HasKey(e => e.StudentCategoryId);
+
+            entity.ToTable("kf_sponsorship_student_categories");
+
+            entity.Property(e => e.CategoryName).HasMaxLength(200);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfSponsorshipStudentCategoryCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_sponsorship_student_categories_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfSponsorshipStudentCategoryUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_sponsorship_student_categories_UpdatedBy_UsersLogin");
+        });
+
         modelBuilder.Entity<KfSponsorshipType>(entity =>
         {
             entity.HasKey(e => e.SponsorshipTypeId).HasName("PK__kf_spons__E06B5E93DE97DEE2");
@@ -663,87 +683,63 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_kf_student_academic_registrations_UpdatedBy");
         });
 
-        modelBuilder.Entity<KfStudentCategory>(entity =>
+        modelBuilder.Entity<KfStudentHistory>(entity =>
         {
-            entity.HasKey(e => e.StudentCategoryId);
+            entity.HasKey(e => e.StudentHistoryId);
 
-            entity.ToTable("kf_student_categories");
-
-            entity.Property(e => e.CategoryName).HasMaxLength(200);
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStudentCategoryCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_kf_student_categories_CreatedBy_UsersLogin");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStudentCategoryUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_kf_student_categories_UpdatedBy_UsersLogin");
-        });
-
-        modelBuilder.Entity<MasterDonorList>(entity =>
-        {
-            entity.HasKey(e => e.DonorId).HasName("PK__MasterDo__052E3F781454C3D8");
-
-            entity.ToTable("MasterDonorList");
-
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DonorCode).HasMaxLength(50);
-            entity.Property(e => e.DonorEmail).HasMaxLength(100);
-            entity.Property(e => e.DonorName).HasMaxLength(200);
-            entity.Property(e => e.DonorPhone).HasMaxLength(50);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-        });
-
-        modelBuilder.Entity<StudentHistory>(entity =>
-        {
-            entity.HasKey(e => e.StudentHistoryId).HasName("PK__StudentH__6FE0BEA842475290");
-
-            entity.ToTable("StudentHistory");
+            entity.ToTable("kf_student_history");
 
             entity.Property(e => e.Title).HasMaxLength(200);
 
-            entity.HasOne(d => d.Application).WithMany(p => p.StudentHistories)
+            entity.HasOne(d => d.Application).WithMany(p => p.KfStudentHistories)
                 .HasForeignKey(d => d.ApplicationId)
                 .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK_StudentHistory_StudentProgramApplication");
+                .HasConstraintName("FK_kf_student_history_student_program_application");
 
-            entity.HasOne(d => d.Student).WithMany(p => p.StudentHistories)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStudentHistories)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_student_history_CreatedBy");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.KfStudentHistories)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentHistory_StudentRegistration");
+                .HasConstraintName("FK_kf_student_history_kf_student_registration");
         });
 
-        modelBuilder.Entity<StudentProgramApplication>(entity =>
+        modelBuilder.Entity<KfStudentProgramApplication>(entity =>
         {
-            entity.HasKey(e => e.ApplicationId).HasName("PK__StudentP__C93A4C99AAFD37BB");
+            entity.HasKey(e => e.ApplicationId);
 
-            entity.ToTable("StudentProgramApplication");
+            entity.ToTable("kf_student_program_applications");
 
             entity.Property(e => e.Remarks).HasMaxLength(1000);
 
-            entity.HasOne(d => d.Program).WithMany(p => p.StudentProgramApplications)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStudentProgramApplicationCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_student_program_applications_CreatedBy");
+
+            entity.HasOne(d => d.Program).WithMany(p => p.KfStudentProgramApplications)
                 .HasForeignKey(d => d.ProgramId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentProgramApplication_kf_programs");
+                .HasConstraintName("FK_kf_student_program_applications_kf_programs");
 
-            entity.HasOne(d => d.Student).WithMany(p => p.StudentProgramApplications)
+            entity.HasOne(d => d.Student).WithMany(p => p.KfStudentProgramApplications)
                 .HasForeignKey(d => d.StudentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentProgramApplication_StudentRegistration");
+                .HasConstraintName("FK_kf_student_program_applications_StudentRegistration");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStudentProgramApplicationUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_student_program_applications_UpdatedBy");
         });
 
-        modelBuilder.Entity<StudentProgramDocument>(entity =>
+        modelBuilder.Entity<KfStudentProgramDocument>(entity =>
         {
-            entity.HasKey(e => e.StudentProgramDocumentId).HasName("PK__StudentP__90065D4B98F02049");
+            entity.HasKey(e => e.StudentProgramDocumentId);
 
-            entity.ToTable("StudentProgramDocument");
+            entity.ToTable("kf_student_program_documents");
 
             entity.Property(e => e.ContentType).HasMaxLength(100);
             entity.Property(e => e.OriginalFileName).HasMaxLength(255);
@@ -751,26 +747,35 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StoragePath).HasMaxLength(500);
             entity.Property(e => e.StoredFileName).HasMaxLength(255);
 
-            entity.HasOne(d => d.Application).WithMany(p => p.StudentProgramDocuments)
+            entity.HasOne(d => d.Application).WithMany(p => p.KfStudentProgramDocuments)
                 .HasForeignKey(d => d.ApplicationId)
-                .HasConstraintName("FK_StudentProgramDocument_StudentProgramApplication");
+                .HasConstraintName("FK_kf_student_program_documents_kf_student_program_applications");
 
-            entity.HasOne(d => d.DocumentType).WithMany(p => p.StudentProgramDocuments)
+            entity.HasOne(d => d.DocumentType).WithMany(p => p.KfStudentProgramDocuments)
                 .HasForeignKey(d => d.DocumentTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentProgramDocument_kf_document_types");
+                .HasConstraintName("FK_kf_student_program_documents_kf_document_types");
 
-            entity.HasOne(d => d.ProgramDocument).WithMany(p => p.StudentProgramDocuments)
+            entity.HasOne(d => d.ProgramDocument).WithMany(p => p.KfStudentProgramDocuments)
                 .HasForeignKey(d => d.ProgramDocumentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentProgramDocument_kf_program_documents");
+                .HasConstraintName("FK_kf_student_program_documents_kf_program_documents");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStudentProgramDocumentUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_student_program_documents_UpdatedBy");
+
+            entity.HasOne(d => d.UploadedByNavigation).WithMany(p => p.KfStudentProgramDocumentUploadedByNavigations)
+                .HasForeignKey(d => d.UploadedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_student_program_documents_UploadedBy");
         });
 
-        modelBuilder.Entity<StudentRegistration>(entity =>
+        modelBuilder.Entity<KfStudentRegistration>(entity =>
         {
-            entity.HasKey(e => e.StudentId).HasName("PK__StudentR__32C52B9983A4BE12");
+            entity.HasKey(e => e.StudentId);
 
-            entity.ToTable("StudentRegistration");
+            entity.ToTable("kf_student_registrations");
 
             entity.Property(e => e.Block).HasMaxLength(200);
             entity.Property(e => e.City).HasMaxLength(200);
@@ -806,51 +811,69 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Tribe).HasMaxLength(200);
             entity.Property(e => e.Village).HasMaxLength(200);
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.StudentRegistrationCreatedByNavigations)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStudentRegistrationCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentRegistration_CreatedBy");
+                .HasConstraintName("FK_kf_student_registrations_CreatedBy");
 
-            entity.HasOne(d => d.FinancialNeedStatus).WithMany(p => p.StudentRegistrationFinancialNeedStatuses)
+            entity.HasOne(d => d.FinancialNeedStatus).WithMany(p => p.KfStudentRegistrationFinancialNeedStatuses)
                 .HasForeignKey(d => d.FinancialNeedStatusId)
-                .HasConstraintName("FK_StudentRegistration_FinancialNeedStatus");
+                .HasConstraintName("FK_kf_student_registrations_FinancialNeedStatus");
 
-            entity.HasOne(d => d.FutureGoalsLevel).WithMany(p => p.StudentRegistrationFutureGoalsLevels)
+            entity.HasOne(d => d.FutureGoalsLevel).WithMany(p => p.KfStudentRegistrationFutureGoalsLevels)
                 .HasForeignKey(d => d.FutureGoalsLevelId)
-                .HasConstraintName("FK_StudentRegistration_FutureGoals");
+                .HasConstraintName("FK_kf_student_registrations_FutureGoals");
 
-            entity.HasOne(d => d.Gender).WithMany(p => p.StudentRegistrationGenders)
+            entity.HasOne(d => d.Gender).WithMany(p => p.KfStudentRegistrationGenders)
                 .HasForeignKey(d => d.GenderId)
-                .HasConstraintName("FK_StudentRegistration_Gender");
+                .HasConstraintName("FK_kf_student_registrations_Gender");
 
-            entity.HasOne(d => d.MotivationLevel).WithMany(p => p.StudentRegistrationMotivationLevels)
+            entity.HasOne(d => d.MotivationLevel).WithMany(p => p.KfStudentRegistrationMotivationLevels)
                 .HasForeignKey(d => d.MotivationLevelId)
-                .HasConstraintName("FK_StudentRegistration_Motivation");
+                .HasConstraintName("FK_kf_student_registrations_Motivation");
 
-            entity.HasOne(d => d.Nationality).WithMany(p => p.StudentRegistrationNationalities)
+            entity.HasOne(d => d.Nationality).WithMany(p => p.KfStudentRegistrationNationalities)
                 .HasForeignKey(d => d.NationalityId)
-                .HasConstraintName("FK_StudentRegistration_Nationality");
+                .HasConstraintName("FK_kf_student_registrations_Nationality");
 
-            entity.HasOne(d => d.Religion).WithMany(p => p.StudentRegistrationReligions)
+            entity.HasOne(d => d.Religion).WithMany(p => p.KfStudentRegistrationReligions)
                 .HasForeignKey(d => d.ReligionId)
-                .HasConstraintName("FK_StudentRegistration_Religion");
+                .HasConstraintName("FK_kf_student_registrations_Religion");
 
-            entity.HasOne(d => d.ResidenceCountry).WithMany(p => p.StudentRegistrationResidenceCountries)
+            entity.HasOne(d => d.ResidenceCountry).WithMany(p => p.KfStudentRegistrationResidenceCountries)
                 .HasForeignKey(d => d.ResidenceCountryId)
-                .HasConstraintName("FK_StudentRegistration_ResidenceCountry");
+                .HasConstraintName("FK_kf_student_registrations_ResidenceCountry");
 
-            entity.HasOne(d => d.School).WithMany(p => p.StudentRegistrations)
+            entity.HasOne(d => d.School).WithMany(p => p.KfStudentRegistrations)
                 .HasForeignKey(d => d.SchoolId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_StudentRegistration_School");
+                .HasConstraintName("FK_kf_student_registrations_School");
 
-            entity.HasOne(d => d.SelfRelianceLevel).WithMany(p => p.StudentRegistrationSelfRelianceLevels)
+            entity.HasOne(d => d.SelfRelianceLevel).WithMany(p => p.KfStudentRegistrationSelfRelianceLevels)
                 .HasForeignKey(d => d.SelfRelianceLevelId)
-                .HasConstraintName("FK_StudentRegistration_SelfReliance");
+                .HasConstraintName("FK_kf_student_registrations_SelfReliance");
 
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.StudentRegistrationUpdatedByNavigations)
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStudentRegistrationUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_StudentRegistration_UpdatedBy");
+                .HasConstraintName("FK_kf_student_registrations_UpdatedBy");
+        });
+
+        modelBuilder.Entity<MasterDonorList>(entity =>
+        {
+            entity.HasKey(e => e.DonorId).HasName("PK__MasterDo__052E3F781454C3D8");
+
+            entity.ToTable("MasterDonorList");
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(200);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DonorCode).HasMaxLength(50);
+            entity.Property(e => e.DonorEmail).HasMaxLength(100);
+            entity.Property(e => e.DonorName).HasMaxLength(200);
+            entity.Property(e => e.DonorPhone).HasMaxLength(50);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsDraft).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<UnUniversityRegistration>(entity =>

@@ -29,7 +29,7 @@ public partial class KfProgramDocument
 
     public virtual KfDocumentType DocumentType { get; set; } = null!;
 
-    public virtual KfProgram Program { get; set; } = null!;
+    public virtual ICollection<KfStudentProgramDocument> KfStudentProgramDocuments { get; set; } = new List<KfStudentProgramDocument>();
 
-    public virtual ICollection<StudentProgramDocument> StudentProgramDocuments { get; set; } = new List<StudentProgramDocument>();
+    public virtual KfProgram Program { get; set; } = null!;
 }

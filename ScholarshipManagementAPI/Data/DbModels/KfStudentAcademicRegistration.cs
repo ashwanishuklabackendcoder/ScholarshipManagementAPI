@@ -27,13 +27,13 @@ public partial class KfStudentAcademicRegistration
 
     public DateTime? UpdatedOn { get; set; }
 
-    public virtual StudentProgramApplication Application { get; set; } = null!;
+    public virtual KfStudentProgramApplication Application { get; set; } = null!;
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual KfProgram Program { get; set; } = null!;
 
-    public virtual StudentRegistration Student { get; set; } = null!;
+    public virtual KfStudentRegistration Student { get; set; } = null!;
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

@@ -29,7 +29,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<List<CandidateProgramResponseDto>> GetCandidateProgramsAsync(long studentId)
         {
-            var student = await _context.StudentRegistrations
+            var student = await _context.KfStudentRegistrations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
@@ -47,7 +47,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 (int)StudentApplicationStatus.Registered
             };
 
-            var application = await _context.StudentProgramApplications
+            var application = await _context.KfStudentProgramApplications
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x =>
                     x.StudentId == studentId &&
@@ -114,7 +114,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             try
             {
                 // Validate student
-                var student = await _context.StudentRegistrations
+                var student = await _context.KfStudentRegistrations
                     .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
                 if (student == null)
@@ -149,7 +149,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     (int)StudentApplicationStatus.Registered
                 };
 
-                bool hasActiveApplication = await _context.StudentProgramApplications
+                bool hasActiveApplication = await _context.KfStudentProgramApplications
                     .AnyAsync(x =>
                         x.StudentId == studentId &&
                         activeStatuses.Contains(x.ApplicationStatus));
@@ -159,7 +159,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     throw new CustomException("Student already has an active program application.");
                 }
 
-                var application = new StudentProgramApplication
+                var application = new KfStudentProgramApplication
                 {
                     StudentId = studentId,
                     ProgramId = dto.ProgramId,
@@ -170,7 +170,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     CreatedDate = DateTime.UtcNow
                 };
 
-                _context.StudentProgramApplications.Add(application);
+                _context.KfStudentProgramApplications.Add(application);
 
                 await _context.SaveChangesAsync();
 
@@ -201,7 +201,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             try
             {
-                var app = await _context.StudentProgramApplications
+                var app = await _context.KfStudentProgramApplications
                     .Include(a => a.Program)
                     .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
@@ -216,7 +216,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 }
 
                 // Delete uploaded files
-                var documents = await _context.StudentProgramDocuments
+                var documents = await _context.KfStudentProgramDocuments
                     .Where(x => x.ApplicationId == applicationId)
                     .ToListAsync();
 
@@ -246,7 +246,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
                 // Delete application (documents will be deleted by cascade)
-                _context.StudentProgramApplications.Remove(app);
+                _context.KfStudentProgramApplications.Remove(app);
 
                 await _context.SaveChangesAsync();
 
@@ -267,10 +267,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             try
             {
-                var app = await _context.StudentProgramApplications
+                var app = await _context.KfStudentProgramApplications
                     .Include(a => a.Program)
                         .ThenInclude(p => p.KfProgramDocuments)
-                    .Include(a => a.StudentProgramDocuments)
+                    .Include(a => a.KfStudentProgramDocuments)
                     .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
                 if (app == null)
@@ -289,7 +289,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     .Select(x => x.ProgramDocumentId)
                     .ToList();
 
-                var uploadedDocuments = app.StudentProgramDocuments
+                var uploadedDocuments = app.KfStudentProgramDocuments
                     .Select(x => x.ProgramDocumentId)
                     .ToList();
 
@@ -331,7 +331,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<StudentProgramApplicationResponseDto?> GetApplicationAsync(long applicationId)
         {
-            var app = await _context.StudentProgramApplications
+            var app = await _context.KfStudentProgramApplications
                 .AsNoTracking()
                 .Include(a => a.Program)
                     .ThenInclude(p => p.University)
@@ -340,7 +340,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 .Include(a => a.Program)
                     .ThenInclude(p => p.KfProgramDocuments)
                         .ThenInclude(pd => pd.DocumentType)
-                .Include(a => a.StudentProgramDocuments)
+                .Include(a => a.KfStudentProgramDocuments)
                     .ThenInclude(d => d.DocumentType)
                 .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
@@ -383,7 +383,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     })
                     .ToList(),
 
-                Documents = app.StudentProgramDocuments
+                Documents = app.KfStudentProgramDocuments
                     .Select(d => new StudentProgramDocumentResponseDto
                     {
                         StudentProgramDocumentId = d.StudentProgramDocumentId,
@@ -418,7 +418,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             try
             {
                 // Validate Application
-                var app = await _context.StudentProgramApplications
+                var app = await _context.KfStudentProgramApplications
                     .Include(x => x.Program)
                     .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
@@ -458,7 +458,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 }
 
                 // Prevent Duplicate Upload
-                bool alreadyUploaded = await _context.StudentProgramDocuments
+                bool alreadyUploaded = await _context.KfStudentProgramDocuments
                     .AnyAsync(x =>
                         x.ApplicationId == applicationId &&
                         x.ProgramDocumentId == programDocumentId);
@@ -499,7 +499,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     await file.CopyToAsync(stream);
                 }
 
-                var document = new StudentProgramDocument
+                var document = new KfStudentProgramDocument
                 {
                     ApplicationId = applicationId,
                     ProgramDocumentId = programDocumentId,
@@ -516,7 +516,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     UploadedDate = DateTime.UtcNow
                 };
 
-                _context.StudentProgramDocuments.Add(document);
+                _context.KfStudentProgramDocuments.Add(document);
 
                 await AddHistoryAsync(
                     studentId: app.StudentId,
@@ -566,7 +566,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             try
             {
-                var app = await _context.StudentProgramApplications
+                var app = await _context.KfStudentProgramApplications
                     .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
                 if (app == null)
@@ -579,7 +579,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     throw new CustomException("Documents can only be deleted while the application is in Draft status.");
                 }
 
-                var document = await _context.StudentProgramDocuments
+                var document = await _context.KfStudentProgramDocuments
                     .Include(x => x.DocumentType)
                     .FirstOrDefaultAsync(x =>
                         x.StudentProgramDocumentId == documentId &&
@@ -609,7 +609,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     }
                 }
 
-                _context.StudentProgramDocuments.Remove(document);
+                _context.KfStudentProgramDocuments.Remove(document);
 
                 await AddHistoryAsync(
                     studentId: app.StudentId,
@@ -634,7 +634,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<List<StudentProgramDocumentResponseDto>> GetDocumentsAsync(long applicationId)
         {
-            var application = await _context.StudentProgramApplications
+            var application = await _context.KfStudentProgramApplications
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
@@ -643,7 +643,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Application not found.");
             }
 
-            return await _context.StudentProgramDocuments
+            return await _context.KfStudentProgramDocuments
                 .AsNoTracking()
                 .Include(d => d.DocumentType)
                 .Include(d => d.ProgramDocument)
@@ -677,7 +677,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<List<StudentHistoryResponseDto>> GetHistoryAsync(long studentId)
         {
-            var studentExists = await _context.StudentRegistrations
+            var studentExists = await _context.KfStudentRegistrations
                 .AsNoTracking()
                 .AnyAsync(x => x.StudentId == studentId && x.IsActive);
 
@@ -686,7 +686,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Student not found.");
             }
 
-            return await _context.StudentHistories
+            return await _context.KfStudentHistories
                 .AsNoTracking()
                 .Where(x => x.StudentId == studentId)
                 .OrderByDescending(x => x.CreatedDate)
@@ -715,7 +715,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<PagedResultDto<StudentProgramApplicationDto>> SearchAsync(StudentProgramApplicationFilterDto filter, LoggedInUserDto currentUser)
         {
-            var query = _context.StudentProgramApplications
+            var query = _context.KfStudentProgramApplications
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -862,7 +862,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<StudentProgramApplicationDto?> GetByIdAsync(long applicationId, LoggedInUserDto currentUser)
         {
-            var query = _context.StudentProgramApplications
+            var query = _context.KfStudentProgramApplications
                 .AsNoTracking()
                 .Where(x => x.ApplicationId == applicationId);
 
@@ -963,7 +963,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<bool> ChangeStatusAsync(long applicationId, ChangeStudentProgramStatusDto dto, LoggedInUserDto currentUser)
         {
-            var application = await _context.StudentProgramApplications
+            var application = await _context.KfStudentProgramApplications
                 .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
             if (application == null)
@@ -1116,7 +1116,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         private Task AddHistoryAsync(long studentId, long applicationId, string title,
             string description, StudentHistoryTypeEnum historyType, long userId)
         {
-            _context.StudentHistories.Add(new StudentHistory
+            _context.KfStudentHistories.Add(new KfStudentHistory
             {
                 StudentId = studentId,
                 ApplicationId = applicationId,
@@ -1199,7 +1199,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
 
-        private bool IsEligible(StudentRegistration student, KfProgram program)
+        private bool IsEligible(KfStudentRegistration student, KfProgram program)
         {
             // Minimum Percentage
             if (program.MinAcceptanceRate.HasValue &&
@@ -1245,7 +1245,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
-        public static int GetTargetSemester(StudentRegistration student)
+        public static int GetTargetSemester(KfStudentRegistration student)
         {
             // Future:
             // if (student.IsTransferStudent)

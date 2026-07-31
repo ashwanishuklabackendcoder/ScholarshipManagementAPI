@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class StudentProgramApplication
+public partial class KfStudentProgramApplication
 {
     public long ApplicationId { get; set; }
 
@@ -27,13 +27,17 @@ public partial class StudentProgramApplication
 
     public DateTime? UpdatedDate { get; set; }
 
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
     public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrations { get; set; } = new List<KfStudentAcademicRegistration>();
 
     public virtual ICollection<KfStudentHistory> KfStudentHistories { get; set; } = new List<KfStudentHistory>();
 
+    public virtual ICollection<KfStudentProgramDocument> KfStudentProgramDocuments { get; set; } = new List<KfStudentProgramDocument>();
+
     public virtual KfProgram Program { get; set; } = null!;
 
-    public virtual StudentRegistration Student { get; set; } = null!;
+    public virtual KfStudentRegistration Student { get; set; } = null!;
 
-    public virtual ICollection<StudentProgramDocument> StudentProgramDocuments { get; set; } = new List<StudentProgramDocument>();
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

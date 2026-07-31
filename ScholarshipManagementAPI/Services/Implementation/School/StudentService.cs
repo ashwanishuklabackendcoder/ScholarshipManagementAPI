@@ -24,12 +24,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<long> CreateAsync(StudentRequestDto dto)
         {
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Phone == dto.Phone))
+            if (await _context.KfStudentRegistrations.AnyAsync(x => x.Phone == dto.Phone))
             {
                 throw new CustomException("Student with same mobile number already exists");
             }
 
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Email == dto.Email))
+            if (await _context.KfStudentRegistrations.AnyAsync(x => x.Email == dto.Email))
             {
                 throw new CustomException("Student with same email already exists");
             }
@@ -64,14 +64,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 ? "#"
                 : school.StudentCodeFormatSuffix;
 
-            var studentCount = await _context.StudentRegistrations
+            var studentCount = await _context.KfStudentRegistrations
                 .CountAsync(x => x.SchoolId == dto.SchoolId);
 
             var nextSequence = school.StudentSequenceNumber + studentCount;
 
             studentCode = $"{prefix}-{nextSequence:D4}-{suffix}";
 
-            var entity = new StudentRegistration
+            var entity = new KfStudentRegistration
             {
                 StudentCode = studentCode,
                 PhotoPath = dto.PhotoPath,
@@ -142,7 +142,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 CreatedDate = DateTime.UtcNow
             };
 
-            _context.StudentRegistrations.Add(entity);
+            _context.KfStudentRegistrations.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.StudentId;
@@ -153,18 +153,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (dto.StudentId == null || dto.StudentId == 0)
                 return false;
 
-            var entity = await _context.StudentRegistrations
+            var entity = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == dto.StudentId);
 
             if (entity == null)
                 return false;
 
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Phone == dto.Phone && x.StudentId != dto.StudentId))
+            if (await _context.KfStudentRegistrations.AnyAsync(x => x.Phone == dto.Phone && x.StudentId != dto.StudentId))
             {
                 throw new CustomException("Student with same mobile number already exists");
             }
 
-            if (await _context.StudentRegistrations.AnyAsync(x => x.Email == dto.Email && x.StudentId != dto.StudentId))
+            if (await _context.KfStudentRegistrations.AnyAsync(x => x.Email == dto.Email && x.StudentId != dto.StudentId))
             {
                 throw new CustomException("Student with same email already exists");
             }
@@ -252,7 +252,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.StudentRegistrations
+            var entity = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == id);
 
             if (entity == null)
@@ -265,7 +265,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<StudentRequestDto?> GetByIdAsync(long id)
         {
-            var x = await _context.StudentRegistrations
+            var x = await _context.KfStudentRegistrations
                 .AsNoTracking()
                 .Include(s => s.School)
                 .Include(s => s.Nationality)
@@ -384,7 +384,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         
         public async Task<PagedResultDto<StudentRequestDto>> GetByFilterAsync(StudentFilterDto filter)
         {
-            var query = _context.StudentRegistrations
+            var query = _context.KfStudentRegistrations
                 .AsNoTracking()
                 .Where(x => x.IsActive)
                 .AsQueryable();
@@ -398,7 +398,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 //    x.CreatedBy == filter.CreatedBy &&
                 //    x.StudentProgramApplications.Any());
 
-                query = query.Where(x => x.StudentProgramApplications.Any(a =>
+                query = query.Where(x => x.KfStudentProgramApplications.Any(a =>
                       a.CreatedBy == filter.CreatedBy.Value));
 
             }
@@ -406,14 +406,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (filter.UniversityId.HasValue)
             {
                 query = query.Where(x =>
-                    x.StudentProgramApplications.Any(a =>
+                    x.KfStudentProgramApplications.Any(a =>
                         a.Program.UniversityId == filter.UniversityId.Value));
             }
 
             if (filter.FacultyId.HasValue)
             {
                 query = query.Where(x =>
-                    x.StudentProgramApplications.Any(a =>
+                    x.KfStudentProgramApplications.Any(a =>
                         a.Program.FacultyId == filter.FacultyId.Value));
             }
 
@@ -443,7 +443,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (filter.StudentStatusId.HasValue)
             {
                 query = query.Where(x =>
-                    x.StudentProgramApplications.Any(a => a.ApplicationStatus == filter.StudentStatusId.Value));
+                    x.KfStudentProgramApplications.Any(a => a.ApplicationStatus == filter.StudentStatusId.Value));
             }
 
             if (!string.IsNullOrWhiteSpace(filter.HsSpecialization))
@@ -467,7 +467,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     (x.DaStudentCode != null && x.DaStudentCode.Contains(search)) ||
 
                     // for coordinator nominations
-                    x.StudentProgramApplications.Any(a =>
+                    x.KfStudentProgramApplications.Any(a =>
                          a.Program.ProgramName.Contains(search) ||
                          a.Program.ProgramCode.Contains(search) ||
                          a.Program.Faculty.FacultyName.Contains(search) ||
@@ -547,22 +547,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     UpdatedBy = x.UpdatedBy,
                     UpdatedDate = x.UpdatedDate,
 
-                    StudentApplicationStatusId = x.StudentProgramApplications
+                    StudentApplicationStatusId = x.KfStudentProgramApplications
                         .OrderByDescending(a => a.ApplicationId)
                         .Select(a => (long?)a.ApplicationStatus)
                         .FirstOrDefault(),
 
-                    StudentAssignedProgramName = x.StudentProgramApplications
+                    StudentAssignedProgramName = x.KfStudentProgramApplications
                         .OrderByDescending(a => a.ApplicationId)
                         .Select(a => a.Program.ProgramName + " (" + a.Program.ProgramCode + ")")
                         .FirstOrDefault(), 
 
-                    StudentAssignedUniversityName = x.StudentProgramApplications
+                    StudentAssignedUniversityName = x.KfStudentProgramApplications
                         .OrderByDescending(a => a.ApplicationId)
                         .Select(a => a.Program.University.UniversityName)
                         .FirstOrDefault(),
 
-                    StudentAssignedUniversityId = x.StudentProgramApplications
+                    StudentAssignedUniversityId = x.KfStudentProgramApplications
                         .OrderByDescending(a => a.ApplicationId)
                         .Select(a => (long?)a.Program.UniversityId)
                         .FirstOrDefault(),
@@ -603,7 +603,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<string> UploadProfilePhotoAsync(long studentId, IFormFile file, long userId)
         {
-            var student = await _context.StudentRegistrations
+            var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)
@@ -657,7 +657,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<bool> DeleteProfilePhotoAsync(long studentId, long userId)
         {
-            var student = await _context.StudentRegistrations
+            var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)
@@ -685,7 +685,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<string> UploadRecommendationLetterAsync(long studentId, IFormFile file, long userId)
         {
-            var student = await _context.StudentRegistrations
+            var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)
@@ -740,7 +740,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
         public async Task<bool> DeleteRecommendationLetterAsync(long studentId, long userId)
         {
-            var student = await _context.StudentRegistrations
+            var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)

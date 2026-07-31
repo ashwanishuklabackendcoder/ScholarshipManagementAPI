@@ -23,7 +23,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
         {
             var categoryName = dto.CategoryName.Trim();
 
-            if (await _context.KfStudentCategories
+            if (await _context.KfSponsorshipStudentCategories
                 .AnyAsync(x => x.CategoryName.ToLower() == categoryName.ToLower()))
             {
                 throw new CustomException("Student category with same name already exists.");
@@ -31,11 +31,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
             // Automatically assign the next display order.
             // This can be replaced later if manual ordering is introduced.
-            var nextDisplayOrder = await _context.KfStudentCategories
+            var nextDisplayOrder = await _context.KfSponsorshipStudentCategories
                 .Select(x => (int?)x.DisplayOrder)
                 .MaxAsync() ?? 0;
 
-            var entity = new KfStudentCategory
+            var entity = new KfSponsorshipStudentCategory
             {
                 CategoryName = dto.CategoryName,
                 DisplayOrder = nextDisplayOrder + 1,                    // Assign the next display order
@@ -48,7 +48,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 UpdatedDate = null
             };
 
-            _context.KfStudentCategories.Add(entity);
+            _context.KfSponsorshipStudentCategories.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.StudentCategoryId;
@@ -57,7 +57,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<bool> UpdateAsync(StudentCategoryRequestDto dto)
         {
-            var entity = await _context.KfStudentCategories.FindAsync(dto.StudentCategoryId);
+            var entity = await _context.KfSponsorshipStudentCategories.FindAsync(dto.StudentCategoryId);
             if (entity == null)
             {
                 throw new CustomException("Student category not found");
@@ -65,7 +65,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
             var categoryName = dto.CategoryName.Trim();
 
-            if (await _context.KfStudentCategories.AnyAsync(x =>
+            if (await _context.KfSponsorshipStudentCategories.AnyAsync(x =>
                 x.StudentCategoryId != dto.StudentCategoryId &&
                 x.CategoryName.ToLower() == categoryName.ToLower()))
             {
@@ -90,7 +90,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.KfStudentCategories
+            var entity = await _context.KfSponsorshipStudentCategories
                 .FirstOrDefaultAsync(x => x.StudentCategoryId == id);
 
             if (entity == null)
@@ -109,7 +109,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<StudentCategoryRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.KfStudentCategories
+            return await _context.KfSponsorshipStudentCategories
                 .AsNoTracking()
                 .Where(x => x.StudentCategoryId == id)
                 .Select(x => new StudentCategoryRequestDto
@@ -133,7 +133,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<PagedResultDto<StudentCategoryRequestDto>> GetByFilterAsync(StudentCategoryFilterDto filter)
         {
-            var query = _context.KfStudentCategories
+            var query = _context.KfSponsorshipStudentCategories
                 .AsNoTracking()
                 .AsQueryable();
 

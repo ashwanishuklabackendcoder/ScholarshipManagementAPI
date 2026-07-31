@@ -31,7 +31,7 @@ public partial class KfDocumentType
 
     public virtual ICollection<KfProgramDocument> KfProgramDocuments { get; set; } = new List<KfProgramDocument>();
 
-    public virtual ICollection<StudentProgramDocument> StudentProgramDocuments { get; set; } = new List<StudentProgramDocument>();
+    public virtual ICollection<KfStudentProgramDocument> KfStudentProgramDocuments { get; set; } = new List<KfStudentProgramDocument>();
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

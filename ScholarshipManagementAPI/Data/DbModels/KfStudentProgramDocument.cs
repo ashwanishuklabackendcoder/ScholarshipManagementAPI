@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class StudentProgramDocument
+public partial class KfStudentProgramDocument
 {
     public long StudentProgramDocumentId { get; set; }
 
@@ -38,4 +38,8 @@ public partial class StudentProgramDocument
     public virtual KfDocumentType DocumentType { get; set; } = null!;
 
     public virtual KfProgramDocument ProgramDocument { get; set; } = null!;
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+
+    public virtual UsersLogin UploadedByNavigation { get; set; } = null!;
 }

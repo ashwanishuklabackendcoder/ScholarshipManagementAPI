@@ -37,21 +37,21 @@ public partial class ZzMasterDropDown
 
     public virtual ICollection<KfSchool> KfSchoolSchoolTypeNavigations { get; set; } = new List<KfSchool>();
 
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationFinancialNeedStatuses { get; set; } = new List<KfStudentRegistration>();
+
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationFutureGoalsLevels { get; set; } = new List<KfStudentRegistration>();
+
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationGenders { get; set; } = new List<KfStudentRegistration>();
+
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationMotivationLevels { get; set; } = new List<KfStudentRegistration>();
+
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationReligions { get; set; } = new List<KfStudentRegistration>();
+
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationSelfRelianceLevels { get; set; } = new List<KfStudentRegistration>();
+
     public virtual UsersModule? Module { get; set; }
 
     public virtual ZzMasterDropDown? Parent { get; set; }
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationFinancialNeedStatuses { get; set; } = new List<StudentRegistration>();
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationFutureGoalsLevels { get; set; } = new List<StudentRegistration>();
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationGenders { get; set; } = new List<StudentRegistration>();
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationMotivationLevels { get; set; } = new List<StudentRegistration>();
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationReligions { get; set; } = new List<StudentRegistration>();
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationSelfRelianceLevels { get; set; } = new List<StudentRegistration>();
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationStudentsGenderTypes { get; set; } = new List<UnUniversityRegistration>();
 

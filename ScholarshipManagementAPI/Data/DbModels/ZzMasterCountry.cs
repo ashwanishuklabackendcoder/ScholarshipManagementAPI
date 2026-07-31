@@ -37,9 +37,9 @@ public partial class ZzMasterCountry
 
     public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
-    public virtual ICollection<StudentRegistration> StudentRegistrationNationalities { get; set; } = new List<StudentRegistration>();
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationNationalities { get; set; } = new List<KfStudentRegistration>();
 
-    public virtual ICollection<StudentRegistration> StudentRegistrationResidenceCountries { get; set; } = new List<StudentRegistration>();
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationResidenceCountries { get; set; } = new List<KfStudentRegistration>();
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrations { get; set; } = new List<UnUniversityRegistration>();
 }

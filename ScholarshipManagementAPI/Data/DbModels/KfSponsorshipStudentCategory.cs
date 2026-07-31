@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class KfSponsorshipCategoryMapping
+public partial class KfSponsorshipStudentCategory
 {
-    public long MappingId { get; set; }
-
-    public long SponsorshipTypeId { get; set; }
-
     public long StudentCategoryId { get; set; }
+
+    public string CategoryName { get; set; } = null!;
+
+    public int DisplayOrder { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -23,9 +23,7 @@ public partial class KfSponsorshipCategoryMapping
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual KfSponsorshipType SponsorshipType { get; set; } = null!;
-
-    public virtual KfSponsorshipStudentCategory StudentCategory { get; set; } = null!;
+    public virtual ICollection<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappings { get; set; } = new List<KfSponsorshipCategoryMapping>();
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

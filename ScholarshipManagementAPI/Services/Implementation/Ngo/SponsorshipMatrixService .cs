@@ -32,7 +32,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 })
                 .ToListAsync();
 
-            var studentCategories = await _context.KfStudentCategories
+            var studentCategories = await _context.KfSponsorshipStudentCategories
                 .AsNoTracking()
                 .Where(x => x.IsActive)
                 .OrderBy(x => x.DisplayOrder)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class StudentRegistration
+public partial class KfStudentRegistration
 {
     public long StudentId { get; set; }
 

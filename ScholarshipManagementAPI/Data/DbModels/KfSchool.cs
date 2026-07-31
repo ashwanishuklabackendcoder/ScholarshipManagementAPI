@@ -109,11 +109,11 @@ public partial class KfSchool
 
     public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrations { get; set; } = new List<KfStudentRegistration>();
+
     public virtual ZzMasterDropDown SchoolStatusNavigation { get; set; } = null!;
 
     public virtual ZzMasterDropDown SchoolTypeNavigation { get; set; } = null!;
-
-    public virtual ICollection<StudentRegistration> StudentRegistrations { get; set; } = new List<StudentRegistration>();
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

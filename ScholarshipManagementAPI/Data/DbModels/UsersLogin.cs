@@ -69,6 +69,10 @@ public partial class UsersLogin
 
     public virtual ICollection<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappingUpdatedByNavigations { get; set; } = new List<KfSponsorshipCategoryMapping>();
 
+    public virtual ICollection<KfSponsorshipStudentCategory> KfSponsorshipStudentCategoryCreatedByNavigations { get; set; } = new List<KfSponsorshipStudentCategory>();
+
+    public virtual ICollection<KfSponsorshipStudentCategory> KfSponsorshipStudentCategoryUpdatedByNavigations { get; set; } = new List<KfSponsorshipStudentCategory>();
+
     public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeCreatedByNavigations { get; set; } = new List<KfSponsorshipType>();
 
     public virtual ICollection<KfSponsorshipType> KfSponsorshipTypeUpdatedByNavigations { get; set; } = new List<KfSponsorshipType>();
@@ -89,15 +93,21 @@ public partial class UsersLogin
 
     public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrationUpdatedByNavigations { get; set; } = new List<KfStudentAcademicRegistration>();
 
-    public virtual ICollection<KfStudentCategory> KfStudentCategoryCreatedByNavigations { get; set; } = new List<KfStudentCategory>();
+    public virtual ICollection<KfStudentHistory> KfStudentHistories { get; set; } = new List<KfStudentHistory>();
 
-    public virtual ICollection<KfStudentCategory> KfStudentCategoryUpdatedByNavigations { get; set; } = new List<KfStudentCategory>();
+    public virtual ICollection<KfStudentProgramApplication> KfStudentProgramApplicationCreatedByNavigations { get; set; } = new List<KfStudentProgramApplication>();
+
+    public virtual ICollection<KfStudentProgramApplication> KfStudentProgramApplicationUpdatedByNavigations { get; set; } = new List<KfStudentProgramApplication>();
+
+    public virtual ICollection<KfStudentProgramDocument> KfStudentProgramDocumentUpdatedByNavigations { get; set; } = new List<KfStudentProgramDocument>();
+
+    public virtual ICollection<KfStudentProgramDocument> KfStudentProgramDocumentUploadedByNavigations { get; set; } = new List<KfStudentProgramDocument>();
+
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationCreatedByNavigations { get; set; } = new List<KfStudentRegistration>();
+
+    public virtual ICollection<KfStudentRegistration> KfStudentRegistrationUpdatedByNavigations { get; set; } = new List<KfStudentRegistration>();
 
     public virtual KfStaff Staff { get; set; } = null!;
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationCreatedByNavigations { get; set; } = new List<StudentRegistration>();
-
-    public virtual ICollection<StudentRegistration> StudentRegistrationUpdatedByNavigations { get; set; } = new List<StudentRegistration>();
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationAccreditationByNavigations { get; set; } = new List<UnUniversityRegistration>();
 
