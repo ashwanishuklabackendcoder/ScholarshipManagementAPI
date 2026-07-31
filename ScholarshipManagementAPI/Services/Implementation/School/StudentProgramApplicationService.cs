@@ -27,6 +27,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             _environment = environment;
         }
 
+
+        // ======================================================
+        // Student Program Application Service Methods
+        // via school coordinator (student-facing)
+        // ======================================================
+
         public async Task<List<CandidateProgramResponseDto>> GetCandidateProgramsAsync(long studentId)
         {
             var student = await _context.KfStudentRegistrations
@@ -105,7 +111,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             return list;
         }
-
 
         public async Task<long> ApplyAsync(long studentId, ApplyRequestDto dto, long userId)
         {
@@ -409,7 +414,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             };
         }
 
-
         public async Task<StudentProgramDocumentResponseDto> UploadDocumentAsync(long applicationId, long programDocumentId,
             long documentTypeId, IFormFile file, long userId)
         {
@@ -711,7 +715,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
 
-
+        // ======================================================
+        // Search Student Program Application and change status 
+        // via University or NGO staff
+        // ======================================================
 
         public async Task<PagedResultDto<StudentProgramApplicationDto>> SearchAsync(StudentProgramApplicationFilterDto filter, LoggedInUserDto currentUser)
         {
@@ -964,10 +971,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         public async Task<bool> ChangeStatusAsync(long applicationId, ChangeStudentProgramStatusDto dto, LoggedInUserDto currentUser)
         {
             var application = await _context.KfStudentProgramApplications
+                .Include(x => x.Student)
+                .Include(x => x.Program)
                 .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
             if (application == null)
                 throw new CustomException("Application not found.");
+
+            ValidateApplicationAccess(application, currentUser);
 
             if (!Enum.IsDefined(typeof(StudentApplicationStatus), dto.ApplicationStatusId))
                 throw new CustomException("Invalid application status.");
@@ -1005,6 +1016,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
 
+
+        // ======================================================
+        // Private Helper Methods for History Generation
+        // ======================================================
 
         private StudentHistoryTypeEnum GetHistoryType(StudentApplicationStatus status)
         {
@@ -1131,6 +1146,38 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
+
+
+        // ======================================================
+        // Validation (who can access and change application status)
+        // ======================================================
+
+        private static void ValidateApplicationAccess(KfStudentProgramApplication application, LoggedInUserDto currentUser)
+        {
+            switch (currentUser.StaffType)
+            {
+                case StaffType.School:
+                    if (currentUser.SchoolId != application.Student.SchoolId)
+                        throw new UnauthorizedAccessException(
+                            "You are not authorized to access this student's application.");
+                    break;
+
+                case StaffType.University:
+                    if (currentUser.UniversityId != application.Program.UniversityId)
+                        throw new UnauthorizedAccessException(
+                            "You are not authorized to access this application's university.");
+                    break;
+
+                case StaffType.Ngo:
+                    // NGO users can access all sponsored applications.
+                    break;
+
+                default:
+                    throw new UnauthorizedAccessException();
+            }
+        }
+
+
         private bool CanChangeStatus(StudentApplicationStatus currentStatus,
             StudentApplicationStatus newStatus, LoggedInUserDto currentUser)
         {
@@ -1156,14 +1203,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                         case StudentApplicationStatus.AwardingInProcess:
                             return newStatus == StudentApplicationStatus.Awarded ||
                                    newStatus == StudentApplicationStatus.AwardingRejected;
-
-                        // Registration
-                        case StudentApplicationStatus.Sponsored:
-                            return newStatus == StudentApplicationStatus.Registered;
-
-                        // Graduation
-                        case StudentApplicationStatus.Registered:
-                            return newStatus == StudentApplicationStatus.Graduated;
 
                         default:
                             return false;
@@ -1197,7 +1236,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
 
-
+        // ======================================================
+        // Eligibility Check
+        // ======================================================
 
         private bool IsEligible(KfStudentRegistration student, KfProgram program)
         {

@@ -2,10 +2,11 @@ namespace ScholarshipManagementAPI.Helper.Enums
 {
     public enum StudentApplicationStatus
     {
+        // School Coordinator - Application Submission
         Draft = 0,
+        AcceptanceInProcess = 1,
 
         // University - Document & Admission Review
-        AcceptanceInProcess = 1,
         Accepted = 2,
         AcceptanceRejected = 3,
 
