@@ -52,6 +52,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappings { get; set; }
 
+    public virtual DbSet<KfStudentAcademicRegistration> KfStudentAcademicRegistrations { get; set; }
+
     public virtual DbSet<KfStudentCategory> KfStudentCategories { get; set; }
 
     public virtual DbSet<MasterDonorList> MasterDonorLists { get; set; }
@@ -90,7 +92,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-   
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -623,6 +625,42 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStaffUniversityCoordinatorMappingUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_kf_staff_university_coordinator_mapping_UpdatedBy");
+        });
+
+        modelBuilder.Entity<KfStudentAcademicRegistration>(entity =>
+        {
+            entity.ToTable("kf_student_academic_registrations");
+
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.RegistrationDate).HasColumnType("datetime");
+            entity.Property(e => e.Remarks).HasMaxLength(1000);
+            entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Application).WithMany(p => p.KfStudentAcademicRegistrations)
+                .HasForeignKey(d => d.ApplicationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_student_academic_registrations_Application");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfStudentAcademicRegistrationCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_student_academic_registrations_CreatedBy");
+
+            entity.HasOne(d => d.Program).WithMany(p => p.KfStudentAcademicRegistrations)
+                .HasForeignKey(d => d.ProgramId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_student_academic_registrations_Program");
+
+            entity.HasOne(d => d.Student).WithMany(p => p.KfStudentAcademicRegistrations)
+                .HasForeignKey(d => d.StudentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_student_academic_registrations_Student");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStudentAcademicRegistrationUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_student_academic_registrations_UpdatedBy");
         });
 
         modelBuilder.Entity<KfStudentCategory>(entity =>

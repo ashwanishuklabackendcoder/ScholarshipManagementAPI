@@ -85,6 +85,10 @@ public partial class UsersLogin
 
     public virtual ICollection<KfStaff> KfStaffUpdatedByNavigations { get; set; } = new List<KfStaff>();
 
+    public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrationCreatedByNavigations { get; set; } = new List<KfStudentAcademicRegistration>();
+
+    public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrationUpdatedByNavigations { get; set; } = new List<KfStudentAcademicRegistration>();
+
     public virtual ICollection<KfStudentCategory> KfStudentCategoryCreatedByNavigations { get; set; } = new List<KfStudentCategory>();
 
     public virtual ICollection<KfStudentCategory> KfStudentCategoryUpdatedByNavigations { get; set; } = new List<KfStudentCategory>();

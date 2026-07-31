@@ -113,6 +113,8 @@ public partial class StudentRegistration
 
     public virtual ZzMasterDropDown? Gender { get; set; }
 
+    public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrations { get; set; } = new List<KfStudentAcademicRegistration>();
+
     public virtual ZzMasterDropDown? MotivationLevel { get; set; }
 
     public virtual ZzMasterCountry? Nationality { get; set; }

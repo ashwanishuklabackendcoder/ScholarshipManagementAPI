@@ -27,6 +27,8 @@ public partial class StudentProgramApplication
 
     public DateTime? UpdatedDate { get; set; }
 
+    public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrations { get; set; } = new List<KfStudentAcademicRegistration>();
+
     public virtual KfProgram Program { get; set; } = null!;
 
     public virtual StudentRegistration Student { get; set; } = null!;
