@@ -149,9 +149,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (filter.IsActive.HasValue)
                 query = query.Where(x => x.Role.IsActive == filter.IsActive);
 
-            if (filter.DashboardMenuLinkId.HasValue)
-                query = query.Where(x => x.Role.DashboardMenuLinkId == filter.DashboardMenuLinkId);
-
 
 
             /* Global Search */

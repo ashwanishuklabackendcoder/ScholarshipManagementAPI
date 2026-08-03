@@ -11,8 +11,6 @@ public partial class UsersModule
 
     public bool? IsActive { get; set; }
 
-    public bool IsDraft { get; set; }
-
     public long? CreatedBy { get; set; }
 
     public DateTime CreatedDate { get; set; }
@@ -21,7 +19,11 @@ public partial class UsersModule
 
     public DateTime? UpdatedDate { get; set; }
 
+    public virtual UsersLogin? CreatedByNavigation { get; set; }
+
     public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<UsersMenu> UsersMenus { get; set; } = new List<UsersMenu>();
 

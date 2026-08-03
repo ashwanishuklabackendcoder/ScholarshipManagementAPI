@@ -48,6 +48,4 @@ public partial class UsersMenu
     public virtual UsersMenu? Parent { get; set; }
 
     public virtual ICollection<UsersRolePage> UsersRolePages { get; set; } = new List<UsersRolePage>();
-
-    public virtual ICollection<UsersRole> UsersRoles { get; set; } = new List<UsersRole>();
 }

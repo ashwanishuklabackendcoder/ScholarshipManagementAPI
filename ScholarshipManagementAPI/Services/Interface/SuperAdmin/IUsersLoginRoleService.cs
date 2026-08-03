@@ -15,7 +15,7 @@ namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
 
         Task<PagedResultDto<LoginRoleAssignmentDto>> GetRolesByLoginAsync(UsersLoginRoleFilterDto filter);
 
-        Task BulkSaveRolesAsync(LoginRoleBulkSaveDto dto, string createdBy);
+        Task BulkSaveRolesAsync(LoginRoleBulkSaveDto dto, long createdBy);
 
     }
 }

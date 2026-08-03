@@ -1,42 +1,43 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole;
+using ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers;
 using ScholarshipManagementAPI.Helper.Utilities;
-using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
+using ScholarshipManagementAPI.Services.Interface.Ngo;
 
-namespace ScholarshipManagementAPI.Controllers.SuperAdmin
+namespace ScholarshipManagementAPI.Controllers.Ngo
 {
     [ApiController]
-    [Route("api/superadmin/users-role")]
-    public class UsersRoleController : ControllerBase
+    [Route("api/ngo/panel-users")]
+    public class PanelUsersController : ControllerBase
     {
-        private readonly IUsersRoleService _service;
+        private readonly IPanelUsersService _service;
+        private readonly CurrentUserContextService _currentUserContext;
 
-        public UsersRoleController(IUsersRoleService service)
+        public PanelUsersController(
+            IPanelUsersService service,
+            CurrentUserContextService currentUserContext)
         {
             _service = service;
+            _currentUserContext = currentUserContext;
         }
+
 
 
         // -------- CREATE --------
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Create(UsersRoleRequestDto dto)
+        public async Task<IActionResult> Create(PanelUserRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                       // always server-side
-            dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
-
-            var id = await _service.CreateAsync(dto);
+            var currentUser = await _currentUserContext.GetCurrentUserAsync();
+            var id = await _service.CreateAsync(dto, currentUser);
 
             return Ok(new ApiResponseDto
             {
                 Success = true,
                 Result = id,
-                Message = "UsersRole created successfully"
+                Message = "Panel user created successfully"
             });
         }
 
@@ -44,10 +45,10 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         // -------- UPDATE --------
         [HttpPut("update/{id:long}")]
         [Authorize]
-        public async Task<IActionResult> Update(long id, [FromBody] UsersRoleRequestDto dto)
+        public async Task<IActionResult> Update(long id, [FromBody] PanelUserRequestDto dto)
         {
-            dto.RoleId = id;
-            var updated = await _service.UpdateAsync(dto);
+            var currentUser = await _currentUserContext.GetCurrentUserAsync();
+            var updated = await _service.UpdateAsync(dto, currentUser);
 
             if (!updated)
             {
@@ -62,7 +63,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "UsersRole updated successfully",
+                Message = "Panel user updated successfully",
                 Result = updated,
             });
         }
@@ -73,7 +74,8 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> Delete(long id)
         {
-            var deleted = await _service.DeleteAsync(id);
+            var currentUser = await _currentUserContext.GetCurrentUserAsync();
+            var deleted = await _service.DeleteAsync(id, currentUser);
 
             if (!deleted)
             {
@@ -88,10 +90,11 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "UsersRole deleted successfully",
+                Message = "Sponsorship type deleted successfully",
                 Result = deleted
             });
         }
+
 
 
         // -------- GET BY ID --------
@@ -123,7 +126,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(UsersRoleFilterDto filter)
+        public async Task<IActionResult> GetByFilter(PanelUserFilterDto filter)
         {
             var result = await _service.GetByFilterAsync(filter);
 
@@ -136,7 +139,6 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
                     : "Data fetched successfully"
             });
         }
-
 
 
     }

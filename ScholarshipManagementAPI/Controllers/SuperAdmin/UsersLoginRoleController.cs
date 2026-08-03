@@ -28,8 +28,8 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> Create(UsersLoginRoleRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                            // always server-side
-            dto.CreatedBy = JwtClaimHelper.LoginId(User).ToString();      // or from claims
+            dto.CreatedDate = DateTime.UtcNow;                       // always server-side
+            dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
 
             var id = await _service.CreateAsync(dto);
 
@@ -179,7 +179,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
                 });
             }
 
-            var createdBy = JwtClaimHelper.UserName(User).ToString();
+            var createdBy = JwtClaimHelper.LoginId(User);
 
             await _service.BulkSaveRolesAsync(dto, createdBy);
 

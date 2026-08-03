@@ -15,9 +15,7 @@ public partial class UsersLoginRole
 
     public DateTime CreatedDate { get; set; }
 
-    public string CreatedBy { get; set; } = null!;
-
-    public bool IsDraft { get; set; }
+    public long CreatedBy { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -25,7 +23,11 @@ public partial class UsersLoginRole
 
     public DateTime? UpdatedDate { get; set; }
 
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
     public virtual UsersLogin Login { get; set; } = null!;
 
     public virtual UsersRole Role { get; set; } = null!;
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

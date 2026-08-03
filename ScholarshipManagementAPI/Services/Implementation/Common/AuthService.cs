@@ -484,7 +484,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         public async Task<CurrentUserProfileDto?> GetMyProfileAsync(long loginId , long roleId)
         {
             var user = await _context.UsersLogins
-                .Include(x => x.UsersLoginRoles)
+                .Include(x => x.UsersLoginRoleLogins)
                 .ThenInclude(x => x.Role)
                 .ThenInclude(x => x.Module)
                 .Include(x => x.Staff)
@@ -498,7 +498,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new CustomException("User not found.");
 
 
-            var roles = user.UsersLoginRoles
+            var roles = user.UsersLoginRoleLogins
                 .OrderByDescending(x => x.IsDefault)
                 .Select(x => new AvailableRolesDto
             {
@@ -525,7 +525,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 _ => string.Empty
             };
 
-            var currentRole = user.UsersLoginRoles
+            var currentRole = user.UsersLoginRoleLogins
                 .FirstOrDefault(x => x.RoleId == roleId && x.LoginId == loginId);
 
             var currency = await GetDefaultCurrencyAsync(staff);

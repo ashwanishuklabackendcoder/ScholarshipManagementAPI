@@ -980,14 +980,17 @@ public partial class AppDbContext : DbContext
         {
             entity.HasKey(e => e.UserLoginRoleId);
 
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
 
-            entity.HasOne(d => d.Login).WithMany(p => p.UsersLoginRoles)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UsersLoginRoleCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginRoles_CreatedBy");
+
+            entity.HasOne(d => d.Login).WithMany(p => p.UsersLoginRoleLogins)
                 .HasForeignKey(d => d.LoginId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersLoginRoles_UsersLogin");
@@ -996,6 +999,10 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersLoginRoles_UsersRole");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UsersLoginRoleUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersLoginRoles_UpdatedBy");
         });
 
         modelBuilder.Entity<UsersLoginsLog>(entity =>
@@ -1060,8 +1067,15 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
             entity.Property(e => e.ModuleName).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UsersModuleCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_UsersModule_CreatedBy");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UsersModuleUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersModule_UpdatedBy");
         });
 
         modelBuilder.Entity<UsersRole>(entity =>
@@ -1070,23 +1084,26 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("UsersRole");
 
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
             entity.Property(e => e.RoleName).HasMaxLength(200);
 
-            entity.HasOne(d => d.DashboardMenuLink).WithMany(p => p.UsersRoles)
-                .HasForeignKey(d => d.DashboardMenuLinkId)
-                .HasConstraintName("FK_UsersRole_UsersMenu");
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UsersRoleCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersRole_CreatedBy");
 
             entity.HasOne(d => d.Module).WithMany(p => p.UsersRoles)
                 .HasForeignKey(d => d.ModuleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersRole_UsersModule");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UsersRoleUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersRole_UpdatedBy");
         });
 
         modelBuilder.Entity<UsersRolePage>(entity =>

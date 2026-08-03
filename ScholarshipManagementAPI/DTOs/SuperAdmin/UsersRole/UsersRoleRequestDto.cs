@@ -25,7 +25,7 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole
 
         // These should usually be server-controlled
         public DateTime CreatedDate { get; set; }
-        public string? CreatedBy { get; set; }
+        public long CreatedBy { get; set; }
 
 
 

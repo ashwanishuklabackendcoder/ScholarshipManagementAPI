@@ -280,7 +280,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         }
 
 
-        public async Task BulkSaveRolesAsync(LoginRoleBulkSaveDto dto, string createdBy)
+        public async Task BulkSaveRolesAsync(LoginRoleBulkSaveDto dto, long createdBy)
         {
             // multiple role(roleId) assignment for a single user(loginId) is allowed
             // but only one default role is allowed for a single user

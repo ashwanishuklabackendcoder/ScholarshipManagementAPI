@@ -36,11 +36,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 Description = dto.Description,
                 IsActive = dto.IsActive,
                 ModuleId = dto.ModuleId,
-                DashboardMenuLinkId = dto.DashboardMenuLinkId,
 
-
-                CreatedBy = dto.CreatedBy != null ? dto.CreatedBy : "",        // or from token
-                CreatedDate = dto.CreatedDate                                  // always server-side
+                CreatedBy = dto.CreatedBy,                        // or from token
+                CreatedDate = dto.CreatedDate                     // always server-side
             };
 
             _context.UsersRoles.Add(entity);
@@ -74,7 +72,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.Description = dto.Description;
             entity.IsActive = dto.IsActive;
             entity.ModuleId = dto.ModuleId;
-            entity.DashboardMenuLinkId = dto.DashboardMenuLinkId;
 
             // entity.CreatedBy = dto.CreatedBy;        
             // CreatedDate NOT updated on purpose
@@ -112,14 +109,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     RoleName = x.RoleName,
                     Description = x.Description,
                     ModuleId = x.ModuleId,
-                    DashboardMenuLinkId = x.DashboardMenuLinkId,
                     IsActive = x.IsActive,
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
 
                     ModuleName = x.Module.ModuleName,
-                    DashboardMenuName = x.DashboardMenuLink != null ? x.DashboardMenuLink.PageHeading : null,
-                    DashboardPath = x.DashboardMenuLink != null ? x.DashboardMenuLink.PagePath : null
                 
                 })
                 .FirstOrDefaultAsync();
@@ -132,16 +126,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             var query = _context.UsersRoles
                 .AsNoTracking()
                 .Include(x => x.Module)
-                .Include(x => x.DashboardMenuLink)
                 .AsQueryable();
 
             // Module filter
             if (filter.ModuleId.HasValue)
                 query = query.Where(x => x.ModuleId == filter.ModuleId);
-
-            // DashboardMenuLink filter
-            if (filter.DashboardMenuLinkId.HasValue)
-                query = query.Where(x => x.DashboardMenuLinkId == filter.DashboardMenuLinkId);
 
             // IsActive filter
             if (filter.IsActive.HasValue)
@@ -156,7 +145,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 query = query.Where(x =>
                     x.RoleName.ToLower().Contains(search) ||
                     (x.Description!=null && x.Description.ToLower().Contains(search)) ||
-                    (x.DashboardMenuLink != null && x.DashboardMenuLink.PageHeading.ToLower().Contains(search)) ||
                     (x.Module != null && x.Module.ModuleName.ToLower().Contains(search)) 
                 );
             }
@@ -183,14 +171,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     RoleName = x.RoleName,
                     Description = x.Description,
                     ModuleId = x.ModuleId,
-                    DashboardMenuLinkId = x.DashboardMenuLinkId,
                     IsActive = x.IsActive,
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
 
                     ModuleName = x.Module.ModuleName,
-                    DashboardMenuName = x.DashboardMenuLink != null ? x.DashboardMenuLink.PageHeading : null,
-                    DashboardPath = x.DashboardMenuLink != null ? x.DashboardMenuLink.PagePath : null
                
                 })
                 .ToListAsync();

@@ -17,19 +17,17 @@ public partial class UsersRole
 
     public DateTime CreatedDate { get; set; }
 
-    public string CreatedBy { get; set; } = null!;
-
-    public long? DashboardMenuLinkId { get; set; }
-
-    public bool IsDraft { get; set; }
+    public long CreatedBy { get; set; }
 
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersMenu? DashboardMenuLink { get; set; }
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual UsersModule Module { get; set; } = null!;
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<UsersLoginRole> UsersLoginRoles { get; set; } = new List<UsersLoginRole>();
 

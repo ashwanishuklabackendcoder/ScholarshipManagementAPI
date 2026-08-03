@@ -16,7 +16,7 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole
         public bool IsDefault { get; set; }
 
         public DateTime CreatedDate { get; set; }   // set server-side
-        public string CreatedBy { get; set; } = string.Empty;
+        public long CreatedBy { get; set; }
 
 
         // For display purposes
