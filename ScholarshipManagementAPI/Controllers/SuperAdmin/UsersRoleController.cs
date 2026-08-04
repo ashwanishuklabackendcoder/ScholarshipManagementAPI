@@ -138,6 +138,23 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         }
 
 
+        // -------- GET ROLES BY MODULE IDS --------
+        [HttpPost("get-by-modules")]
+        [Authorize]
+        public async Task<IActionResult> GetByModules([FromBody] UsersRoleByModulesRequestDto dto)
+        {
+            var result = await _service.GetByModuleIdsAsync(dto);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = result.Count > 0,
+                Result = result,
+                Message = result.Count == 0
+                    ? "Data not found"
+                    : "Roles fetched successfully"
+            });
+        }
+
 
     }
 }

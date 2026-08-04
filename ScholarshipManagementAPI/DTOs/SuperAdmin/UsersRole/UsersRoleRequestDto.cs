@@ -4,6 +4,7 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole
 {
     public class UsersRoleRequestDto
     {
+
         public long? RoleId { get; set; }   // null / 0 = Create, >0 = Update
 
         [Required(ErrorMessage = "Role name is required")]
@@ -16,7 +17,6 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole
         [Required(ErrorMessage = "Module is required")]
         public long ModuleId { get; set; }
 
-        public long? DashboardMenuLinkId { get; set; }   // FK → ZzUsersMenu
 
         [Required]
         public bool IsActive { get; set; }
@@ -31,7 +31,6 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole
 
         // required for display purposes
         public string? ModuleName { get; set; }
-        public string? DashboardMenuName { get; set; }
-        public string? DashboardPath { get; set; }
+
     }
 }

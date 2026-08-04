@@ -61,5 +61,10 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
         public DateTime? UpdatedDate { get; set; }
 
         public long? UpdatedBy { get; set; }
+
+
+        // check if the user is default user or not
+        public bool IsDefaultRole{ get; set; }
+
     }
 }

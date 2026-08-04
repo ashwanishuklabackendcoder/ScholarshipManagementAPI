@@ -11,5 +11,8 @@ namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
 
         Task<UsersRoleRequestDto?> GetByIdAsync(long id);
         Task<PagedResultDto<UsersRoleRequestDto>> GetByFilterAsync(UsersRoleFilterDto filter);
+
+        Task<List<UsersRoleLookupDto>> GetByModuleIdsAsync(UsersRoleByModulesRequestDto dto);
+
     }
 }

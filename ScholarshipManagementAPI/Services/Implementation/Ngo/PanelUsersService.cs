@@ -144,6 +144,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             }
         }
 
+
         // ---------------- UPDATE ----------------
         public async Task<bool> UpdateAsync(PanelUserRequestDto dto, LoggedInUserDto currentUser)
         {
@@ -214,9 +215,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 login.UpdatedBy = currentUser.LoginId;
 
                 // ---------------- Update Role ----------------
-
                 var loginRole = await _context.UsersLoginRoles
-                    .FirstOrDefaultAsync(x => x.LoginId == login.LoginId);
+                    .FirstOrDefaultAsync(x =>
+                        x.LoginId == login.LoginId &&
+                        x.IsDefault);
 
                 if (loginRole == null)
                     throw new CustomException("Role mapping not found.");
@@ -332,7 +334,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     RoleId = x.RoleId,
 
                     // Status
-                    IsActive = x.IsActive
+                    IsActive = x.IsActive,
+                    IsDefaultRole = x.IsDefault,
                 })
 
                 .FirstOrDefaultAsync();
@@ -349,6 +352,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
         {
             var query = _context.UsersLoginRoles
                 .AsNoTracking()
+                .Where(x => x.IsDefault == true)
                 .Include(x => x.Login)
                     .ThenInclude(x => x.Staff)
                 .Include(x => x.Role)

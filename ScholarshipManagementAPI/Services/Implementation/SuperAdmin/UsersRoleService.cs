@@ -190,5 +190,30 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         }
 
 
+
+
+
+        // ---------------- GET ALL LOOKUP ----------------
+        public async Task<List<UsersRoleLookupDto>> GetByModuleIdsAsync(UsersRoleByModulesRequestDto dto)
+        {
+            if (dto.ModuleIds == null || !dto.ModuleIds.Any())
+                return new List<UsersRoleLookupDto>();
+
+            return await _context.UsersRoles
+                .Where(x => x.IsActive && dto.ModuleIds.Contains(x.ModuleId))
+                .OrderBy(x => x.Module.ModuleName)
+                .ThenBy(x => x.RoleName)
+                .Select(x => new UsersRoleLookupDto
+                {
+                    RoleId = x.RoleId,
+                    RoleName = x.RoleName,
+                    ModuleId = x.ModuleId,
+                    ModuleName = x.Module.ModuleName
+                })
+                .ToListAsync();
+        }
+
+
+
     }
 }
