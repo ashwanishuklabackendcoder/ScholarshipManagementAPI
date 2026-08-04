@@ -18,7 +18,7 @@ public partial class KfStaff
 
     public string StaffLastName { get; set; } = null!;
 
-    public string Gender { get; set; } = null!;
+    public long Gender { get; set; }
 
     public string? PermAddress { get; set; }
 
@@ -55,6 +55,8 @@ public partial class KfStaff
     public DateTime? UpdatedDate { get; set; }
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
+    public virtual ZzMasterDropDown GenderNavigation { get; set; } = null!;
 
     public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappings { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
 

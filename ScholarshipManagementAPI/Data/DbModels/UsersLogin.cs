@@ -132,4 +132,8 @@ public partial class UsersLogin
     public virtual ICollection<UsersRole> UsersRoleCreatedByNavigations { get; set; } = new List<UsersRole>();
 
     public virtual ICollection<UsersRole> UsersRoleUpdatedByNavigations { get; set; } = new List<UsersRole>();
+
+    public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownCreatedByNavigations { get; set; } = new List<ZzMasterDropDown>();
+
+    public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownUpdatedByNavigations { get; set; } = new List<ZzMasterDropDown>();
 }

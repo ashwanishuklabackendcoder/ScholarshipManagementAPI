@@ -534,7 +534,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
-            entity.Property(e => e.Gender).HasMaxLength(50);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.MobileNumber).HasMaxLength(100);
             entity.Property(e => e.OfficialEmail).HasMaxLength(100);
@@ -554,6 +553,11 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_kf_staffs_CreatedBy");
+
+            entity.HasOne(d => d.GenderNavigation).WithMany(p => p.KfStaffs)
+                .HasForeignKey(d => d.Gender)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_staffs_Gender_MasterDropDown");
 
             entity.HasOne(d => d.PermCountry).WithMany(p => p.KfStaffs)
                 .HasForeignKey(d => d.PermCountryId)
@@ -1201,15 +1205,17 @@ public partial class AppDbContext : DbContext
             entity.ToTable("ZzMasterDropDown");
 
             entity.Property(e => e.UniqueId).ValueGeneratedNever();
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
             entity.Property(e => e.DisplayText).HasMaxLength(500);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.IsEditable).HasDefaultValue(true);
-            entity.Property(e => e.IsShow).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzMasterDropDownCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ZzMasterDropDown_CreatedBy_UsersLogin");
 
             entity.HasOne(d => d.Module).WithMany(p => p.ZzMasterDropDowns)
                 .HasForeignKey(d => d.ModuleId)
@@ -1218,6 +1224,10 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
                 .HasForeignKey(d => d.ParentId)
                 .HasConstraintName("FK_ZzMasterDropDown_ZzMasterDropDown");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzMasterDropDownUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_ZzMasterDropDown_UpdatedBy_UsersLogin");
         });
 
         OnModelCreatingPartial(modelBuilder);

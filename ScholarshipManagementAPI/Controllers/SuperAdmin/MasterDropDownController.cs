@@ -25,8 +25,8 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> Create(MasterDropDownRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                            // always server-side
-            dto.CreatedBy = JwtClaimHelper.UserName(User).ToString();      // or from claims
+            dto.CreatedDate = DateTime.UtcNow;                       // always server-side
+            dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
 
             var id = await _service.CreateAsync(dto);
 

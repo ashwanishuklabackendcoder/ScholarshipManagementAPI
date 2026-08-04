@@ -26,7 +26,7 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
         // Response Only
         public string? FullName { get; set; }
 
-        public string Gender { get; set; } = string.Empty;
+        public long Gender { get; set; } 
 
         // Contact Information
         [Required]

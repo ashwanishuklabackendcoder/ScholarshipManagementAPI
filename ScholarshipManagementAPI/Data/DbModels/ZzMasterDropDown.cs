@@ -13,13 +13,9 @@ public partial class ZzMasterDropDown
 
     public int DisplaySequence { get; set; }
 
-    public bool IsEditable { get; set; }
-
     public DateTime CreatedDate { get; set; }
 
-    public bool IsShow { get; set; }
-
-    public string? CreatedBy { get; set; }
+    public long CreatedBy { get; set; }
 
     public long? ModuleId { get; set; }
 
@@ -31,11 +27,15 @@ public partial class ZzMasterDropDown
 
     public DateTime? UpdatedDate { get; set; }
 
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
     public virtual ICollection<ZzMasterDropDown> InverseParent { get; set; } = new List<ZzMasterDropDown>();
 
     public virtual ICollection<KfSchool> KfSchoolSchoolStatusNavigations { get; set; } = new List<KfSchool>();
 
     public virtual ICollection<KfSchool> KfSchoolSchoolTypeNavigations { get; set; } = new List<KfSchool>();
+
+    public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrationFinancialNeedStatuses { get; set; } = new List<KfStudentRegistration>();
 
@@ -56,4 +56,6 @@ public partial class ZzMasterDropDown
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationStudentsGenderTypes { get; set; } = new List<UnUniversityRegistration>();
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUniversityTypeNavigations { get; set; } = new List<UnUniversityRegistration>();
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

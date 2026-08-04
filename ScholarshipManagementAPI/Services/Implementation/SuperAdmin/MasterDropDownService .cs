@@ -70,8 +70,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 ParentId = dto.ParentId == null || dto.ParentId == 0 ? null : dto.ParentId,
                 DisplaySequence = displaySequence,
                 IsActive = true,
-                IsEditable = dto.ParentId == null || dto.ParentId == 0 ? false : true,
-                IsShow = dto.IsShow,
                 ModuleId = dto.ParentId == null || dto.ParentId == 0 ? dto.ModuleId : null,
 
                 CreatedBy = dto.CreatedBy,        // or from token
@@ -108,7 +106,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity == null)
                 return false;
 
-            if (entity.ParentId == null && !entity.IsEditable)
+            if (entity.ParentId == null)
                 throw new CustomException("System dropdown cannot be modified");
 
             // not changed
@@ -122,8 +120,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 entity.DisplaySequence = dto.DisplaySequence;
 
             //entity.IsActive = dto.IsActive;
-            entity.IsEditable = dto.IsEditable;
-            entity.IsShow = dto.IsShow;
             entity.ModuleId = dto.ModuleId == 0 ? null : dto.ModuleId;
 
             // CreatedDate NOT updated on purpose
@@ -143,7 +139,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity == null)
                 return false;
 
-            if (entity.ParentId == null && !entity.IsEditable)
+            if (entity.ParentId == null)
                 throw new CustomException("System dropdown cannot be deleted");
 
             entity.IsActive = false;
@@ -168,8 +164,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     ParentId = x.ParentId,
                     DisplaySequence = x.DisplaySequence,
                     IsActive = x.IsActive,
-                    IsEditable = x.IsEditable,
-                    IsShow = x.IsShow,
                     CreatedBy = x.CreatedBy,
                     ModuleId = x.ModuleId,
                     CreatedDate = x.CreatedDate,
@@ -199,17 +193,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (filter.IsActive.HasValue)
                 query = query.Where(x => x.IsActive == filter.IsActive);
 
-            if (filter.IsShow.HasValue)
-                query = query.Where(x => x.IsShow == filter.IsShow);
-
 
             /* Global Search */
             if (!string.IsNullOrWhiteSpace(filter.SearchText))
             {
                 var search = filter.SearchText.Trim().ToLower();
                 query = query.Where(x =>
-                    x.DisplayText.ToLower().Contains(search) ||
-                    (x.CreatedBy != null && x.CreatedBy.ToLower().Contains(search))
+                    x.DisplayText.ToLower().Contains(search)
                 );
             }
 
@@ -236,8 +226,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     ParentId = x.ParentId,
                     DisplaySequence = x.DisplaySequence,
                     IsActive = x.IsActive,
-                    IsEditable = x.IsEditable,
-                    IsShow = x.IsShow,
                     CreatedBy = x.CreatedBy,
                     ModuleId = x.ModuleId,
                     CreatedDate = x.CreatedDate,
@@ -270,8 +258,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     ParentId = x.ParentId,
                     DisplaySequence = x.DisplaySequence,
                     IsActive = x.IsActive,
-                    IsEditable = x.IsEditable,
-                    IsShow = x.IsShow,
                     CreatedBy = x.CreatedBy,
                     ModuleId = x.ModuleId,
                     CreatedDate = x.CreatedDate,

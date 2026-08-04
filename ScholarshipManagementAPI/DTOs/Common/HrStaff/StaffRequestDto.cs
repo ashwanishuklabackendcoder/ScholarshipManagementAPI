@@ -28,8 +28,8 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         [Required, StringLength(100)]
         public string StaffLastName { get; set; } = string.Empty;
 
-        [Required, StringLength(50)]
-        public string Gender { get; set; } = string.Empty;
+        [Required]
+        public long Gender { get; set; }
 
         // ===== Address =====
         [StringLength(200)]
