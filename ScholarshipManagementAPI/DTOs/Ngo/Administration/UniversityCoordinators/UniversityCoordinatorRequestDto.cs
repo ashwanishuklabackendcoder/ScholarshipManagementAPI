@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
+﻿namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.UniversityCoordinators
 {
-    public class PanelUserRequestDto
+    using System.ComponentModel.DataAnnotations;
+
+    public class UniversityCoordinatorRequestDto
     {
         // Staff (null/0 = Create, >0 = Update)
         public long? StaffId { get; set; }
@@ -10,8 +10,15 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
         // Login
         public long? LoginId { get; set; }
 
-
         public long StaffType { get; set; }
+
+        // Universities Mapping
+        [Required(ErrorMessage = "At least one university must be selected.")]
+        public List<long> UniversityIds { get; set; } = new();
+
+        // Response Only
+        public List<string> UniversityNames { get; set; } = new();
+
 
         // Personal Information
         [Required]
@@ -26,10 +33,12 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
         // Response Only
         public string? FullName { get; set; }
 
-        public long Gender { get; set; } 
+        [Required]
+        public long Gender { get; set; }
 
         // Contact Information
         [Required]
+        [EmailAddress]
         public string OfficialEmail { get; set; } = string.Empty;
 
         public string? PersonalEmail { get; set; }
@@ -39,6 +48,7 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
         public string? Remarks { get; set; }
 
         [Required]
+        [EmailAddress]
         public string RecoveryEmail { get; set; } = string.Empty;
 
         // Role
@@ -48,10 +58,12 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
         // Response Only
         public string? RoleName { get; set; }
 
+        // Response Only
         public string? LoginName { get; set; }
 
         //status
         public bool IsActive { get; set; }
+
 
         // Audit Information (Response Only)
         public DateTime? CreatedDate { get; set; }
@@ -62,9 +74,8 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers
 
         public long? UpdatedBy { get; set; }
 
-
-        // check if the user is default user or not
-        public bool IsDefaultRole{ get; set; }
+        // Response Only
+        public bool IsDefaultRole { get; set; }
 
     }
 }

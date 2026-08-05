@@ -4,46 +4,37 @@ using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.Ngo.Administration.PanelUsers;
+using ScholarshipManagementAPI.DTOs.Ngo.Administration.UniversityCoordinators;
 using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.Common;
 using ScholarshipManagementAPI.Services.Interface.Ngo;
-using Serilog;
-using System.Threading.Tasks;
 using static ScholarshipManagementAPI.Helper.Utilities.Constant;
 
 namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 {
-    public class PanelUsersService : IPanelUsersService
+    public class UniversityCoordinatorService : IUniversityCoordinatorService
     {
         private readonly AppDbContext _context;
         private readonly INotificationService _notificationService;
 
-        public PanelUsersService(AppDbContext context, INotificationService notificationService)
-        {
+        public UniversityCoordinatorService(AppDbContext context, INotificationService notificationService) 
+        { 
             _context = context;
             _notificationService = notificationService;
         }
 
-
-        // ---------------- CREATE ----------------
-        public async Task<long> CreateAsync(PanelUserRequestDto dto, LoggedInUserDto currentUser)
+        public async Task<long> CreateAsync(UniversityCoordinatorRequestDto dto, LoggedInUserDto currentUser)
         {
-            if (dto.StaffType == (long)StaffType.School || dto.StaffType == (long)StaffType.University)
-            {
-                throw new CustomException("Selected staff type is not supported in Panel Users.");
-            }
-
             // Validate Role
             var roleExists = await _context.UsersRoles
-                .AnyAsync(x =>
+                .AnyAsync(x => 
                     x.RoleId == dto.RoleId &&
-                    x.ModuleId == dto.StaffType &&
+                    x.ModuleId == (long)StaffType.University &&
                     x.IsActive);
 
             if (!roleExists)
                 throw new CustomException("Selected role does not exist.");
-
 
             // Validate Official Email
             if (await _context.KfStaffs
@@ -59,6 +50,21 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 throw new CustomException("Recovery email already exists.");
             }
 
+            // Validate University Selection
+            if (dto.UniversityIds == null || !dto.UniversityIds.Any())
+            {
+                throw new CustomException("Please select at least one university.");
+            }
+
+            // Validate that all selected universities exist and are active
+            var validUniversityCount = await _context.UnUniversityRegistrations
+                .CountAsync(x => dto.UniversityIds.Contains(x.RegistrationId) && x.IsActive);
+
+            if (validUniversityCount != dto.UniversityIds.Distinct().Count())
+            {
+                throw new CustomException("One or more selected universities are invalid.");
+            }
+
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -66,7 +72,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 // ---------------- Create Staff ----------------
                 var staff = new KfStaff
                 {
-                    StaffType = dto.StaffType,
+                    StaffType = (long)StaffType.University,
 
                     StaffSalutation = dto.StaffSalutation,
                     StaffFirstName = dto.StaffFirstName,
@@ -95,7 +101,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 var generatedPassword = HelperMethods.GeneratePassword();
 
                 var loginName = HelperMethods.GenerateUsername(
-                    dto.StaffType,
+                    (long)StaffType.University,
                     staff.StaffId);
 
                 // ---------------- Create Login ----------------
@@ -137,6 +143,23 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
                 _context.UsersLoginRoles.Add(loginRole);
 
+                // ---------------- University Mapping ----------------
+                var universityMappings = dto.UniversityIds
+                    .Distinct()
+                    .Select(universityId => new KfStaffUniversityCoordinatorMapping
+                    {
+                        StaffId = staff.StaffId,
+                        UniversityId = universityId,
+
+                        IsActive = true,
+
+                        CreatedDate = DateTime.UtcNow,
+                        CreatedBy = currentUser.LoginId
+                    })
+                    .ToList();
+
+                _context.KfStaffUniversityCoordinatorMappings.AddRange(universityMappings);
+
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -154,27 +177,21 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
         }
 
 
-        // ---------------- UPDATE ----------------
-        public async Task<bool> UpdateAsync(PanelUserRequestDto dto, LoggedInUserDto currentUser)
+        public async Task<bool> UpdateAsync(UniversityCoordinatorRequestDto dto, LoggedInUserDto currentUser)
         {
-            if (dto.StaffType == (long)StaffType.School ||  dto.StaffType == (long)StaffType.University)
-            {
-                throw new CustomException("Selected staff type is not supported in Panel Users.");
-            }
-
             // Validate Staff
             var staff = await _context.KfStaffs
                 .FirstOrDefaultAsync(x => x.StaffId == dto.StaffId);
 
             if (staff == null)
-                throw new CustomException("Panel user not found.");
+                throw new CustomException("University coordinator not found.");
 
             // Validate Role
             var roleExists = await _context.UsersRoles
-              .AnyAsync(x =>
-                  x.RoleId == dto.RoleId &&
-                  x.ModuleId == dto.StaffType &&
-                  x.IsActive);
+                .AnyAsync(x =>
+                    x.RoleId == dto.RoleId &&
+                    x.ModuleId == (long)StaffType.University &&
+                    x.IsActive);
 
             if (!roleExists)
                 throw new CustomException("Selected role does not exist.");
@@ -187,20 +204,35 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 throw new CustomException("Official email already exists.");
             }
 
+            // Validate University Selection
+            if (dto.UniversityIds == null || !dto.UniversityIds.Any())
+            {
+                throw new CustomException("Please select at least one university.");
+            }
+
+            // Validate selected universities
+            var validUniversityCount = await _context.UnUniversityRegistrations
+                .CountAsync(x => dto.UniversityIds.Contains(x.RegistrationId) && x.IsActive);
+
+            if (validUniversityCount != dto.UniversityIds.Distinct().Count())
+            {
+                throw new CustomException("One or more selected universities are invalid.");
+            }
+
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 // ---------------- Update Staff ----------------
 
-                staff.StaffType = dto.StaffType;
+                staff.StaffType = (long)StaffType.University;
                 staff.StaffSalutation = dto.StaffSalutation;
                 staff.StaffFirstName = dto.StaffFirstName;
                 staff.StaffLastName = dto.StaffLastName;
                 staff.Gender = dto.Gender;
 
                 staff.OfficialEmail = dto.OfficialEmail.Trim().ToLower();
-                staff.PersonalEmail = string.IsNullOrWhiteSpace(dto.PersonalEmail) 
+                staff.PersonalEmail = string.IsNullOrWhiteSpace(dto.PersonalEmail)
                     ? null : dto.PersonalEmail.Trim().ToLower();
 
                 staff.MobileNumber = dto.MobileNumber;
@@ -253,6 +285,37 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 loginRole.UpdatedDate = DateTime.UtcNow;
                 loginRole.UpdatedBy = currentUser.LoginId;
 
+                // ---------------- Update University Mapping ----------------
+
+                // ---------------- Deactivate Existing University Mappings ----------------
+                var existingMappings = await _context.KfStaffUniversityCoordinatorMappings
+                    .Where(x => x.StaffId == staff.StaffId && x.IsActive)
+                    .ToListAsync();
+
+                foreach (var mapping in existingMappings)
+                {
+                    mapping.IsActive = false;
+                    mapping.UpdatedDate = DateTime.UtcNow;
+                    mapping.UpdatedBy = currentUser.LoginId;
+                }
+
+                // ---------------- Add New University Mappings ----------------
+                var newMappings = dto.UniversityIds
+                    .Distinct()
+                    .Select(universityId => new KfStaffUniversityCoordinatorMapping
+                    {
+                        StaffId = staff.StaffId,
+                        UniversityId = universityId,
+
+                        IsActive = true,
+
+                        CreatedDate = DateTime.UtcNow,
+                        CreatedBy = currentUser.LoginId
+                    })
+                    .ToList();
+
+                _context.KfStaffUniversityCoordinatorMappings.AddRange(newMappings);
+
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -267,7 +330,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
         }
 
 
-        // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long staffId, LoggedInUserDto currentUser)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -308,6 +370,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     }
                 }
 
+                // ---------------- University Mappings ----------------
+                var universityMappings = await _context.KfStaffUniversityCoordinatorMappings
+                    .Where(x => x.StaffId == staffId && x.IsActive)
+                    .ToListAsync();
+
+                foreach (var mapping in universityMappings)
+                {
+                    mapping.IsActive = false;
+                    mapping.UpdatedBy = currentUser.LoginId;
+                    mapping.UpdatedDate = DateTime.UtcNow;
+                }
+
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -321,100 +395,105 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
         }
 
 
-        // ---------------- GET BY ID ----------------
-        public async Task<PanelUserRequestDto> GetByIdAsync(long staffId)
+        public async Task<UniversityCoordinatorRequestDto> GetByIdAsync(long staffId)
         {
-            var panelUser = await _context.UsersLoginRoles
-                .AsNoTracking()
-                .Where(x =>
-                     x.IsActive &&
-                     x.Login.IsActive &&
-                     x.Login.Staff.IsActive &&
-                     x.Login.StaffId == staffId &&
-                     x.Login.Staff.StaffType != (long)StaffType.School &&
-                     x.Login.Staff.StaffType != (long)StaffType.University)
-                .Include(x => x.Login)
-                    .ThenInclude(x => x.Staff)
-                .Include(x => x.Role)
-                .Select(x => new PanelUserRequestDto
-                {
-                    // Ids
-                    StaffId = x.Login.Staff.StaffId,
-                    LoginId = x.Login.LoginId,
+            var universityCoordinator = await _context.UsersLoginRoles
+               .AsNoTracking()
+               .Where(x =>
+                   x.IsActive &&
+                   x.Login.IsActive &&
+                   x.Login.Staff.IsActive &&
+                   x.Login.Staff.StaffType == (long)StaffType.University &&
+                   x.Login.StaffId == staffId)
+               .Include(x => x.Login)
+                   .ThenInclude(x => x.Staff)
+               .Include(x => x.Role)
+               .Select(x => new UniversityCoordinatorRequestDto
+               {
+                   // Ids
+                   StaffId = x.Login.Staff.StaffId,
+                   LoginId = x.Login.LoginId,
 
-                    // Staff
-                    StaffType = x.Login.Staff.StaffType,
+                   // Staff
+                   StaffType = x.Login.Staff.StaffType,
+                   StaffSalutation = x.Login.Staff.StaffSalutation,
+                   StaffFirstName = x.Login.Staff.StaffFirstName,
+                   StaffLastName = x.Login.Staff.StaffLastName,
 
-                    StaffSalutation = x.Login.Staff.StaffSalutation,
-                    StaffFirstName = x.Login.Staff.StaffFirstName,
-                    StaffLastName = x.Login.Staff.StaffLastName,
-                    Gender = x.Login.Staff.Gender,
+                   Gender = x.Login.Staff.Gender,
 
-                    OfficialEmail = x.Login.Staff.OfficialEmail,
-                    PersonalEmail = x.Login.Staff.PersonalEmail,
-                    MobileNumber = x.Login.Staff.MobileNumber,
+                   OfficialEmail = x.Login.Staff.OfficialEmail,
+                   PersonalEmail = x.Login.Staff.PersonalEmail,
+                   MobileNumber = x.Login.Staff.MobileNumber,
 
-                    Remarks = x.Login.Staff.Remarks,
+                   Remarks = x.Login.Staff.Remarks,
 
-                    // Login
-                    LoginName = x.Login.LoginName,
-                    RecoveryEmail = x.Login.RecoveryEmail,
+                   // Login
+                   LoginName = x.Login.LoginName,
+                   RecoveryEmail = x.Login.RecoveryEmail,
 
-                    // Role
-                    RoleId = x.RoleId,
-                    RoleName = x.Role.RoleName,
+                   // Role
+                   RoleId = x.RoleId,
+                   RoleName = x.Role.RoleName,
 
-                    // Status
-                    IsDefaultRole = x.IsDefault,
-                    IsActive = x.IsActive,
+                   // Status
+                   IsDefaultRole = x.IsDefault,
+                   IsActive = x.IsActive,
 
-                    // Audit
-                    CreatedDate = x.Login.Staff.CreatedDate,
-                    CreatedBy = x.Login.Staff.CreatedBy,
-                    UpdatedDate = x.Login.Staff.UpdatedDate,
-                    UpdatedBy = x.Login.Staff.UpdatedBy
-                })
-                .FirstOrDefaultAsync();
+                   // Universities
+                   UniversityIds = x.Login.Staff.KfStaffUniversityCoordinatorMappings
+                       .Where(m => m.IsActive)
+                       .Select(m => m.UniversityId)
+                       .ToList(),
 
-            if (panelUser == null)
-                throw new CustomException("Panel user not found.");
+                   UniversityNames = x.Login.Staff.KfStaffUniversityCoordinatorMappings
+                       .Where(m => m.IsActive)
+                       .Select(m => m.University.UniversityName)
+                       .ToList(),
 
-            panelUser.FullName = UserDisplayHelper.GetFullName(
-                panelUser.StaffSalutation,
-                panelUser.StaffFirstName,
-                panelUser.StaffLastName);
+                   // Audit
+                   CreatedDate = x.Login.Staff.CreatedDate,
+                   CreatedBy = x.Login.Staff.CreatedBy,
+                   UpdatedDate = x.Login.Staff.UpdatedDate,
+                   UpdatedBy = x.Login.Staff.UpdatedBy
+               })
+               .FirstOrDefaultAsync();
 
-            return panelUser;
+            if (universityCoordinator == null)
+                throw new CustomException("University coordinator not found.");
+
+            universityCoordinator.FullName = UserDisplayHelper.GetFullName(
+                universityCoordinator.StaffSalutation,
+                universityCoordinator.StaffFirstName,
+                universityCoordinator.StaffLastName);
+
+            return universityCoordinator;
         }
 
 
-        // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<PanelUserRequestDto>> GetByFilterAsync(PanelUserFilterDto filter)
+
+        public async Task<PagedResultDto<UniversityCoordinatorRequestDto>> GetByFilterAsync(UniversityCoordinatorFilterDto filter)
         {
             var query = _context.UsersLoginRoles
                 .AsNoTracking()
-                .Where(x => 
-                    x.IsDefault && 
+                .Where(x =>
+                    x.IsDefault &&
                     x.IsActive &&
                     x.Login.IsActive &&
                     x.Login.Staff.IsActive &&
-                    x.Login.Staff.StaffType != (long)StaffType.School &&
-                    x.Login.Staff.StaffType != (long)StaffType.University)
+                    x.Login.Staff.StaffType == (long)StaffType.University)
                 .Include(x => x.Login)
                     .ThenInclude(x => x.Staff)
                 .Include(x => x.Role)
                 .AsQueryable();
 
-            // Staff Type
-            if (filter.StaffType.HasValue)
+            // University
+            if (filter.UniversityId.HasValue)
             {
-                if (filter.StaffType == (long)StaffType.School ||
-                    filter.StaffType == (long)StaffType.University)
-                {
-                    throw new CustomException("Selected staff type is not supported in Panel Users.");
-                }
-
-                query = query.Where(x => x.Login.Staff.StaffType == filter.StaffType.Value);
+                query = query.Where(x =>
+                    x.Login.Staff.KfStaffUniversityCoordinatorMappings.Any(m =>
+                        m.UniversityId == filter.UniversityId.Value &&
+                        m.IsActive));
             }
 
             // Role
@@ -432,10 +511,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     x.Login.Staff.StaffFirstName.ToLower().Contains(search) ||
                     x.Login.Staff.StaffLastName.ToLower().Contains(search) ||
                     x.Login.Staff.OfficialEmail.ToLower().Contains(search) ||
+                    (x.Login.Staff.PersonalEmail != null &&
+                     x.Login.Staff.PersonalEmail.ToLower().Contains(search))||
                     (x.Login.Staff.MobileNumber != null &&
                      x.Login.Staff.MobileNumber.ToLower().Contains(search)) ||
-                    (x.Login.Staff.PersonalEmail != null &&
-                     x.Login.Staff.PersonalEmail.ToLower().Contains(search)) ||
                     x.Login.LoginName.ToLower().Contains(search));
             }
 
@@ -454,7 +533,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             }
 
             var items = await query
-                .Select(x => new PanelUserRequestDto
+                .Select(x => new UniversityCoordinatorRequestDto
                 {
                     // Ids
                     StaffId = x.Login.Staff.StaffId,
@@ -500,7 +579,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     item.StaffLastName);
             }
 
-            return new PagedResultDto<PanelUserRequestDto>
+            return new PagedResultDto<UniversityCoordinatorRequestDto>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -508,6 +587,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 PageSize = filter.PageSize
             };
         }
+
 
 
 
@@ -526,6 +606,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 (long)StaffType.School => "School Coordinator",
 
                 _ => string.Empty
+
             };
 
             string fullName =
@@ -541,6 +622,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             );
 
         }
+
 
 
     }

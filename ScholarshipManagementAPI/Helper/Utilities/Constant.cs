@@ -88,6 +88,7 @@ namespace ScholarshipManagementAPI.Helper.Utilities
                     3 => "SCH",   // School
                     4 => "UNI",   // University
                     5 => "MKT",   // Marketing
+                    6 => "FIN",   // Marketing
                     _ => "USR"    // User
                 };
 

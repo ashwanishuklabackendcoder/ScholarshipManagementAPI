@@ -246,6 +246,7 @@ builder.Services.AddScoped<IMarketingAdministrativeFeeService, MarketingAdminist
 builder.Services.AddScoped<IProgramRegistrationWindowService, ProgramRegistrationWindowService>();
 builder.Services.AddScoped<IStudentAcademicRegistrationService, StudentAcademicRegistrationService>();
 builder.Services.AddScoped<IPanelUsersService, PanelUsersService>();
+builder.Services.AddScoped<IUniversityCoordinatorService, UniversityCoordinatorService>();
 
 
 // Swagger configuration

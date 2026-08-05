@@ -183,10 +183,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
 
-
-
-
-
         private StudentHistoryTypeEnum GetHistoryType(StudentApplicationStatus status)
         {
             return status switch
