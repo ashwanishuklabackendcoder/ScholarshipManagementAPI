@@ -56,9 +56,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     //OrganisationId = dto.OrganisationId,
 
                     // organisation mapping (NEW)
-                    UniversityId = dto.StaffType == (long)StaffType.University? dto.UniversityId : null,
+                    UniversityId = null,
 
-                    SchoolId = dto.StaffType == (long)StaffType.School? dto.SchoolId: null,
+                    SchoolId = null,
 
                     StaffSalutation = dto.StaffSalutation,
                     StaffFirstName = dto.StaffFirstName,
@@ -120,15 +120,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                 string organizationName = staff.StaffType switch
                 {
-                    (long)StaffType.University => await _context.UnUniversityRegistrations
-                        .Where(x => x.RegistrationId == staff.UniversityId)
-                        .Select(x => x.UniversityName)
-                        .FirstOrDefaultAsync() ?? "",
+                    (long)StaffType.University => "University Coordinator",
 
-                    (long)StaffType.School => await _context.KfSchools
-                        .Where(x => x.SchoolId == staff.SchoolId)
-                        .Select(x => x.SchoolName)
-                        .FirstOrDefaultAsync() ?? "",
+                    (long)StaffType.School => "School Coordinator",
 
                     (long)StaffType.Ngo => "NGO Administration",
                     (long)StaffType.SuperAdmin => "System Administration",
@@ -307,8 +301,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         {
             var staff = await _context.KfStaffs
                 .AsNoTracking()
-                .Include(x => x.University)
-                .Include(x => x.School)
                 .Include(x => x.UsersLogins)
                 .Where(x => x.StaffId == id && x.IsActive)
                 .Select(x => new StaffRequestDto
@@ -319,12 +311,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     StaffTypeName = x.StaffTypeNavigation == null
                                     ? null : x.StaffTypeNavigation.ModuleName,
 
-                    UniversityId = x.UniversityId,
-                    SchoolId = x.SchoolId,
-
                     // organisation name (CLEAN)
-                    OrganisationName = x.StaffType == (long)StaffType.University ? x.University!.UniversityName :
-                                       x.StaffType == (long)StaffType.School ? x.School!.SchoolName :
+                    OrganisationName = x.StaffType == (long)StaffType.University ? "University Coordinator" :
+                                       x.StaffType == (long)StaffType.School ? "School Coordinator" :
                                        x.StaffType == (long)StaffType.SuperAdmin ? "Super Admin" :
                                        x.StaffType == (long)StaffType.Ngo ? "NGO Admin" :
                                        x.StaffType == (long)StaffType.Marketing ? "Marketing" :
@@ -368,24 +357,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         {
             var query = _context.KfStaffs
                 .AsNoTracking()
-                .Include(x => x.University)
-                .Include(x => x.School)
                 .Include(x => x.UsersLogins)
                 .AsQueryable();
 
             // ---------- DATA SCOPE FILTER ----------
-            if (currentUser.StaffType != StaffType.SuperAdmin)
-            {
-                if (currentUser.StaffType == (StaffType.University))
-                {
-                    query = query.Where(x => x.UniversityId == currentUser.UniversityId);
-                }
-                else if (currentUser.StaffType == StaffType.School)
-                {
-                    query = query.Where(x => x.SchoolId == currentUser.SchoolId);
-                }
+            //if (currentUser.StaffType != StaffType.SuperAdmin)
+            //{
+            //    if (currentUser.StaffType == (StaffType.University))
+            //    {
+            //        query = query.Where(x => x.UniversityId == currentUser.UniversityId);
+            //    }
+            //    else if (currentUser.StaffType == StaffType.School)
+            //    {
+            //        query = query.Where(x => x.SchoolId == currentUser.SchoolId);
+            //    }
 
-            }
+            //}
 
 
             // Staff filter
@@ -447,12 +434,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     StaffTypeName = x.StaffTypeNavigation == null
                                     ? null : x.StaffTypeNavigation.ModuleName,
 
-                    UniversityId = x.UniversityId,
-                    SchoolId = x.SchoolId,
-
                     // organisation name (CLEAN)
-                    OrganisationName = x.StaffType == (long)StaffType.University ? x.University!.UniversityName :
-                                       x.StaffType == (long)StaffType.School ? x.School!.SchoolName :
+                    OrganisationName = x.StaffType == (long)StaffType.University ? "University Coordinator" :
+                                       x.StaffType == (long)StaffType.School ? "School Coordinator" :
                                        x.StaffType == (long)StaffType.SuperAdmin ? "Super Admin" :
                                        x.StaffType == (long)StaffType.Ngo ? "NGO Admin" :
                                        x.StaffType == (long)StaffType.Marketing ? "Marketing" :
@@ -540,17 +524,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     dto.SchoolId = null;
                     break;
 
-                case StaffType.School:
-                    dto.StaffType = (long)StaffType.School;
-                    dto.UniversityId = null;
-                    dto.SchoolId = currentUser.SchoolId;
-                    break;
+                //case StaffType.School:
+                //    dto.StaffType = (long)StaffType.School;
+                //    dto.UniversityId = null;
+                //    dto.SchoolId = currentUser.SchoolId;
+                //    break;
 
-                case StaffType.University:
-                    dto.StaffType = (long)StaffType.University;
-                    dto.UniversityId = currentUser.UniversityId;
-                    dto.SchoolId = null;
-                    break;
+                //case StaffType.University:
+                //    dto.StaffType = (long)StaffType.University;
+                //    dto.UniversityId = currentUser.UniversityId;
+                //    dto.SchoolId = null;
+                //    break;
 
                 default:
                     throw new CustomException("Invalid staff type");

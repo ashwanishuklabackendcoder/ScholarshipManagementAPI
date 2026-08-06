@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.Ngo.CountrySchoolsSummary;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.MasterCountry;
 using ScholarshipManagementAPI.Helper;
 using ScholarshipManagementAPI.Helper.Enums;
@@ -204,68 +203,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 PageSize = filter.PageSize
             };
         }
-
-
-
-        // get country wise school count for dashboard
-        public async Task<PagedResultDto<CountrySchoolCountDto>> GetCountryWiseSchoolCountAsync(MasterCountryFilterDto filter)
-        {
-            var query = _context.ZzMasterCountries
-                .AsNoTracking()
-                .Where(c => c.KfSchools
-                    .Any(s => s.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited))
-                .AsQueryable();
-
-
-            if (filter.IsActive.HasValue)
-                query = query.Where(x => x.IsActive == filter.IsActive);
-
-            // ---------- Global Search ---------
-
-            if (!string.IsNullOrWhiteSpace(filter.SearchText))
-            {
-                var search = filter.SearchText.Trim().ToLower();
-
-                query = query.Where(x =>
-                    x.CountryName.ToLower().Contains(search)
-                );
-            }
-
-            // ---------- Total Count ----------
-            var totalCount = await query.CountAsync();
-
-            // ---------- Ordering ----------
-            query = query.OrderByDescending(c => c.KfSchools.Count(s => s.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited));
-
-            // ---------- Pagination ----------
-            if (filter.PageSize > 0)
-            {
-                query = query
-                    .Skip((filter.PageNumber - 1) * filter.PageSize)
-                    .Take(filter.PageSize);
-            }
-
-            // ---------- Projection ----------
-            var items = await query
-                .Select(c => new CountrySchoolCountDto
-                {
-                    CountryId = c.CountryId,
-                    CountryName = c.CountryName,
-                    CountryIsdCode = c.CountryIsdCode,
-                    TotalSchools = c.KfSchools
-                        .Count(s => s.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited)
-                })
-                .ToListAsync();
-
-            return new PagedResultDto<CountrySchoolCountDto>
-            {
-                Items = items,
-                TotalCount = totalCount,
-                PageNumber = filter.PageNumber,
-                PageSize = filter.PageSize
-            };
-        }
-
 
 
     }

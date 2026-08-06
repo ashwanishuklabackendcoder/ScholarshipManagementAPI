@@ -18,8 +18,10 @@ namespace ScholarshipManagementAPI.DTOs.Common.Auth
 
 
         public StaffType StaffType { get; set; }
-        public long? UniversityId { get; set; }
-        public long? SchoolId { get; set; }
+
+        public List<long> UniversityIds { get; set; } = new();
+        public List<long> SchoolIds { get; set; } = new();
+
         public string OrganizationName { get; set; } = string.Empty;
 
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Auth;
@@ -105,15 +105,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             // ---------- DATA SCOPE FILTER ----------
             if (currentUser.StaffType != StaffType.SuperAdmin)
             {
-                if (currentUser.StaffType == (StaffType.University))
+                switch ((long)currentUser.StaffType)
                 {
-                    query = query.Where(x => x.Login.Staff.UniversityId == currentUser.UniversityId);
-                }
-                else if (currentUser.StaffType == StaffType.School)
-                {
-                    query = query.Where(x => x.Login.Staff.SchoolId == currentUser.SchoolId);
-                }
+                    case (long)StaffType.University:
+                        query = query.Where(x => x.Login.Staff.UniversityId.HasValue && currentUser.UniversityIds.Contains(x.Login.Staff.UniversityId.Value));
+                        break;
 
+                    case (long)StaffType.School:
+                        query = query.Where(x => x.Login.Staff.SchoolId.HasValue && currentUser.SchoolIds.Contains(x.Login.Staff.SchoolId.Value));
+                        break;
+                }
             }
 
 

@@ -72,26 +72,6 @@ namespace ScholarshipManagementAPI.Controllers.Common
 
 
 
-        [HttpGet("load-dashboard")]
-        [Authorize]
-        public async Task<IActionResult> GetDashboard()
-        {
-            var result = await _service.GetDashboardAsync();
-            // return Ok(result);
-
-            return Ok(new ApiResponseDto
-            {
-                Success = true,
-                Message = "Dashboard loaded successfully",
-                Result = result
-            });
-
-        }
-
-
-
-
-
 
         [HttpPost("media/users/profile/{userId}")]
         public async Task<IActionResult> UploadProfileImage(int userId, IFormFile file)

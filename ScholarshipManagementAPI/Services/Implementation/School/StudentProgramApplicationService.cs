@@ -732,11 +732,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             {
                 case StaffType.University:
                     {
-                        var universityId = currentUser.UniversityId
-                            ?? throw new UnauthorizedAccessException("User is not associated with a university.");
+                        if (!currentUser.UniversityIds.Any())
+                            throw new UnauthorizedAccessException("User is not associated with a university.");
 
                         query = query.Where(x =>
-                            x.Program.UniversityId == universityId &&
+                            currentUser.UniversityIds.Contains(x.Program.UniversityId) &&
                             x.ApplicationStatus >= (int)StudentApplicationStatus.AcceptanceInProcess);
 
                         break;
@@ -877,10 +877,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             {
                 case StaffType.University:
 
-                    var universityId = currentUser.UniversityId
-                        ?? throw new UnauthorizedAccessException("User is not associated with a university.");
+                    if (!currentUser.UniversityIds.Any())
+                        throw new UnauthorizedAccessException("User is not associated with a university.");
 
-                    query = query.Where(x => x.Program.UniversityId == universityId);
+                    query = query.Where(x => currentUser.UniversityIds.Contains(x.Program.UniversityId));
                     break;
 
                 case StaffType.Ngo:
@@ -1157,13 +1157,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             switch (currentUser.StaffType)
             {
                 case StaffType.School:
-                    if (currentUser.SchoolId != application.Student.SchoolId)
+                    if (!currentUser.SchoolIds.Contains(application.Student.SchoolId))
                         throw new UnauthorizedAccessException(
                             "You are not authorized to access this student's application.");
                     break;
 
                 case StaffType.University:
-                    if (currentUser.UniversityId != application.Program.UniversityId)
+                    if (!currentUser.UniversityIds.Contains(application.Program.UniversityId))
                         throw new UnauthorizedAccessException(
                             "You are not authorized to access this application's university.");
                     break;

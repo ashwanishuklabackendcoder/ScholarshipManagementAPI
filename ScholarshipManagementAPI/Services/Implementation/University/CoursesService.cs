@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.University.Courses;
 using ScholarshipManagementAPI.DTOs.University.Faculties;
+using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.University;
 
@@ -31,6 +33,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     && x.UniversityId == dto.UniversityId))
                 {
                     throw new CustomException("Course with same name already exists");
+                }
+
+                // Validate faculties belong to selected university
+                if (dto.FacultyIds != null && dto.FacultyIds.Any())
+                {
+                    var validFacultyIds = await _context.KfFaculties
+                        .Where(x =>
+                            x.UniversityId == dto.UniversityId &&
+                            dto.FacultyIds.Contains(x.FacultyId))
+                        .Select(x => x.FacultyId)
+                        .ToListAsync();
+
+                    if (validFacultyIds.Count != dto.FacultyIds.Distinct().Count())
+                    {
+                        throw new CustomException("One or more selected faculties do not belong to the selected university.");
+                    }
                 }
 
                 var entity = new KfCourse
@@ -96,6 +114,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     && x.UniversityId == dto.UniversityId))
                 {
                     throw new CustomException("Course with same name already exists");
+                }
+
+                // Validate faculties belong to selected university
+                if (dto.FacultyIds != null && dto.FacultyIds.Any())
+                {
+                    var validFacultyIds = await _context.KfFaculties
+                        .Where(x =>
+                            x.UniversityId == dto.UniversityId &&
+                            dto.FacultyIds.Contains(x.FacultyId))
+                        .Select(x => x.FacultyId)
+                        .ToListAsync();
+
+                    if (validFacultyIds.Count != dto.FacultyIds.Distinct().Count())
+                    {
+                        throw new CustomException("One or more selected faculties do not belong to the selected university.");
+                    }
                 }
 
                 var entity = await _context.KfCourses
@@ -211,12 +245,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<CourseRequestDto>> GetByFilterAsync(CourseFilterDto filter)
+        public async Task<PagedResultDto<CourseRequestDto>> GetByFilterAsync(CourseFilterDto filter, LoggedInUserDto currentUser)
         {
             var query = _context.KfCourses
                 .AsNoTracking()
                 .AsQueryable();
 
+            if (currentUser.StaffType == StaffType.University)
+            {
+                query = query.Where(x =>
+                    currentUser.UniversityIds.Contains(x.UniversityId));
+            }
 
             // Active status filter
             if (filter.IsActive.HasValue)

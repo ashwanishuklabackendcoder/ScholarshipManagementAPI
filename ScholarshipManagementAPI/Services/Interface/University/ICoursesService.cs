@@ -1,4 +1,5 @@
-﻿using ScholarshipManagementAPI.DTOs.Common.Response;
+﻿using ScholarshipManagementAPI.DTOs.Common.Auth;
+using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.University.Courses;
 
 namespace ScholarshipManagementAPI.Services.Interface.University
@@ -13,6 +14,6 @@ namespace ScholarshipManagementAPI.Services.Interface.University
 
         Task<CourseRequestDto?> GetByIdAsync(long id);
 
-        Task<PagedResultDto<CourseRequestDto>>GetByFilterAsync(CourseFilterDto filter);
+        Task<PagedResultDto<CourseRequestDto>>GetByFilterAsync(CourseFilterDto filter, LoggedInUserDto currentUser);
     }
 }

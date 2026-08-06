@@ -14,10 +14,12 @@ namespace ScholarshipManagementAPI.Controllers.University
     public class CoursesController : ControllerBase
     {
         private readonly ICoursesService _service;
+        private readonly CurrentUserContextService _currentUser;
 
-        public CoursesController(ICoursesService service)
+        public CoursesController(ICoursesService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
         // -------- CREATE --------
@@ -127,7 +129,8 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> GetByFilter(CourseFilterDto filter)
         {
-            var result = await _service.GetByFilterAsync(filter);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByFilterAsync(filter, currentUser);
 
             return Ok(new ApiResponseDto
             {

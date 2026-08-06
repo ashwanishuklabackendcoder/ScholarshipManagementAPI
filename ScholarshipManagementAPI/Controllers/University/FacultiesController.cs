@@ -16,10 +16,12 @@ namespace ScholarshipManagementAPI.Controllers.University
     public class FacultiesController : ControllerBase
     {
         private readonly IFacultiesService _service;
+        private readonly CurrentUserContextService _currentUser;
 
-        public FacultiesController(IFacultiesService service)
+        public FacultiesController(IFacultiesService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
         // -------- CREATE --------
@@ -129,7 +131,8 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> GetByFilter(FacultyFilterDto filter)
         {
-            var result = await _service.GetByFilterAsync(filter);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByFilterAsync(filter, currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -144,10 +147,12 @@ namespace ScholarshipManagementAPI.Controllers.University
 
 
         // ---------------- GET FACULTY PROGRAMS DASHBOARD ----------------
-        [HttpGet("faculty-programs/{universityId}")]
-        public async Task<IActionResult> Dashboard(long universityId)
+        [HttpGet("faculty-programs")]
+        [Authorize]
+        public async Task<IActionResult> Dashboard()
         {
-            var data = await _service.GetFacultyProgramsDashboardAsync(universityId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetFacultyProgramsDashboardAsync(currentUser);
 
             return Ok(new ApiResponseDto
             {

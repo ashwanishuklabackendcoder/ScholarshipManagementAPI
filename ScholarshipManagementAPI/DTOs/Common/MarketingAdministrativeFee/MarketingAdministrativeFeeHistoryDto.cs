@@ -10,7 +10,7 @@
 
         public long CreatedBy { get; set; }
 
-        public string CreatedByName { get; set; }
+        public string CreatedByName { get; set; } = string.Empty;
 
         public DateTime CreatedDate { get; set; }
 

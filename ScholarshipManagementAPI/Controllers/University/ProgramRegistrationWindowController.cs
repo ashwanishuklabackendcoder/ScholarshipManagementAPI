@@ -11,17 +11,20 @@ namespace ScholarshipManagementAPI.Controllers.University
     [Route("api/program-registration-window")]
     public class ProgramRegistrationWindowController : ControllerBase
     {
-        private readonly IProgramRegistrationWindowService _service;
+        private readonly IProgramRegistrationWindowService _service;    
+        private readonly CurrentUserContextService _currentUser;
 
-        public ProgramRegistrationWindowController(IProgramRegistrationWindowService service)
+        public ProgramRegistrationWindowController(IProgramRegistrationWindowService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
         [HttpGet("{programId:long}")]
         public async Task<IActionResult> GetByProgramId(long programId)
         {
-            var result = await _service.GetByProgramIdAsync(programId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByProgramIdAsync(programId, currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -36,8 +39,8 @@ namespace ScholarshipManagementAPI.Controllers.University
         public async Task<IActionResult> Save(
             [FromBody] ProgramRegistrationWindowRequestDto dto)
         {
-            var loginId = JwtClaimHelper.LoginId(User);
-            var id = await _service.SaveAsync(dto, loginId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var id = await _service.SaveAsync(dto, currentUser);
 
             return Ok(new ApiResponseDto
             {

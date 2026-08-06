@@ -15,10 +15,12 @@ namespace ScholarshipManagementAPI.Controllers.University
     public class ProgramsController : ControllerBase
     {
         private readonly IProgramsService _service;
+        private readonly CurrentUserContextService _currentUser;
 
-        public ProgramsController(IProgramsService service)
+        public ProgramsController(IProgramsService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
 
@@ -129,7 +131,8 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> GetByFilter(ProgramFilterDto filter)
         {
-            var result = await _service.GetByFilterAsync(filter);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByFilterAsync(filter, currentUser);
 
             return Ok(new ApiResponseDto
             {

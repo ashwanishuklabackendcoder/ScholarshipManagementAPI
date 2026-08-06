@@ -1,5 +1,4 @@
 ﻿using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.Ngo.CountrySchoolsSummary;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.MasterCountry;
 
 namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
@@ -12,9 +11,6 @@ namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
 
         Task<MasterCountryRequestDto?> GetByIdAsync(long id);
         Task<PagedResultDto<MasterCountryRequestDto>> GetByFilterAsync(MasterCountryFilterDto filter);
-
-
-        Task<PagedResultDto<CountrySchoolCountDto>> GetCountryWiseSchoolCountAsync(MasterCountryFilterDto filter);
 
     }
 }

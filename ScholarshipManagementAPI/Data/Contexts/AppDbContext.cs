@@ -92,7 +92,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -571,10 +571,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.StaffType)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_kf_staffs_StaffType");
-
-            entity.HasOne(d => d.University).WithMany(p => p.KfStaffs)
-                .HasForeignKey(d => d.UniversityId)
-                .HasConstraintName("FK_kf_staffs_University");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfStaffUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)

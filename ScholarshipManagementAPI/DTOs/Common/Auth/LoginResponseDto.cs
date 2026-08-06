@@ -1,4 +1,4 @@
-﻿using ScholarshipManagementAPI.DTOs.Common.Settings;
+using ScholarshipManagementAPI.DTOs.Common.Settings;
 
 namespace ScholarshipManagementAPI.DTOs.Common.Auth
 {
@@ -21,6 +21,9 @@ namespace ScholarshipManagementAPI.DTOs.Common.Auth
         public string CurrentRoleName { get; set; } = string.Empty;
         public List<AvailableRolesDto> AvailableRoles { get; set; } = new();
 
+        // Coordinator Mappings
+        public List<long> UniversityIds { get; set; } = new();
+        public List<long> SchoolIds { get; set; } = new();
 
         //public long RoleId { get; set; }
 

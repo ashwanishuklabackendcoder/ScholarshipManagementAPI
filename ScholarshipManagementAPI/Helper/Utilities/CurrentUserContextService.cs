@@ -44,8 +44,15 @@ namespace ScholarshipManagementAPI.Helper.Utilities
                 {
                     x.StaffId,
                     x.Staff.StaffType,
-                    x.Staff.UniversityId,
-                    x.Staff.SchoolId,
+ 
+                    UniversityIds = _context.KfStaffUniversityCoordinatorMappings
+                        .Where(m => m.StaffId == x.StaffId && m.IsActive)
+                        .Select(m => m.UniversityId)
+                        .ToList(),
+                    SchoolIds = _context.KfStaffSchoolCoordinatorMappings
+                        .Where(m => m.StaffId == x.StaffId && m.IsActive)
+                        .Select(m => m.SchoolId)
+                        .ToList(),
                     x.Staff
                 })
                 .FirstOrDefaultAsync();
@@ -69,8 +76,8 @@ namespace ScholarshipManagementAPI.Helper.Utilities
                 StaffType = (StaffType)moduleId,
 
                 StaffId = staffInfo.StaffId,
-                UniversityId = staffInfo.UniversityId,
-                SchoolId = staffInfo.SchoolId,
+                UniversityIds = staffInfo.UniversityIds,
+                SchoolIds = staffInfo.SchoolIds,
 
                 DefaultCurrencyCode = currency.code,
                 DefaultCurrencyName = currency.name,

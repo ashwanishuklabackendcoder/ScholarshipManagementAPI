@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.University.Faculties;
 using ScholarshipManagementAPI.DTOs.University.MasterUniversity;
@@ -23,6 +24,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(FacultyRequestDto dto)
         {
+            if (!await _context.UnUniversityRegistrations
+                .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
+            {
+                throw new CustomException("Selected university does not exist.");
+            }
+
             if (await _context.KfFaculties.AnyAsync(
                       x => x.FacultyName.ToLower() == dto.FacultyName.ToLower()
                       && x.UniversityId == dto.UniversityId))
@@ -57,6 +64,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         {
             if (dto.FacultyId == null || dto.FacultyId == 0)
                 return false;
+
+            if (!await _context.UnUniversityRegistrations
+                .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
+            {
+                throw new CustomException("Selected university does not exist.");
+            }
 
             if (await _context.KfFaculties.AnyAsync(x =>
                       x.FacultyName.ToLower() == dto.FacultyName.ToLower()
@@ -141,12 +154,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<FacultyRequestDto>> GetByFilterAsync(FacultyFilterDto filter)
+        public async Task<PagedResultDto<FacultyRequestDto>> GetByFilterAsync(FacultyFilterDto filter, LoggedInUserDto currentUser)
         {
             var query = _context.KfFaculties
                 .AsNoTracking()
                 .AsQueryable();
 
+            if (currentUser.StaffType == StaffType.University)
+            {
+                query = query.Where(x =>
+                    currentUser.UniversityIds.Contains(x.UniversityId));
+            }
 
             // Active status filter
             if (filter.IsActive.HasValue)
@@ -220,19 +238,31 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
         // ---------------- GET FACULTY PROGRAMS DASHBOARD ----------------
 
-        public async Task<FacultyProgramsDashboardDto>GetFacultyProgramsDashboardAsync(long universityId)
+        public async Task<FacultyProgramsDashboardDto>GetFacultyProgramsDashboardAsync(LoggedInUserDto currentUser)
         {
+            //var programsQuery = _context.KfPrograms
+            //    .AsNoTracking()
+            //    .Where(x =>
+            //        x.UniversityId == universityId &&
+            //        x.IsActive);
+
+            if (currentUser.StaffType != StaffType.University)
+                throw new UnauthorizedAccessException();
+
+            if (!currentUser.UniversityIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with any university.");
+
             var programsQuery = _context.KfPrograms
                 .AsNoTracking()
                 .Where(x =>
-                    x.UniversityId == universityId &&
+                    currentUser.UniversityIds.Contains(x.UniversityId) &&
                     x.IsActive);
 
             var result = new FacultyProgramsDashboardDto
             {
                 TotalFaculties = await _context.KfFaculties
                     .CountAsync(x =>
-                        x.UniversityId == universityId &&
+                        currentUser.UniversityIds.Contains(x.UniversityId) &&
                         x.IsActive),
 
                 AccreditedPrograms = await programsQuery
@@ -297,6 +327,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             return result;
         }
+
+
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.University.Faculties;
 using ScholarshipManagementAPI.DTOs.University.Programs;
@@ -27,6 +28,40 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             try
             {
+                if (!await _context.UnUniversityRegistrations
+                    .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
+                {
+                    throw new CustomException("Selected university does not exist.");
+                }
+
+                if (!await _context.KfFaculties.AnyAsync(x =>
+                     x.FacultyId == dto.FacultyId && x.UniversityId == dto.UniversityId &&
+                     x.IsActive))
+                {
+                    throw new CustomException("Selected faculty does not belong to the selected university.");
+                }
+
+                if (dto.Courses?.Any() == true)
+                {
+                    var courseIds = dto.Courses
+                        .Select(x => x.CourseId)
+                        .Distinct()
+                        .ToList();
+
+                    var validCourseIds = await _context.KfCourses
+                        .Where(x =>
+                            x.UniversityId == dto.UniversityId &&
+                            courseIds.Contains(x.CourseId))
+                        .Select(x => x.CourseId)
+                        .ToListAsync();
+
+                    if (validCourseIds.Count != courseIds.Count)
+                    {
+                        throw new CustomException("One or more selected courses do not belong to the selected university.");
+                    }
+                }
+
+
                 if (await _context.KfPrograms.AnyAsync(x =>
                         x.ProgramCode.ToLower() == dto.ProgramCode.ToLower()
                         && x.UniversityId == dto.UniversityId))
@@ -153,6 +188,39 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             try
             {
+                if (!await _context.UnUniversityRegistrations
+                    .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
+                {
+                    throw new CustomException("Selected university does not exist.");
+                }
+
+                if (!await _context.KfFaculties.AnyAsync(x =>
+                     x.FacultyId == dto.FacultyId && x.UniversityId == dto.UniversityId &&
+                     x.IsActive))
+                {
+                    throw new CustomException("Selected faculty does not belong to the selected university.");
+                }
+
+                if (dto.Courses?.Any() == true)
+                {
+                    var courseIds = dto.Courses
+                       .Select(x => x.CourseId)
+                       .Distinct()
+                       .ToList();
+
+                    var validCourseIds = await _context.KfCourses
+                        .Where(x =>
+                            x.UniversityId == dto.UniversityId &&
+                            courseIds.Contains(x.CourseId))
+                        .Select(x => x.CourseId)
+                        .ToListAsync();
+
+                    if (validCourseIds.Count != courseIds.Count)
+                    {
+                        throw new CustomException("One or more selected courses do not belong to the selected university.");
+                    }
+                }
+
                 if (await _context.KfPrograms.AnyAsync(x =>
                         x.ProgramCode.ToLower() == dto.ProgramCode.ToLower()
                         && x.UniversityId == dto.UniversityId
@@ -416,12 +484,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<ProgramRequestDto>> GetByFilterAsync(ProgramFilterDto filter)
+        public async Task<PagedResultDto<ProgramRequestDto>> GetByFilterAsync(ProgramFilterDto filter, LoggedInUserDto currentUser)
         {
             var query = _context.KfPrograms
                 .AsNoTracking()
                 .AsQueryable();
 
+            if (currentUser.StaffType == StaffType.University)
+            {
+                query = query.Where(x =>
+                    currentUser.UniversityIds.Contains(x.UniversityId));
+            }
 
             // Active status filter
             if (filter.IsActive.HasValue)

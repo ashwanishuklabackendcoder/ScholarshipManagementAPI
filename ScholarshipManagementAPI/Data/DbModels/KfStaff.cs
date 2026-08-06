@@ -68,8 +68,6 @@ public partial class KfStaff
 
     public virtual UsersModule StaffTypeNavigation { get; set; } = null!;
 
-    public virtual UnUniversityRegistration? University { get; set; }
-
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<UsersLogin> UsersLogins { get; set; } = new List<UsersLogin>();

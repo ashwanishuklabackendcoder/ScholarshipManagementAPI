@@ -1,4 +1,5 @@
-﻿using ScholarshipManagementAPI.DTOs.Common.Response;
+﻿using ScholarshipManagementAPI.DTOs.Common.Auth;
+using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.University.Programs;
 
 namespace ScholarshipManagementAPI.Services.Interface.University
@@ -13,7 +14,7 @@ namespace ScholarshipManagementAPI.Services.Interface.University
 
         Task<ProgramRequestDto?> GetByIdAsync(long id);
 
-        Task<PagedResultDto<ProgramRequestDto>> GetByFilterAsync(ProgramFilterDto filter);
+        Task<PagedResultDto<ProgramRequestDto>> GetByFilterAsync(ProgramFilterDto filter, LoggedInUserDto currentUser);
 
 
 

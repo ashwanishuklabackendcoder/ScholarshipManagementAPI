@@ -17,6 +17,9 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         public long? UniversityId { get; set; }
         public long? SchoolId { get; set; }
 
+        public List<long> UniversityIds { get; set; } = new();
+        public List<long> SchoolIds { get; set; } = new();
+
 
         // ===== Personal Info =====
         [Required, StringLength(100)]

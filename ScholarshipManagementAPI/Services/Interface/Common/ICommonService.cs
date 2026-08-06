@@ -11,9 +11,6 @@ namespace ScholarshipManagementAPI.Services.Interface.Common
 
         Task<List<LoadMenuDto>> LoadMenusByRoleAsync(long roleId);
 
-        // dashboard service
-        Task<DashboardDto> GetDashboardAsync();
-
 
         // profile upload service
         Task<string> UploadUserProfileImageAsync(int userId, IFormFile file);

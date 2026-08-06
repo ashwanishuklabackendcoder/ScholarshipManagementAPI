@@ -170,6 +170,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 CurrentRoleName = userRole.Role.RoleName,
 
                 AvailableRoles = roles,
+                UniversityIds = await _context.KfStaffUniversityCoordinatorMappings
+                    .Where(m => m.StaffId == userRole.Login.StaffId && m.IsActive)
+                    .Select(m => m.UniversityId).ToListAsync(),
+                SchoolIds = await _context.KfStaffSchoolCoordinatorMappings
+                    .Where(m => m.StaffId == userRole.Login.StaffId && m.IsActive)
+                    .Select(m => m.SchoolId).ToListAsync()
             };
         }
 
@@ -196,9 +202,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     x.Staff.StaffSalutation,
                     x.Staff.StaffFirstName,
                     x.Staff.StaffLastName,
-                    x.Staff.StaffType,
-                    UniversityName = x.Staff.University != null ? x.Staff.University.UniversityName : null,
-                    SchoolName = x.Staff.School != null ? x.Staff.School.SchoolName : null
+                    x.Staff.StaffType
                 })
                 .FirstOrDefaultAsync();
 
@@ -207,10 +211,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             {
                 string organizationName = user.StaffType switch
                 {
-                    (long)StaffType.University => user.UniversityName ?? string.Empty,
-                    (long)StaffType.School => user.SchoolName ?? string.Empty,
-                    (long)StaffType.Ngo => "NGO Administration",
                     (long)StaffType.SuperAdmin => "System Administration",
+                    (long)StaffType.Ngo => "NGO Administration",
+                    (long)StaffType.Marketing => "Marketing",
+                    (long)StaffType.Finance => "Finance",
+
+                    (long)StaffType.University => "University Coordinator",
+                    (long)StaffType.School => "Shool Coordinator",
                     _ => string.Empty
                 };
 
@@ -235,11 +242,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             if (string.IsNullOrWhiteSpace(request.EmailOrUsername))
                 throw new CustomException("Email is required.");
 
+            //var user = await _context.UsersLogins
+            //    .Include(x => x.Staff)
+            //        .ThenInclude(s => s.University)
+            //    .Include(x => x.Staff)
+            //        .ThenInclude(s => s.School)
+            //    .FirstOrDefaultAsync(x =>
+            //        (x.RecoveryEmail.Trim() == request.EmailOrUsername.Trim() 
+            //        || x.LoginName.Trim() == request.EmailOrUsername.Trim())
+            //        && x.IsActive);
+
             var user = await _context.UsersLogins
                 .Include(x => x.Staff)
-                    .ThenInclude(s => s.University)
-                .Include(x => x.Staff)
-                    .ThenInclude(s => s.School)
                 .FirstOrDefaultAsync(x =>
                     (x.RecoveryEmail.Trim() == request.EmailOrUsername.Trim() 
                     || x.LoginName.Trim() == request.EmailOrUsername.Trim())
@@ -273,10 +287,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             // Determine organization name
             string organizationName = user.Staff.StaffType switch
             {
-                (long)StaffType.University => user.Staff.University?.UniversityName ?? string.Empty,
-                (long)StaffType.School => user.Staff.School?.SchoolName ?? string.Empty,
-                (long)StaffType.Ngo => "NGO Administration",
                 (long)StaffType.SuperAdmin => "System Administration",
+                (long)StaffType.Ngo => "NGO Administration",
+                (long)StaffType.Marketing => "Marketing",
+                (long)StaffType.Finance => "Finance",
+
+                (long)StaffType.University => "University Coordinator",
+                (long)StaffType.School => "Shool Coordinator",
                 _ => string.Empty
             };
 
@@ -369,17 +386,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new CustomException("Email or Username is required.");
 
             //var user = await _context.UsersLogins
-            //    .Where(x =>
+            //    .Include(x => x.Staff)
+            //        .ThenInclude(s => s.University)
+            //    .Include(x => x.Staff)
+            //        .ThenInclude(s => s.School)
+            //    .FirstOrDefaultAsync(x =>
             //        (x.LoginName == request.EmailOrUsername.Trim() ||
             //        x.RecoveryEmail == request.EmailOrUsername.Trim()) &&
-            //        x.IsActive)
-            //    .FirstOrDefaultAsync();
+            //        x.IsActive);
 
             var user = await _context.UsersLogins
                 .Include(x => x.Staff)
-                    .ThenInclude(s => s.University)
-                .Include(x => x.Staff)
-                    .ThenInclude(s => s.School)
                 .FirstOrDefaultAsync(x =>
                     (x.LoginName == request.EmailOrUsername.Trim() ||
                     x.RecoveryEmail == request.EmailOrUsername.Trim()) &&
@@ -409,10 +426,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 // Determine organization name
                 string organizationName = user.Staff.StaffType switch
                 {
-                    (long)StaffType.University => user.Staff.University?.UniversityName ?? string.Empty,
-                    (long)StaffType.School => user.Staff.School?.SchoolName ?? string.Empty,
-                    (long)StaffType.Ngo => "NGO Administration",
                     (long)StaffType.SuperAdmin => "System Administration",
+                    (long)StaffType.Ngo => "NGO Administration",
+                    (long)StaffType.Marketing => "Marketing",
+                    (long)StaffType.Finance => "Finance",
+
+                    (long)StaffType.University => "University Coordinator",
+                    (long)StaffType.School => "Shool Coordinator",
                     _ => string.Empty
                 };
 
@@ -483,14 +503,21 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<CurrentUserProfileDto?> GetMyProfileAsync(long loginId , long roleId)
         {
+            //var user = await _context.UsersLogins
+            //    .Include(x => x.UsersLoginRoleLogins)
+            //    .ThenInclude(x => x.Role)
+            //    .ThenInclude(x => x.Module)
+            //    .Include(x => x.Staff)
+            //    .ThenInclude(s => s.University)
+            //    .Include(x => x.Staff)
+            //    .ThenInclude(s => s.School)
+            //    .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
+
             var user = await _context.UsersLogins
                 .Include(x => x.UsersLoginRoleLogins)
                 .ThenInclude(x => x.Role)
                 .ThenInclude(x => x.Module)
                 .Include(x => x.Staff)
-                .ThenInclude(s => s.University)
-                .Include(x => x.Staff)
-                .ThenInclude(s => s.School)
                 .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
 
 
@@ -516,12 +543,15 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             string organizationName = staff.StaffType switch
             {
-                (long)StaffType.University => staff.University?.UniversityName ?? string.Empty,
-                (long)StaffType.School => staff.School?.SchoolName ?? string.Empty,
-                (long)StaffType.Ngo => "NGO Administration",
                 (long)StaffType.SuperAdmin => "System Administration",
+
+                (long)StaffType.Ngo => "NGO Administration",
                 (long)StaffType.Marketing => "Marketing",
                 (long)StaffType.Finance => "Finance",
+
+                (long)StaffType.University => "University Coordinator",
+                (long)StaffType.School => "School Coordinator",
+
                 _ => string.Empty
             };
 
@@ -544,8 +574,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 ModuleName = currentRole?.Role.Module.ModuleName ?? string.Empty,
 
                 StaffType = (StaffType)staff.StaffType,
-                UniversityId = staff.UniversityId,
-                SchoolId = staff.SchoolId,
+                UniversityIds = await _context.KfStaffUniversityCoordinatorMappings
+                    .Where(m => m.StaffId == staff.StaffId && m.IsActive)
+                    .Select(m => m.UniversityId).ToListAsync(),
+                SchoolIds = await _context.KfStaffSchoolCoordinatorMappings
+                    .Where(m => m.StaffId == staff.StaffId && m.IsActive)
+                    .Select(m => m.SchoolId).ToListAsync(),
                 OrganizationName = organizationName,
 
                 ProfilePhoto = _commonService.GetProfileImageUrl(staff.Photo),
@@ -696,7 +730,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 ModuleName = defaultRole.Role.Module.ModuleName,
                 CurrentRoleId = defaultRole.RoleId,
                 CurrentRoleName = defaultRole.Role.RoleName,
-                AvailableRoles = roles
+                AvailableRoles = roles,
+                UniversityIds = await _context.KfStaffUniversityCoordinatorMappings
+                    .Where(m => m.StaffId == user.StaffId && m.IsActive)
+                    .Select(m => m.UniversityId).ToListAsync(),
+                SchoolIds = await _context.KfStaffSchoolCoordinatorMappings
+                    .Where(m => m.StaffId == user.StaffId && m.IsActive)
+                    .Select(m => m.SchoolId).ToListAsync()
             };
         }
 

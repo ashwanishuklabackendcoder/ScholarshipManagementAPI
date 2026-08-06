@@ -131,24 +131,5 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         }
 
 
-
-        // -------- FILTER / GET ALL --------
-        [HttpPost("country-schools")]
-        [Authorize]
-        public async Task<IActionResult> GetCountryWiseSchoolCountAsync(MasterCountryFilterDto filter)
-        {
-            var result = await _service.GetCountryWiseSchoolCountAsync(filter);
-
-            return Ok(new ApiResponseDto
-            {
-                Success = result.Items.Count == 0 ? false : true,
-                Result = result,
-                Message = result.Items.Count == 0
-                    ? "Data not found"
-                    : "Data fetched successfully"
-            });
-        }
-
-
     }
 }

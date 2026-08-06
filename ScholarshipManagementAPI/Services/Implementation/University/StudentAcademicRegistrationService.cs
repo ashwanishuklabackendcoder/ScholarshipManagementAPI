@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Auth;
@@ -25,8 +25,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (currentUser.StaffType != StaffType.University)
                 throw new UnauthorizedAccessException();
 
-            var universityId = currentUser.UniversityId
-                ?? throw new UnauthorizedAccessException("User is not associated with a university.");
+            if (!currentUser.UniversityIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with a university.");
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -39,7 +39,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 if (application == null)
                     throw new CustomException("Student application not found.");
 
-                if (application.Program.UniversityId != universityId)
+                if (!currentUser.UniversityIds.Contains(application.Program.UniversityId))
                     throw new UnauthorizedAccessException();
 
                 if (application.ApplicationStatus != (int)StudentApplicationStatus.Sponsored)
@@ -95,13 +95,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (currentUser.StaffType != StaffType.University)
                 throw new UnauthorizedAccessException();
 
-            var universityId = currentUser.UniversityId
-                ?? throw new UnauthorizedAccessException("User is not associated with a university.");
+            if (!currentUser.UniversityIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with a university.");
 
             var query = _context.KfStudentProgramApplications
                 .AsNoTracking()
                 .Where(x =>
-                    x.Program.UniversityId == universityId &&
+                    currentUser.UniversityIds.Contains(x.Program.UniversityId) &&
                     x.ApplicationStatus == (int)StudentApplicationStatus.Sponsored);
 
             if (filter.FacultyId.HasValue)
