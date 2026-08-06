@@ -11,5 +11,9 @@ namespace ScholarshipManagementAPI.Services.Interface.School
 
         Task<MasterSchoolRequestDto?> GetByIdAsync(long id);
         Task<PagedResultDto<MasterSchoolRequestDto>> GetByFilterAsync(MasterSchoolFilterDto filter);
+
+
+        Task<List<SchoolLookupDto>> GetSchoolsByCountryIdsAsync(List<long> countryIds);
+
     }
 }

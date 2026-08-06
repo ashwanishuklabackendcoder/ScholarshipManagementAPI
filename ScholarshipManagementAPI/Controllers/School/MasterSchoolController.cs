@@ -138,6 +138,23 @@ namespace ScholarshipManagementAPI.Controllers.School
 
 
 
+        // ---------------- GET SCHOOLS BY COUNTRY IDS ----------------
+        [HttpPost("getSchoolsByCountryIds")]
+        [Authorize]
+        public async Task<IActionResult> GetSchoolsByCountryIds([FromBody] SchoolByCountryRequestDto dto)
+        {
+            var result = await _service.GetSchoolsByCountryIdsAsync(dto.CountryIds);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Result = result,
+                Message = "Schools fetched successfully."
+            });
+        }
+
+
+
 
     }
 }

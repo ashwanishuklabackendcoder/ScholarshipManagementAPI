@@ -24,6 +24,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             _currentUserContext = currentUserContext;
         }
 
+
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(MasterSchoolRequestDto dto)
         {
@@ -205,6 +206,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             return true;
         }
+
+
 
         // ---------------- GET BY ID ----------------
         public async Task<MasterSchoolRequestDto?> GetByIdAsync(long id)
@@ -388,6 +391,29 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 PageSize = filter.PageSize
             };
         }
-    
+
+
+
+
+        // ---------------- GET SCHOOLS BY COUNTRY IDS ----------------
+        public async Task<List<SchoolLookupDto>> GetSchoolsByCountryIdsAsync(List<long> countryIds)
+        {
+            if (countryIds == null || !countryIds.Any())
+                return new List<SchoolLookupDto>();
+
+            return await _context.KfSchools
+                .AsNoTracking()
+                .Where(x =>
+                    x.IsActive &&
+                    countryIds.Contains(x.CountryId))
+                .OrderBy(x => x.SchoolName)
+                .Select(x => new SchoolLookupDto
+                {
+                    SchoolId = x.SchoolId,
+                    SchoolName = x.SchoolName
+                })
+                .ToListAsync();
+        }
+
     }
 }
