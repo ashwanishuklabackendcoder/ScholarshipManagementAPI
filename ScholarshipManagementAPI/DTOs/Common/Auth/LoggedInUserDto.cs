@@ -23,11 +23,6 @@ namespace ScholarshipManagementAPI.DTOs.Common.Auth
         // Tenant info (from DB) - HrStaffMaster 
         public long? StaffId { get; set; }
 
-        //[Obsolete("Use UniversityIds instead")]
-        //public long? UniversityId { get; set; }
-        
-        //[Obsolete("Use SchoolIds instead")]
-        //public long? SchoolId { get; set; }
 
         public List<long> UniversityIds { get; set; } = new();
         public List<long> SchoolIds { get; set; } = new();

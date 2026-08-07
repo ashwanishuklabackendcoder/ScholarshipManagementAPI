@@ -58,13 +58,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto) 
         {
-            //var user = await _context.UsersLogins
-            //    .Where(x =>
-            //        x.LoginName == dto.LoginName &&
-            //        x.Password == dto.Password &&
-            //        x.IsActive
-            //    ).FirstOrDefaultAsync();
-
             var user = await _context.UsersLogins
                 .Where(x =>
                     x.LoginName == dto.LoginName &&
@@ -242,15 +235,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             if (string.IsNullOrWhiteSpace(request.EmailOrUsername))
                 throw new CustomException("Email is required.");
 
-            //var user = await _context.UsersLogins
-            //    .Include(x => x.Staff)
-            //        .ThenInclude(s => s.University)
-            //    .Include(x => x.Staff)
-            //        .ThenInclude(s => s.School)
-            //    .FirstOrDefaultAsync(x =>
-            //        (x.RecoveryEmail.Trim() == request.EmailOrUsername.Trim() 
-            //        || x.LoginName.Trim() == request.EmailOrUsername.Trim())
-            //        && x.IsActive);
 
             var user = await _context.UsersLogins
                 .Include(x => x.Staff)
@@ -344,16 +328,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             var newPassword = request.NewPassword.Trim();
 
-            // check if new password is same as old password
-            //if (!string.IsNullOrEmpty(user.Password) &&
-            //    user.Password.Equals(newPassword, StringComparison.Ordinal))
-            //{
-            //    throw new CustomException("New password cannot be same as old password.");
-            //}
-
-            // new password
-            // user.Password = newPassword;
-
             // Check if new password same as old (use hasher)
             if (!string.IsNullOrEmpty(user.Password))
             {
@@ -384,16 +358,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             if (string.IsNullOrWhiteSpace(request.EmailOrUsername))
                 throw new CustomException("Email or Username is required.");
-
-            //var user = await _context.UsersLogins
-            //    .Include(x => x.Staff)
-            //        .ThenInclude(s => s.University)
-            //    .Include(x => x.Staff)
-            //        .ThenInclude(s => s.School)
-            //    .FirstOrDefaultAsync(x =>
-            //        (x.LoginName == request.EmailOrUsername.Trim() ||
-            //        x.RecoveryEmail == request.EmailOrUsername.Trim()) &&
-            //        x.IsActive);
 
             var user = await _context.UsersLogins
                 .Include(x => x.Staff)
@@ -503,16 +467,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<CurrentUserProfileDto?> GetMyProfileAsync(long loginId , long roleId)
         {
-            //var user = await _context.UsersLogins
-            //    .Include(x => x.UsersLoginRoleLogins)
-            //    .ThenInclude(x => x.Role)
-            //    .ThenInclude(x => x.Module)
-            //    .Include(x => x.Staff)
-            //    .ThenInclude(s => s.University)
-            //    .Include(x => x.Staff)
-            //    .ThenInclude(s => s.School)
-            //    .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
-
             var user = await _context.UsersLogins
                 .Include(x => x.UsersLoginRoleLogins)
                 .ThenInclude(x => x.Role)
