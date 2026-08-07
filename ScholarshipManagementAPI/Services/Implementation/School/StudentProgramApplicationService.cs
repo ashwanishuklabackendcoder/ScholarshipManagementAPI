@@ -118,7 +118,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             return list;
         }
 
-        public async Task<long> ApplyAsync(long studentId, ApplyRequestDto dto, long userId, LoggedInUserDto currentUser)
+        public async Task<long> ApplyAsync(long studentId, ApplyRequestDto dto, LoggedInUserDto currentUser)
         {
             if (currentUser.StaffType != StaffType.School)
                 throw new UnauthorizedAccessException();
@@ -186,7 +186,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     ApplicationStatus = (int)StudentApplicationStatus.Draft,
                     AppliedDate = DateTime.UtcNow,
                     Remarks = dto.Remarks,
-                    CreatedBy = userId,
+                    CreatedBy = currentUser.LoginId,
                     CreatedDate = DateTime.UtcNow
                 };
 
@@ -200,7 +200,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     title: GetHistoryTitle(StudentApplicationStatus.Draft),
                     description: GetHistoryDescription(StudentApplicationStatus.Draft),
                     historyType: GetHistoryType(StudentApplicationStatus.Draft),
-                    userId: userId);
+                    userId: currentUser.LoginId);
 
                 await _context.SaveChangesAsync();
 
@@ -215,7 +215,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<bool> CancelApplicationAsync(long applicationId, long userId, LoggedInUserDto currentUser)
+        public async Task<bool> CancelApplicationAsync(long applicationId, LoggedInUserDto currentUser)
         {
             if (currentUser.StaffType != StaffType.School)
                 throw new UnauthorizedAccessException();
@@ -272,7 +272,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     title: "Application Draft Cancelled",
                     description: $"Cancelled draft application for program '{app.Program.ProgramName}'.",
                     historyType: StudentHistoryTypeEnum.ApplicationDraftCancelled,
-                    userId: userId);
+                    userId: currentUser.LoginId);
 
 
                 // Delete application (documents will be deleted by cascade)
@@ -291,7 +291,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<bool> SubmitApplicationAsync(long applicationId, long userId, LoggedInUserDto currentUser)
+        public async Task<bool> SubmitApplicationAsync(long applicationId, LoggedInUserDto currentUser)
         {
             if (currentUser.StaffType != StaffType.School)
                 throw new UnauthorizedAccessException();
@@ -344,7 +344,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
                 app.ApplicationStatus = (int)StudentApplicationStatus.AcceptanceInProcess;
                 app.SubmittedDate = DateTime.UtcNow;
-                app.UpdatedBy = userId;
+                app.UpdatedBy = currentUser.LoginId;
                 app.UpdatedDate = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
@@ -356,7 +356,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     title: GetHistoryTitle(StudentApplicationStatus.AcceptanceInProcess),
                     description: GetHistoryDescription(StudentApplicationStatus.AcceptanceInProcess),
                     historyType: GetHistoryType(StudentApplicationStatus.AcceptanceInProcess),
-                    userId: userId);
+                    userId: currentUser.LoginId);
 
                 await transaction.CommitAsync();
 
@@ -457,7 +457,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
         public async Task<StudentProgramDocumentResponseDto> UploadDocumentAsync(long applicationId, long programDocumentId,
-            long documentTypeId, IFormFile file, long userId, LoggedInUserDto currentUser)
+            long documentTypeId, IFormFile file, LoggedInUserDto currentUser)
         {
             if (currentUser.StaffType != StaffType.School)
                 throw new UnauthorizedAccessException();
@@ -568,7 +568,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     ContentType = file.ContentType,
                     FileSize = file.Length,
 
-                    UploadedBy = userId,
+                    UploadedBy = currentUser.LoginId,
                     UploadedDate = DateTime.UtcNow
                 };
 
@@ -580,7 +580,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     title: "Document Uploaded",
                     description: $"Uploaded '{programDocument.DocumentType.DocumentName}'.",
                     historyType: StudentHistoryTypeEnum.DocumentUploaded,
-                    userId: userId);
+                    userId: currentUser.LoginId);
 
                 await _context.SaveChangesAsync();
 
@@ -616,7 +616,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<bool> DeleteDocumentAsync(long applicationId, long documentId, long userId, LoggedInUserDto currentUser)
+        public async Task<bool> DeleteDocumentAsync(long applicationId, long documentId, LoggedInUserDto currentUser)
         {
             if (currentUser.StaffType != StaffType.School)
                 throw new UnauthorizedAccessException();
@@ -683,7 +683,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     title: "Document Deleted",
                     description: $"Deleted '{document.DocumentType.DocumentName}'.",
                     historyType: StudentHistoryTypeEnum.DocumentDeleted,
-                    userId: userId);
+                    userId: currentUser.LoginId);
 
                 await _context.SaveChangesAsync();
 
@@ -801,7 +801,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 .AsNoTracking()
                 .AsQueryable();
 
-            // Role filter
+
             // Role filter
             switch (currentUser.StaffType)
             {
@@ -832,7 +832,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             if (filter.SchoolCoordinatorId.HasValue)
             {
-                query = query.Where(x => x.Program.CreatedBy == filter.SchoolCoordinatorId);
+                query = query.Where(x => x.CreatedBy == filter.SchoolCoordinatorId);
             }
 
             if (filter.CountryId.HasValue)
@@ -955,11 +955,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     if (!currentUser.UniversityIds.Any())
                         throw new UnauthorizedAccessException("User is not associated with a university.");
 
-                    query = query.Where(x => currentUser.UniversityIds.Contains(x.Program.UniversityId));
+                    query = query.Where(x =>
+                            currentUser.UniversityIds.Contains(x.Program.UniversityId) &&
+                            x.ApplicationStatus >= (int)StudentApplicationStatus.AcceptanceInProcess);
+
                     break;
 
                 case StaffType.Ngo:
-                    // Future NGO restriction
+
+                    query = query.Where(x =>
+                            x.ApplicationStatus >= (int)StudentApplicationStatus.Awarded &&
+                            x.ApplicationStatus <= (int)StudentApplicationStatus.Sponsored);
+
                     break;
             }
 
@@ -1238,6 +1245,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     break;
 
                 case StaffType.University:
+
+                    if (!currentUser.UniversityIds.Any())
+                        throw new UnauthorizedAccessException("User is not associated with a university.");
+
                     if (!currentUser.UniversityIds.Contains(application.Program.UniversityId))
                         throw new UnauthorizedAccessException(
                             "You are not authorized to access this application's university.");

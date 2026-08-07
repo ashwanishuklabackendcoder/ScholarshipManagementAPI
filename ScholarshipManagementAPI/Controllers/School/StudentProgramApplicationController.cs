@@ -28,7 +28,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [HttpGet("candidate-programs/{studentId:long}")]
         public async Task<IActionResult> GetCandidatePrograms(long studentId)
         {
-            var data = await _service.GetCandidateProgramsAsync(studentId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetCandidateProgramsAsync(studentId, currentUser);
             return Ok(new ApiResponseDto
             {
                 Success = true,
@@ -42,8 +43,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> Apply(long studentId, [FromBody] ApplyRequestDto dto)
         {
-            long userId = JwtClaimHelper.LoginId(User);
-            var id = await _service.ApplyAsync(studentId, dto, userId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var id = await _service.ApplyAsync(studentId, dto, currentUser);
             return Ok(new ApiResponseDto
             {
                 Success = true,
@@ -57,8 +58,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> CancelApplication(long applicationId)
         {
-            long userId = JwtClaimHelper.LoginId(User);
-            var success = await _service.CancelApplicationAsync(applicationId, userId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var success = await _service.CancelApplicationAsync(applicationId, currentUser);
             return Ok(new ApiResponseDto
             {
                 Success = success,
@@ -72,8 +73,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> SubmitApplication(long applicationId)
         {
-            long userId = JwtClaimHelper.LoginId(User);
-            var success = await _service.SubmitApplicationAsync(applicationId, userId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var success = await _service.SubmitApplicationAsync(applicationId, currentUser);
             return Ok(new ApiResponseDto
             {
                 Success = success,
@@ -87,7 +88,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> GetApplication(long applicationId)
         {
-            var data = await _service.GetApplicationAsync(applicationId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetApplicationAsync(applicationId, currentUser);
             if (data == null)
             {
                 return NotFound(new ApiResponseDto
@@ -112,14 +114,14 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadDocument(long applicationId, [FromForm] UploadDocumentRequestDto request)
         {
-            long userId = JwtClaimHelper.LoginId(User);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
 
             var doc = await _service.UploadDocumentAsync(
                 applicationId,
                 request.ProgramDocumentId,
                 request.DocumentTypeId,
                 request.File,
-                userId);
+                currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -134,8 +136,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> DeleteDocument(long applicationId, long documentId)
         {
-            long userId = JwtClaimHelper.LoginId(User);
-            var success = await _service.DeleteDocumentAsync(applicationId, documentId, userId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var success = await _service.DeleteDocumentAsync(applicationId, documentId, currentUser);
             return Ok(new ApiResponseDto
             {
                 Success = success,
@@ -149,7 +151,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> GetDocuments(long applicationId)
         {
-            var data = await _service.GetDocumentsAsync(applicationId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetDocumentsAsync(applicationId, currentUser);
             return Ok(new ApiResponseDto
             {
                 Success = true,
@@ -163,7 +166,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> GetHistory(long studentId)
         {
-            var data = await _service.GetHistoryAsync(studentId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetHistoryAsync(studentId, currentUser);
             return Ok(new ApiResponseDto
             {
                 Success = true,

@@ -15,23 +15,23 @@ namespace ScholarshipManagementAPI.Services.Interface.School
         Task<List<CandidateProgramResponseDto>> GetCandidateProgramsAsync(long studentId, LoggedInUserDto currentUser);
 
         // Create a new application
-        Task<long> ApplyAsync(long studentId, ApplyRequestDto dto, long userId, LoggedInUserDto currentUser);
+        Task<long> ApplyAsync(long studentId, ApplyRequestDto dto, LoggedInUserDto currentUser);
 
         // Cancel a draft application
-        Task<bool> CancelApplicationAsync(long applicationId, long userId, LoggedInUserDto currentUser);
+        Task<bool> CancelApplicationAsync(long applicationId, LoggedInUserDto currentUser);
 
         // Submit application for university review
-        Task<bool> SubmitApplicationAsync(long applicationId, long userId, LoggedInUserDto currentUser);
+        Task<bool> SubmitApplicationAsync(long applicationId, LoggedInUserDto currentUser);
 
         // Get application details
         Task<StudentProgramApplicationResponseDto?> GetApplicationAsync(long applicationId, LoggedInUserDto currentUser);
 
 
         // Upload application document
-        Task<StudentProgramDocumentResponseDto> UploadDocumentAsync(long applicationId,long programDocumentId, long documentTypeId, IFormFile file, long userId, LoggedInUserDto currentUser);
+        Task<StudentProgramDocumentResponseDto> UploadDocumentAsync(long applicationId,long programDocumentId, long documentTypeId, IFormFile file, LoggedInUserDto currentUser);
 
         // Delete application document
-        Task<bool> DeleteDocumentAsync(long applicationId, long documentId, long userId, LoggedInUserDto currentUser);
+        Task<bool> DeleteDocumentAsync(long applicationId, long documentId, LoggedInUserDto currentUser);
 
 
 
