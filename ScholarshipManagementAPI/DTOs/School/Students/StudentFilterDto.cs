@@ -44,7 +44,7 @@ namespace ScholarshipManagementAPI.DTOs.School.Students
 
 
         // for coordinator nominations
-        public long? CreatedBy { get; set; }
+        public long? MyNominations { get; set; }
         public long? FacultyId { get; set; }
         public long? UniversityId { get; set; }
 

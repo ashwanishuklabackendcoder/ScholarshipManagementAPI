@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.Students;
 using ScholarshipManagementAPI.Helper.Enums;
@@ -10,6 +11,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using static Amazon.S3.Util.S3EventNotification;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ScholarshipManagementAPI.Services.Implementation.School
 {
@@ -22,7 +25,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             _context = context;
         }
 
-        public async Task<long> CreateAsync(StudentRequestDto dto)
+        public async Task<long> CreateAsync(StudentRequestDto dto, LoggedInUserDto currentUser)
         {
             if (await _context.KfStudentRegistrations.AnyAsync(x => x.Phone == dto.Phone))
             {
@@ -39,6 +42,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (dto.SchoolId <= 0)
             {
                 throw new CustomException("Please select a valid school.");
+            }
+
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(dto.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
             }
 
             var school = await _context.KfSchools
@@ -138,7 +147,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 IsDraft = dto.IsDraft,
                 IsActive = true,
 
-                CreatedBy = dto.CreatedBy,
+                CreatedBy = currentUser.LoginId,
                 CreatedDate = DateTime.UtcNow
             };
 
@@ -148,7 +157,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             return entity.StudentId;
         }
 
-        public async Task<bool> UpdateAsync(StudentRequestDto dto)
+        public async Task<bool> UpdateAsync(StudentRequestDto dto, LoggedInUserDto currentUser)
         {
             if (dto.StudentId == null || dto.StudentId == 0)
                 return false;
@@ -158,6 +167,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             if (entity == null)
                 return false;
+
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(entity.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
 
             if (await _context.KfStudentRegistrations.AnyAsync(x => x.Phone == dto.Phone && x.StudentId != dto.StudentId))
             {
@@ -169,13 +185,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("Student with same email already exists");
             }
 
-            string? schoolName = null;
-            if (dto.SchoolId > 0)
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(dto.SchoolId))
             {
-                schoolName = await _context.KfSchools
-                    .Where(x => x.SchoolId == dto.SchoolId)
-                    .Select(x => x.SchoolName)
-                    .FirstOrDefaultAsync();
+                throw new UnauthorizedAccessException();
             }
 
             entity.PhotoPath = dto.PhotoPath;
@@ -243,14 +256,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             entity.IsDraft = dto.IsDraft;
 
-            entity.UpdatedBy = dto.UpdatedBy;
+            entity.UpdatedBy = currentUser.LoginId;
             entity.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> DeleteAsync(long id)
+        public async Task<bool> DeleteAsync(long id, LoggedInUserDto currentUser)
         {
             var entity = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == id);
@@ -258,12 +271,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (entity == null)
                 return false;
 
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(entity.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
+            }
+
             entity.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<StudentRequestDto?> GetByIdAsync(long id)
+        public async Task<StudentRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser)
         {
             var x = await _context.KfStudentRegistrations
                 .AsNoTracking()
@@ -282,6 +301,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             if (x == null)
                 return null;
+
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(x.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
+            }
 
             return new StudentRequestDto
             {
@@ -382,25 +407,24 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
         
         
-        public async Task<PagedResultDto<StudentRequestDto>> GetByFilterAsync(StudentFilterDto filter)
+        public async Task<PagedResultDto<StudentRequestDto>> GetByFilterAsync(StudentFilterDto filter, LoggedInUserDto currentUser)
         {
             var query = _context.KfStudentRegistrations
                 .AsNoTracking()
                 .Where(x => x.IsActive)
                 .AsQueryable();
 
+            if (currentUser.StaffType == StaffType.School)
+            {
+                query = query.Where(x =>
+                    currentUser.SchoolIds.Contains(x.SchoolId));
+            }
 
             // for coordinator nominations
-
-            if (filter.CreatedBy.HasValue)
+            if (filter.MyNominations.HasValue)
             {
-                //query = query.Where(x =>
-                //    x.CreatedBy == filter.CreatedBy &&
-                //    x.StudentProgramApplications.Any());
-
                 query = query.Where(x => x.KfStudentProgramApplications.Any(a =>
-                      a.CreatedBy == filter.CreatedBy.Value));
-
+                      a.CreatedBy == filter.MyNominations.Value));
             }
 
             if (filter.UniversityId.HasValue)
@@ -418,9 +442,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
 
 
-
             if (filter.SchoolId.HasValue)
+            {
+                if (currentUser.StaffType == StaffType.School &&
+                    !currentUser.SchoolIds.Contains(filter.SchoolId.Value))
+                {
+                    throw new UnauthorizedAccessException();
+                }
+
                 query = query.Where(x => x.SchoolId == filter.SchoolId);
+            }
 
             if (filter.GenderId.HasValue)
                 query = query.Where(x => x.GenderId == filter.GenderId);
@@ -601,13 +632,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
 
-        public async Task<string> UploadProfilePhotoAsync(long studentId, IFormFile file, long userId)
+        public async Task<string> UploadProfilePhotoAsync(long studentId, IFormFile file, LoggedInUserDto currentUser)
         {
             var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)
                 throw new CustomException("Student not found.");
+
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(student.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
+            }
 
             if (file == null || file.Length == 0)
                 throw new CustomException("Please select a valid profile photo.");
@@ -647,7 +684,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             student.PhotoPath =
                 $"/uploads/students/{student.StudentCode}/profile-photo/{storedFileName}";
 
-            student.UpdatedBy = userId;
+            student.UpdatedBy = currentUser.LoginId;
             student.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -655,13 +692,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             return student.PhotoPath;
         }
 
-        public async Task<bool> DeleteProfilePhotoAsync(long studentId, long userId)
+        public async Task<bool> DeleteProfilePhotoAsync(long studentId, LoggedInUserDto currentUser)
         {
             var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)
                 throw new CustomException("Student not found.");
+
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(student.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
+            }
 
             if (string.IsNullOrWhiteSpace(student.PhotoPath))
                 return true;
@@ -675,7 +718,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 File.Delete(physicalPath);
 
             student.PhotoPath = null;
-            student.UpdatedBy = userId;
+            student.UpdatedBy = currentUser.LoginId;
             student.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -683,13 +726,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             return true;
         }
 
-        public async Task<string> UploadRecommendationLetterAsync(long studentId, IFormFile file, long userId)
+        public async Task<string> UploadRecommendationLetterAsync(long studentId, IFormFile file, LoggedInUserDto currentUser)
         {
             var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)
                 throw new CustomException("Student not found.");
+
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(student.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
+            }
 
             if (file == null || file.Length == 0)
                 throw new CustomException("Please select a valid recommendation letter.");
@@ -730,7 +779,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             student.RecommendationLetterPath =
                 $"/uploads/students/{student.StudentCode}/recommendation-letter/{storedFileName}";
 
-            student.UpdatedBy = userId;
+            student.UpdatedBy = currentUser.LoginId;
             student.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -738,13 +787,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             return student.RecommendationLetterPath;
         }
 
-        public async Task<bool> DeleteRecommendationLetterAsync(long studentId, long userId)
+        public async Task<bool> DeleteRecommendationLetterAsync(long studentId, LoggedInUserDto currentUser)
         {
             var student = await _context.KfStudentRegistrations
                 .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
             if (student == null)
                 throw new CustomException("Student not found.");
+
+            if (currentUser.StaffType == StaffType.School &&
+                !currentUser.SchoolIds.Contains(student.SchoolId))
+            {
+                throw new UnauthorizedAccessException();
+            }
 
             if (string.IsNullOrWhiteSpace(student.RecommendationLetterPath))
                 return true;
@@ -758,7 +813,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 File.Delete(physicalPath);
 
             student.RecommendationLetterPath = null;
-            student.UpdatedBy = userId;
+            student.UpdatedBy = currentUser.LoginId;
             student.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

@@ -92,7 +92,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
- 
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -562,10 +562,6 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.PermCountry).WithMany(p => p.KfStaffs)
                 .HasForeignKey(d => d.PermCountryId)
                 .HasConstraintName("FK_kf_staffs_Country");
-
-            entity.HasOne(d => d.School).WithMany(p => p.KfStaffs)
-                .HasForeignKey(d => d.SchoolId)
-                .HasConstraintName("FK_kf_staffs_School");
 
             entity.HasOne(d => d.StaffTypeNavigation).WithMany(p => p.KfStaffs)
                 .HasForeignKey(d => d.StaffType)

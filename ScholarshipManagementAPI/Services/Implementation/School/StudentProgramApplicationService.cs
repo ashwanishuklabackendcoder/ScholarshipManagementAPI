@@ -33,7 +33,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         // via school coordinator (student-facing)
         // ======================================================
 
-        public async Task<List<CandidateProgramResponseDto>> GetCandidateProgramsAsync(long studentId)
+        public async Task<List<CandidateProgramResponseDto>> GetCandidateProgramsAsync(long studentId, LoggedInUserDto currentUser)
         {
             var student = await _context.KfStudentRegistrations
                 .AsNoTracking()
@@ -42,6 +42,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (student == null)
             {
                 throw new CustomException("Student registration not found.");
+            }
+
+            if (currentUser.StaffType == StaffType.School)
+            {
+                if (!currentUser.SchoolIds.Contains(student.SchoolId))
+                    throw new UnauthorizedAccessException();
             }
 
             var activeStatuses = new[]
@@ -112,8 +118,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             return list;
         }
 
-        public async Task<long> ApplyAsync(long studentId, ApplyRequestDto dto, long userId)
+        public async Task<long> ApplyAsync(long studentId, ApplyRequestDto dto, long userId, LoggedInUserDto currentUser)
         {
+            if (currentUser.StaffType != StaffType.School)
+                throw new UnauthorizedAccessException();
+
+            if (!currentUser.SchoolIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with any school.");
+
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -126,6 +138,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 {
                     throw new CustomException("Student registration not found.");
                 }
+
+                if (!currentUser.SchoolIds.Contains(student.SchoolId))
+                    throw new UnauthorizedAccessException();
 
                 // Validate selected program
                 var program = await _context.KfPrograms
@@ -200,13 +215,20 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<bool> CancelApplicationAsync(long applicationId, long userId)
+        public async Task<bool> CancelApplicationAsync(long applicationId, long userId, LoggedInUserDto currentUser)
         {
+            if (currentUser.StaffType != StaffType.School)
+                throw new UnauthorizedAccessException();
+
+            if (!currentUser.SchoolIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with any school.");
+
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 var app = await _context.KfStudentProgramApplications
+                    .Include(a => a.Student)
                     .Include(a => a.Program)
                     .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
@@ -214,6 +236,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 {
                     throw new CustomException("Application not found.");
                 }
+
+                if (!currentUser.SchoolIds.Contains(app.Student.SchoolId))
+                    throw new UnauthorizedAccessException();
 
                 if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
                 {
@@ -266,13 +291,20 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<bool> SubmitApplicationAsync(long applicationId, long userId)
+        public async Task<bool> SubmitApplicationAsync(long applicationId, long userId, LoggedInUserDto currentUser)
         {
+            if (currentUser.StaffType != StaffType.School)
+                throw new UnauthorizedAccessException();
+
+            if (!currentUser.SchoolIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with any school.");
+
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 var app = await _context.KfStudentProgramApplications
+                    .Include(a => a.Student)
                     .Include(a => a.Program)
                         .ThenInclude(p => p.KfProgramDocuments)
                     .Include(a => a.KfStudentProgramDocuments)
@@ -282,6 +314,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 {
                     throw new CustomException("Application not found.");
                 }
+
+                if (!currentUser.SchoolIds.Contains(app.Student.SchoolId))
+                    throw new UnauthorizedAccessException();
 
                 if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
                 {
@@ -334,10 +369,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<StudentProgramApplicationResponseDto?> GetApplicationAsync(long applicationId)
+        public async Task<StudentProgramApplicationResponseDto?> GetApplicationAsync(long applicationId, LoggedInUserDto currentUser)
         {
             var app = await _context.KfStudentProgramApplications
                 .AsNoTracking()
+                .Include(a => a.Student)
                 .Include(a => a.Program)
                     .ThenInclude(p => p.University)
                 .Include(a => a.Program)
@@ -352,6 +388,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (app == null)
             {
                 return null;
+            }
+
+            if (currentUser.StaffType == StaffType.School)
+            {
+                if (!currentUser.SchoolIds.Contains(app.Student.SchoolId))
+                    throw new UnauthorizedAccessException();
             }
 
             return new StudentProgramApplicationResponseDto
@@ -415,14 +457,21 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
         public async Task<StudentProgramDocumentResponseDto> UploadDocumentAsync(long applicationId, long programDocumentId,
-            long documentTypeId, IFormFile file, long userId)
+            long documentTypeId, IFormFile file, long userId, LoggedInUserDto currentUser)
         {
+            if (currentUser.StaffType != StaffType.School)
+                throw new UnauthorizedAccessException();
+
+            if (!currentUser.SchoolIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with any school.");
+
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 // Validate Application
                 var app = await _context.KfStudentProgramApplications
+                    .Include(x => x.Student)
                     .Include(x => x.Program)
                     .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
@@ -430,6 +479,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 {
                     throw new CustomException("Application not found.");
                 }
+
+                if (!currentUser.SchoolIds.Contains(app.Student.SchoolId))
+                    throw new UnauthorizedAccessException();
 
                 // Only Draft applications allow document upload
                 if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
@@ -564,19 +616,29 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<bool> DeleteDocumentAsync(long applicationId, long documentId, long userId)
+        public async Task<bool> DeleteDocumentAsync(long applicationId, long documentId, long userId, LoggedInUserDto currentUser)
         {
+            if (currentUser.StaffType != StaffType.School)
+                throw new UnauthorizedAccessException();
+
+            if (!currentUser.SchoolIds.Any())
+                throw new UnauthorizedAccessException("User is not associated with any school.");
+
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 var app = await _context.KfStudentProgramApplications
+                    .Include(x => x.Student)
                     .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
                 if (app == null)
                 {
                     throw new CustomException("Application not found.");
                 }
+
+                if (!currentUser.SchoolIds.Contains(app.Student.SchoolId))
+                    throw new UnauthorizedAccessException();
 
                 if (app.ApplicationStatus != (int)StudentApplicationStatus.Draft)
                 {
@@ -636,15 +698,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             }
         }
 
-        public async Task<List<StudentProgramDocumentResponseDto>> GetDocumentsAsync(long applicationId)
+        public async Task<List<StudentProgramDocumentResponseDto>> GetDocumentsAsync(long applicationId, LoggedInUserDto currentUser)
         {
             var application = await _context.KfStudentProgramApplications
                 .AsNoTracking()
+                .Include(x => x.Student)
                 .FirstOrDefaultAsync(x => x.ApplicationId == applicationId);
 
             if (application == null)
             {
                 throw new CustomException("Application not found.");
+            }
+
+            if (currentUser.StaffType == StaffType.School)
+            {
+                if (!currentUser.SchoolIds.Contains(application.Student.SchoolId))
+                    throw new UnauthorizedAccessException();
             }
 
             return await _context.KfStudentProgramDocuments
@@ -679,15 +748,21 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
-        public async Task<List<StudentHistoryResponseDto>> GetHistoryAsync(long studentId)
+        public async Task<List<StudentHistoryResponseDto>> GetHistoryAsync(long studentId, LoggedInUserDto currentUser)
         {
             var studentExists = await _context.KfStudentRegistrations
                 .AsNoTracking()
-                .AnyAsync(x => x.StudentId == studentId && x.IsActive);
+                .FirstOrDefaultAsync(x => x.StudentId == studentId && x.IsActive);
 
-            if (!studentExists)
+            if (studentExists == null)
             {
                 throw new CustomException("Student not found.");
+            }
+
+            if (currentUser.StaffType == StaffType.School)
+            {
+                if (!currentUser.SchoolIds.Contains(studentExists.SchoolId))
+                    throw new UnauthorizedAccessException();
             }
 
             return await _context.KfStudentHistories

@@ -15,22 +15,20 @@ namespace ScholarshipManagementAPI.Controllers.School
     public class StudentsController : ControllerBase
     {
         private readonly IStudentService _service;
+        private readonly CurrentUserContextService _currentUser;
 
-        public StudentsController(IStudentService service)
+        public StudentsController(IStudentService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
         // -------- CREATE --------
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] StudentRequestDto dto)
         {
-            //, IFormFile? RecommendationLetterFile
-            //dto.RecommendationLetterFile = RecommendationLetterFile;
-            dto.CreatedBy = JwtClaimHelper.LoginId(User);
-            dto.CreatedDate = DateTime.UtcNow;
-
-            var id = await _service.CreateAsync(dto);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var id = await _service.CreateAsync(dto, currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -46,11 +44,9 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> Update(long id, [FromForm] StudentRequestDto dto)
         {
-            //, IFormFile? RecommendationLetterFile
-            //dto.RecommendationLetterFile = RecommendationLetterFile;
-
+            var currentUser = await _currentUser.GetCurrentUserAsync();
             dto.StudentId = id;
-            var updated = await _service.UpdateAsync(dto);
+            var updated = await _service.UpdateAsync(dto, currentUser);
 
             if (!updated)
             {
@@ -71,13 +67,13 @@ namespace ScholarshipManagementAPI.Controllers.School
         }
 
 
-
         // -------- DELETE --------
         [HttpDelete("delete/{id}")]
         [Authorize]
         public async Task<IActionResult> Delete(long id)
         {
-            var deleted = await _service.DeleteAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var deleted = await _service.DeleteAsync(id, currentUser);
 
             if (!deleted)
             {
@@ -104,7 +100,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> GetById(long id)
         {
-            var data = await _service.GetByIdAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetByIdAsync(id, currentUser);
 
             if (data == null)
             {
@@ -125,13 +122,13 @@ namespace ScholarshipManagementAPI.Controllers.School
         }
 
 
-
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
         public async Task<IActionResult> GetByFilter(StudentFilterDto filter)
         {
-            var result = await _service.GetByFilterAsync(filter);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByFilterAsync(filter, currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -152,12 +149,12 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadProfilePhoto(long studentId, [FromForm] UploadFileRequestDto request)
         {
-            long userId = JwtClaimHelper.LoginId(User);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
 
             var result = await _service.UploadProfilePhotoAsync(
                 studentId,
                 request.File,
-                userId);
+                currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -167,16 +164,15 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
-
         [HttpDelete("delete-profile-photo/{studentId:long}")]
         [Authorize]
         public async Task<IActionResult> DeleteProfilePhoto(long studentId)
         {
-            long userId = JwtClaimHelper.LoginId(User);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
 
             await _service.DeleteProfilePhotoAsync(
                 studentId,
-                userId);
+                currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -185,17 +181,19 @@ namespace ScholarshipManagementAPI.Controllers.School
             });
         }
 
+
+
         [HttpPost("upload-recommendation-letter/{studentId:long}")]
         [Authorize]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadRecommendationLetter(long studentId, [FromForm] UploadFileRequestDto request)
         {
-            long userId = JwtClaimHelper.LoginId(User);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
 
             var result = await _service.UploadRecommendationLetterAsync(
                 studentId,
                 request.File,
-                userId);
+                currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -209,11 +207,11 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> DeleteRecommendationLetter(long studentId)
         {
-            long userId = JwtClaimHelper.LoginId(User);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
 
             await _service.DeleteRecommendationLetterAsync(
                 studentId,
-                userId);
+                currentUser);
 
             return Ok(new ApiResponseDto
             {

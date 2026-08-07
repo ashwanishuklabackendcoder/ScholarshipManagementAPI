@@ -751,16 +751,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             // University currency lookup removed because DefaultCurrencyId is deleted from UnUniversityRegistration
 
-            if (staff.StaffType == (long)StaffType.School && staff.School?.DefaultCurrencyId != null)
-            {
-                var currency = await _context.ZzMasterCurrencies
-                    .Where(x => x.CurrencyId == staff.School.DefaultCurrencyId)
-                    .Select(x => new { x.CurrencyCode, x.CurrencyName, x.CurrencySymbol })
-                    .FirstOrDefaultAsync();
+            //if (staff.StaffType == (long)StaffType.School && staff.School?.DefaultCurrencyId != null)
+            //{
+            //    var currency = await _context.ZzMasterCurrencies
+            //        .Where(x => x.CurrencyId == staff.School.DefaultCurrencyId)
+            //        .Select(x => new { x.CurrencyCode, x.CurrencyName, x.CurrencySymbol })
+            //        .FirstOrDefaultAsync();
 
-                if (currency != null)
-                    return (currency.CurrencyCode, currency.CurrencyName, currency.CurrencySymbol);
-            }
+            //    if (currency != null)
+            //        return (currency.CurrencyCode, currency.CurrencyName, currency.CurrencySymbol);
+            //}
 
             // fallback → base currency
             return (baseCode, baseName, baseSymbol);
