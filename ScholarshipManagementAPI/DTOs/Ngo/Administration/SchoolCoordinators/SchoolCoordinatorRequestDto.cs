@@ -75,5 +75,10 @@ namespace ScholarshipManagementAPI.DTOs.Ngo.Administration.SchoolCoordinators
         // Response Only
         public bool IsDefaultRole { get; set; }
 
+        public List<long> CountryIds { get; set; } = new();
+
+        public List<string> CountryNames { get; set; } = new();
+
+
     }
 }

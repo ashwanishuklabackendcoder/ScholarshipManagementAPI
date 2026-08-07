@@ -437,7 +437,20 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     CreatedDate = x.Login.Staff.CreatedDate,
                     CreatedBy = x.Login.Staff.CreatedBy,
                     UpdatedDate = x.Login.Staff.UpdatedDate,
-                    UpdatedBy = x.Login.Staff.UpdatedBy
+                    UpdatedBy = x.Login.Staff.UpdatedBy,
+
+                    CountryIds = x.Login.Staff.KfStaffSchoolCoordinatorMappings
+                       .Where(m => m.IsActive)
+                       .Select(m => m.School.CountryId)
+                       .Distinct()
+                       .ToList(),
+
+                    CountryNames = x.Login.Staff.KfStaffSchoolCoordinatorMappings
+                       .Where(m => m.IsActive)
+                       .Select(m => m.School.Country.CountryName)
+                       .Distinct()
+                       .ToList(),
+
                 })
                 .FirstOrDefaultAsync();
 
