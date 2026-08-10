@@ -1,21 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
+namespace ScholarshipManagementAPI.DTOs.Common.Staff
 {
     public class StaffRequestDto
     {
         public long? StaffId { get; set; }   // null / 0 = Create, >0 = Update
 
 
-        // ===== Staff Type & Organisation =====
         [Required]
         public long StaffType { get; set; }          // UsersModule.ModuleId
 
-        public long? OrganisationId { get; set; }    // Required for School / University
-
-        // explicit organisation mapping
-        public long? UniversityId { get; set; }
-        public long? SchoolId { get; set; }
 
         public List<long> UniversityIds { get; set; } = new();
         public List<long> SchoolIds { get; set; } = new();
@@ -35,6 +29,8 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         public long Gender { get; set; }
 
         // ===== Address =====
+        public long? PermCountryId { get; set; }
+
         [StringLength(200)]
         public string? PermAddress { get; set; }
 
@@ -59,11 +55,7 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         [StringLength(100)]
         public string? MobileNumber { get; set; }
 
-        // ===== Login Info =====
-        [StringLength(200)]
-        public string? LoginName { get; set; }
 
-        // ===== Other =====
         [StringLength(200)]
         public string? Photo { get; set; }
 
@@ -71,20 +63,13 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         public string? Remarks { get; set; }
 
         
-
         public bool IsActive { get; set; }
 
-        // ===== Audit (Response mostly) =====
 
         // ===== Extra (Response convenience) =====
-        public string? StaffTypeName { get; set; }      // From UsersModule
-        public string? OrganisationName { get; set; }   // School / University name
+        public string? StaffTypeName { get; set; } 
 
-
-        public long? PermCountryId { get; set; }
-
-        [StringLength(100)]
-        public string? PermCountry { get; set; }
+        public string? PermCountryName { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public long CreatedBy { get; set; }
@@ -95,5 +80,6 @@ namespace ScholarshipManagementAPI.DTOs.Common.HrStaff
         public string? UpdatedByName { get; set; }
 
 
+        public string? LoginName { get; set; }
     }
 }

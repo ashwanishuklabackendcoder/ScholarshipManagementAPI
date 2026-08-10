@@ -31,7 +31,7 @@ public partial class UsersRolePage
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersMenu MenuLink { get; set; } = null!;
+    public virtual KfUsersMenu MenuLink { get; set; } = null!;
 
     public virtual UsersRole Role { get; set; } = null!;
 }

@@ -46,10 +46,6 @@ public partial class KfStaff
 
     public long CreatedBy { get; set; }
 
-    public long? UniversityId { get; set; }
-
-    public long? SchoolId { get; set; }
-
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }

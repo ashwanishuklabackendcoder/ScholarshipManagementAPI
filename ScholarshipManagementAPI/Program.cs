@@ -231,7 +231,6 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 //builder.Services.AddScoped<IUniversityDocumentService, UniversityDocumentService>();
 
 builder.Services.AddScoped<IAccreditationService, AccreditationService>();
-builder.Services.AddScoped<IDonorService, DonorService>();
 
 
 // new service 

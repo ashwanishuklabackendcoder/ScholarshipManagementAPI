@@ -2,10 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Auth;
-using ScholarshipManagementAPI.DTOs.Common.HrStaff;
+using ScholarshipManagementAPI.DTOs.Common.Staff;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu;
-using ScholarshipManagementAPI.Helper;
 using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.Common;
@@ -31,11 +29,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
 
         // ---------------- CREATE ----------------
-        public async Task<long> CreateAsync(StaffRequestDto dto)
+        public async Task<long> CreateAsync(StaffRequestDto dto, LoggedInUserDto currentUser)
         {
             // ---------- 1. Permission & business validation ----------
+
+            if (currentUser.StaffType != StaffType.SuperAdmin) 
+            { 
+                throw new CustomException("Only Super Admin can create staff accounts");
+            }
+            
             ValidateOrganisation(dto);
-            //ApplyStaffTypeAndOrganisationRules(dto,)
 
             // ---------- 2. Duplicate email check ----------
             if (await _context.UsersLogins
@@ -53,12 +56,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 var staff = new KfStaff
                 {
                     StaffType = dto.StaffType,
-                    //OrganisationId = dto.OrganisationId,
-
-                    // organisation mapping (NEW)
-                    UniversityId = null,
-
-                    SchoolId = null,
 
                     StaffSalutation = dto.StaffSalutation,
                     StaffFirstName = dto.StaffFirstName,
@@ -79,7 +76,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     IsActive = true,
 
                     CreatedBy = dto.CreatedBy,
-                    CreatedDate = dto.CreatedDate
+                    CreatedDate = DateTime.UtcNow,
                 };
 
                 _context.KfStaffs.Add(staff);
@@ -94,11 +91,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     StaffId = staff.StaffId,
                     LoginName = loginName,
 
-                    //LoginName = !string.IsNullOrWhiteSpace(dto.LoginName)
-                    //? dto.LoginName : $"{staff.StaffFirstName}{staff.StaffLastName}",
-
                     // Password & OTP are NULL initially
-                    // Password = password,
                     TempPassword = null,
                     TempPassDateTime = null,
 
@@ -106,7 +99,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     IsActive = true,
 
                     CreatedBy = dto.CreatedBy,
-                    CreatedDate = dto.CreatedDate
+                    CreatedDate = DateTime.UtcNow,
                 };
 
                 // hash AFTER object creation
@@ -152,9 +145,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         }
 
 
-        public async Task<bool> UpdateAsync(StaffRequestDto dto)
+        // ---------------- UPDATE ----------------
+        public async Task<bool> UpdateAsync(StaffRequestDto dto, LoggedInUserDto currentUser)
         {
             // ---------- 1. Business validation ----------
+
+            if (currentUser.StaffType != StaffType.SuperAdmin)
+            {
+                throw new CustomException("Only Super Admin can update staff accounts");
+            }
+
             ValidateOrganisation(dto);
 
 
@@ -195,17 +195,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 // ---------- 6. Update HrStaffMaster ----------
                 staff.StaffType = dto.StaffType;
 
-                // reset all organisation mappings first
-                staff.UniversityId = null;
-                staff.SchoolId = null;
-
-                // set only the relevant one
-                if (dto.StaffType == (long)StaffType.University)
-                    staff.UniversityId = dto.UniversityId;
-
-                else if (dto.StaffType == (long)StaffType.School)
-                    staff.SchoolId = dto.SchoolId;
-
                 staff.StaffSalutation = dto.StaffSalutation;
                 staff.StaffFirstName = dto.StaffFirstName;
                 staff.StaffLastName = dto.StaffLastName;
@@ -222,7 +211,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 staff.MobileNumber = dto.MobileNumber;
 
                 staff.Remarks = dto.Remarks;
-                staff.IsActive = dto.IsActive;
+                staff.IsActive = true;
+
+                staff.UpdatedBy = dto.UpdatedBy;
+                staff.UpdatedDate = DateTime.UtcNow;
 
                 _context.KfStaffs.Update(staff);
                 await _context.SaveChangesAsync();
@@ -237,7 +229,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 // update from login name api
                 //usersLogin.LoginName = dto.LoginName;
                 usersLogin.RecoveryEmail = dto.OfficialEmail;
-                usersLogin.IsActive = dto.IsActive;
+                usersLogin.IsActive = true;
+                usersLogin.UpdatedBy = dto.UpdatedBy;
+                usersLogin.UpdatedDate = DateTime.UtcNow;
 
                 _context.UsersLogins.Update(usersLogin);
                 await _context.SaveChangesAsync();
@@ -255,10 +249,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         }
 
 
-
         // ---------------- DELETE (Soft) ----------------
-        public async Task<bool> DeleteAsync(long staffId)
+        public async Task<bool> DeleteAsync(long staffId, LoggedInUserDto currentUser)
         {
+            if (currentUser.StaffType != StaffType.SuperAdmin)
+            {
+                throw new CustomException("Only Super Admin can delete staff accounts");
+            }
+
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -268,6 +266,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
                 if (staff == null)
                     throw new CustomException("Staff not found");
+
+                if(staff.StaffType == (long)StaffType.SuperAdmin)
+                    throw new CustomException("Super Admin staff cannot be deleted");
 
                 var usersLogin = await _context.UsersLogins
                     .FirstOrDefaultAsync(x => x.StaffId == staffId);
@@ -311,14 +312,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     StaffTypeName = x.StaffTypeNavigation == null
                                     ? null : x.StaffTypeNavigation.ModuleName,
 
-                    // organisation name (CLEAN)
-                    OrganisationName = x.StaffType == (long)StaffType.University ? "University Coordinator" :
-                                       x.StaffType == (long)StaffType.School ? "School Coordinator" :
-                                       x.StaffType == (long)StaffType.SuperAdmin ? "Super Admin" :
-                                       x.StaffType == (long)StaffType.Ngo ? "NGO Admin" :
-                                       x.StaffType == (long)StaffType.Marketing ? "Marketing" :
-                                       x.StaffType == (long)StaffType.Finance ? "Finance" :
-                                       null,
 
                     StaffSalutation = x.StaffSalutation,
                     StaffFirstName = x.StaffFirstName,
@@ -343,13 +336,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
 
                     CreatedBy = x.CreatedBy,
-                    CreatedDate = x.CreatedDate
+                    CreatedDate = x.CreatedDate,
+                    UpdatedBy = x.UpdatedBy,
+                    UpdatedDate = x.UpdatedDate
                 })
                 .FirstOrDefaultAsync();
 
             return staff;
         }
-
 
 
         // ---------------- GET ALL FILTER ----------------
@@ -360,34 +354,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 .Include(x => x.UsersLogins)
                 .AsQueryable();
 
-            // ---------- DATA SCOPE FILTER ----------
-            //if (currentUser.StaffType != StaffType.SuperAdmin)
-            //{
-            //    if (currentUser.StaffType == (StaffType.University))
-            //    {
-            //        query = query.Where(x => x.UniversityId == currentUser.UniversityId);
-            //    }
-            //    else if (currentUser.StaffType == StaffType.School)
-            //    {
-            //        query = query.Where(x => x.SchoolId == currentUser.SchoolId);
-            //    }
-
-            //}
-
-
             // Staff filter
             if (filter.StaffType.HasValue)
             {
                 query = query.Where(x => x.StaffType == filter.StaffType.Value);
             }
 
-            // organisation menu filter
-            if(filter.OrganisationId.HasValue)
+            // Country filter
+            if (filter.CountryId.HasValue)
             {
-                query = query.Where(x =>
-                    (x.StaffType == (long)StaffType.University && x.UniversityId == filter.OrganisationId) ||
-                    (x.StaffType == (long)StaffType.School && x.SchoolId == filter.OrganisationId)
-                );
+                query = query.Where(x => x.PermCountryId == filter.CountryId.Value);
             }
 
             // active filter
@@ -434,15 +410,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     StaffTypeName = x.StaffTypeNavigation == null
                                     ? null : x.StaffTypeNavigation.ModuleName,
 
-                    // organisation name (CLEAN)
-                    OrganisationName = x.StaffType == (long)StaffType.University ? "University Coordinator" :
-                                       x.StaffType == (long)StaffType.School ? "School Coordinator" :
-                                       x.StaffType == (long)StaffType.SuperAdmin ? "Super Admin" :
-                                       x.StaffType == (long)StaffType.Ngo ? "NGO Admin" :
-                                       x.StaffType == (long)StaffType.Marketing ? "Marketing" :
-                                       x.StaffType == (long)StaffType.Finance ? "Finance" :
-                                       null,
-
                     StaffSalutation = x.StaffSalutation,
                     StaffFirstName = x.StaffFirstName,
                     StaffLastName = x.StaffLastName,
@@ -453,6 +420,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PermZipCode = x.PermZipCode,
                     PermState = x.PermState,
                     PermCountryId = x.PermCountryId,
+                    PermCountryName = x.PermCountry == null ? null : x.PermCountry.CountryName,
                     Photo = _commonService.GetProfileImageUrl(x.Photo),
            
                     OfficialEmail = x.OfficialEmail,
@@ -466,7 +434,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
 
                     CreatedBy = x.CreatedBy,
-                    CreatedDate = x.CreatedDate
+                    CreatedDate = x.CreatedDate,
+
+                    UpdatedBy = x.UpdatedBy,
+                    UpdatedDate = x.UpdatedDate
                 })
                 .ToListAsync();
 
@@ -484,90 +455,24 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         private static void ValidateOrganisation(StaffRequestDto dto)
         {
-            var count =
-                (dto.UniversityId.HasValue ? 1 : 0) +
-                (dto.SchoolId.HasValue ? 1 : 0);
+            var hasUniversity = dto.UniversityIds != null && dto.UniversityIds.Count > 0;
+            var hasSchool = dto.SchoolIds != null && dto.SchoolIds.Count > 0;
 
-            if (count > 1)
-                throw new CustomException("Only one organisation can be assigned to staff.");
+            // Staff cannot be assigned to both organisations
+            if (hasUniversity && hasSchool)
+                throw new CustomException(
+                    "Staff cannot be assigned to both universities and schools.");
 
-            if (dto.StaffType == (long)StaffType.University && dto.UniversityId == null)
-                throw new CustomException("UniversityId is required for University staff.");
-
-            if (dto.StaffType == (long)StaffType.School && dto.SchoolId == null)
-                throw new CustomException("SchoolId is required for School staff.");
-
-            if (dto.StaffType == (long)StaffType.SuperAdmin && count > 0)
-                throw new CustomException("SuperAdmin cannot be assigned to any organisation.");
-        }
-
-
-        private void ApplyStaffTypeAndOrganisationRules(StaffRequestDto dto, LoggedInUserDto currentUser)
-        {
-            if (dto == null)
-                throw new ArgumentNullException(nameof(dto));
-
-            switch (currentUser.StaffType)
+            // Super Admin cannot belong to any organisation
+            if (dto.StaffType == (long)StaffType.SuperAdmin &&
+                (hasUniversity || hasSchool))
             {
-                case StaffType.SuperAdmin:
-                    // SuperAdmin can assign any staff type
-                    // BUT organisation mapping must still be consistent
-                    NormalizeOrganisationMapping(dto);
-                    break;
-
-                case StaffType.Ngo:
-                    if (dto.StaffType != (long)StaffType.Ngo)
-                        throw new CustomException("NGO can create/update only NGO staff");
-
-                    dto.StaffType = (long)StaffType.Ngo;
-                    dto.UniversityId = null;
-                    dto.SchoolId = null;
-                    break;
-
-                //case StaffType.School:
-                //    dto.StaffType = (long)StaffType.School;
-                //    dto.UniversityId = null;
-                //    dto.SchoolId = currentUser.SchoolId;
-                //    break;
-
-                //case StaffType.University:
-                //    dto.StaffType = (long)StaffType.University;
-                //    dto.UniversityId = currentUser.UniversityId;
-                //    dto.SchoolId = null;
-                //    break;
-
-                default:
-                    throw new CustomException("Invalid staff type");
+                throw new CustomException(
+                    "Super Admin cannot be assigned to any organisation.");
             }
+
         }
 
-
-        private void NormalizeOrganisationMapping(StaffRequestDto dto)
-        {
-            switch (dto.StaffType)
-            {
-                case (long)StaffType.SuperAdmin:
-                    dto.UniversityId = null;
-                    dto.SchoolId = null;
-                    break;
-
-                case (long)StaffType.University:
-                    dto.SchoolId = null;
-                    break;
-
-                case (long)StaffType.School:
-                    dto.UniversityId = null;
-                    break;
-
-                case (long)StaffType.Ngo:
-                    dto.UniversityId = null;
-                    dto.SchoolId = null;
-                    break;
-
-                default:
-                    throw new CustomException("Invalid staff type");
-            }
-        }
 
 
     }

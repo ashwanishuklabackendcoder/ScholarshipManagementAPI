@@ -64,7 +64,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfStudentRegistration> KfStudentRegistrations { get; set; }
 
-    public virtual DbSet<MasterDonorList> MasterDonorLists { get; set; }
+    public virtual DbSet<KfUsersMenu> KfUsersMenus { get; set; }
 
     public virtual DbSet<UnUniversityRegistration> UnUniversityRegistrations { get; set; }
 
@@ -73,8 +73,6 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<UsersLoginRole> UsersLoginRoles { get; set; }
 
     public virtual DbSet<UsersLoginsLog> UsersLoginsLogs { get; set; }
-
-    public virtual DbSet<UsersMenu> UsersMenus { get; set; }
 
     public virtual DbSet<UsersModule> UsersModules { get; set; }
 
@@ -92,7 +90,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -854,22 +851,41 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_kf_student_registrations_UpdatedBy");
         });
 
-        modelBuilder.Entity<MasterDonorList>(entity =>
+        modelBuilder.Entity<KfUsersMenu>(entity =>
         {
-            entity.HasKey(e => e.DonorId).HasName("PK__MasterDo__052E3F781454C3D8");
+            entity.HasKey(e => e.MenuLinkId).HasName("PK_UsersMenu");
 
-            entity.ToTable("MasterDonorList");
+            entity.ToTable("kf_users_menu");
 
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
+            entity.HasIndex(e => e.ActualName, "UQ_UsersMenu_ActualName").IsUnique();
+
+            entity.Property(e => e.ActualName).HasMaxLength(200);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DonorCode).HasMaxLength(50);
-            entity.Property(e => e.DonorEmail).HasMaxLength(100);
-            entity.Property(e => e.DonorName).HasMaxLength(200);
-            entity.Property(e => e.DonorPhone).HasMaxLength(50);
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.Icon).HasMaxLength(500);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
+            entity.Property(e => e.IsView).HasDefaultValue(true);
+            entity.Property(e => e.PageHeading).HasMaxLength(200);
+            entity.Property(e => e.PagePath).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersMenuCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersMenu_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.Module).WithMany(p => p.KfUsersMenus)
+                .HasForeignKey(d => d.ModuleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersMenu_UsersModule");
+
+            entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
+                .HasForeignKey(d => d.ParentId)
+                .HasConstraintName("FK_UsersMenu_UsersMenu");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersMenuUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersMenu_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<UnUniversityRegistration>(entity =>
@@ -1022,37 +1038,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.LoginId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersLoginsLog_UsersLogin");
-        });
-
-        modelBuilder.Entity<UsersMenu>(entity =>
-        {
-            entity.HasKey(e => e.MenuLinkId);
-
-            entity.ToTable("UsersMenu");
-
-            entity.HasIndex(e => e.ActualName, "UQ_UsersMenu_ActualName").IsUnique();
-
-            entity.Property(e => e.ActualName).HasMaxLength(200);
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.Icon).HasMaxLength(500);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.IsView).HasDefaultValue(true);
-            entity.Property(e => e.PageHeading).HasMaxLength(200);
-            entity.Property(e => e.PagePath).HasMaxLength(200);
-            entity.Property(e => e.ShowInMenu).HasDefaultValue(true);
-
-            entity.HasOne(d => d.Module).WithMany(p => p.UsersMenus)
-                .HasForeignKey(d => d.ModuleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersMenu_UsersModule");
-
-            entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
-                .HasForeignKey(d => d.ParentId)
-                .HasConstraintName("FK_UsersMenu_UsersMenu");
         });
 
         modelBuilder.Entity<UsersModule>(entity =>

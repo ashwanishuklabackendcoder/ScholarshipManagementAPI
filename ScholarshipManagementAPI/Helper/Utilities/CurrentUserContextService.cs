@@ -97,20 +97,20 @@ namespace ScholarshipManagementAPI.Helper.Utilities
 
             long? currencyId = null;
 
-            // 🔹 UNIVERSITY
-            if (staff.StaffType == (long)StaffType.University && staff.UniversityId.HasValue)
-            {
-                currencyId = null;
-            }
+            //// 🔹 UNIVERSITY
+            //if (staff.StaffType == (long)StaffType.University && staff.UniversityId.HasValue)
+            //{
+            //    currencyId = null;
+            //}
 
-            // 🔹 SCHOOL
-            else if (staff.StaffType == (long)StaffType.School && staff.SchoolId.HasValue)
-            {
-                currencyId = await _context.KfSchools
-                    .Where(s => s.SchoolId == staff.SchoolId.Value)
-                    .Select(s => s.DefaultCurrencyId)
-                    .FirstOrDefaultAsync();
-            }
+            //// 🔹 SCHOOL
+            //else if (staff.StaffType == (long)StaffType.School && staff.SchoolId.HasValue)
+            //{
+            //    currencyId = await _context.KfSchools
+            //        .Where(s => s.SchoolId == staff.SchoolId.Value)
+            //        .Select(s => s.DefaultCurrencyId)
+            //        .FirstOrDefaultAsync();
+            //}
 
             // 🔹 If currency found → fetch details
             if (currencyId.HasValue)

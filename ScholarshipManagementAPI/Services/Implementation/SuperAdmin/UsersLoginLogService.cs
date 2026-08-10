@@ -103,19 +103,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 .AsQueryable();
 
             // ---------- DATA SCOPE FILTER ----------
-            if (currentUser.StaffType != StaffType.SuperAdmin)
-            {
-                switch ((long)currentUser.StaffType)
-                {
-                    case (long)StaffType.University:
-                        query = query.Where(x => x.Login.Staff.UniversityId.HasValue && currentUser.UniversityIds.Contains(x.Login.Staff.UniversityId.Value));
-                        break;
+            //if (currentUser.StaffType != StaffType.SuperAdmin)
+            //{
+            //    switch ((long)currentUser.StaffType)
+            //    {
+            //        case (long)StaffType.University:
+            //            query = query.Where(x => x.Login.Staff.UniversityId.HasValue && currentUser.UniversityIds.Contains(x.Login.Staff.UniversityId.Value));
+            //            break;
 
-                    case (long)StaffType.School:
-                        query = query.Where(x => x.Login.Staff.SchoolId.HasValue && currentUser.SchoolIds.Contains(x.Login.Staff.SchoolId.Value));
-                        break;
-                }
-            }
+            //        case (long)StaffType.School:
+            //            query = query.Where(x => x.Login.Staff.SchoolId.HasValue && currentUser.SchoolIds.Contains(x.Login.Staff.SchoolId.Value));
+            //            break;
+            //    }
+            //}
 
 
             if (filter.LoginId.HasValue)

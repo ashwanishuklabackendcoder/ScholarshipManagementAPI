@@ -57,7 +57,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     rp.MenuLink.PageHeading,
                     rp.MenuLink.PagePath,
                     rp.MenuLink.ActualName,
-                    rp.MenuLink.IsDashboard,
                     rp.MenuLink.SequenceNo,
                     rp.MenuLink.Icon,
                     Permissions = new MenuPermissionDto
@@ -80,7 +79,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     PageHeading = x.PageHeading,
                     PagePath = x.PagePath,
                     ActualName = x.ActualName,
-                    IsDashboard = x.IsDashboard,
                     SequenceNo = x.SequenceNo,
                     Icon = x.Icon,
                     Permissions = x.Permissions

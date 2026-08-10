@@ -23,9 +23,9 @@ public partial class UsersModule
 
     public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual ICollection<KfUsersMenu> KfUsersMenus { get; set; } = new List<KfUsersMenu>();
 
-    public virtual ICollection<UsersMenu> UsersMenus { get; set; } = new List<UsersMenu>();
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<UsersRole> UsersRoles { get; set; } = new List<UsersRole>();
 

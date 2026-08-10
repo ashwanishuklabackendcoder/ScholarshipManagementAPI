@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class UsersMenu
+public partial class KfUsersMenu
 {
     public long MenuLinkId { get; set; }
 
@@ -25,7 +25,7 @@ public partial class UsersMenu
 
     public DateTime CreatedDate { get; set; }
 
-    public long? CreatedBy { get; set; }
+    public long CreatedBy { get; set; }
 
     public string? Icon { get; set; }
 
@@ -35,13 +35,13 @@ public partial class UsersMenu
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin? CreatedByNavigation { get; set; }
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<UsersMenu> InverseParent { get; set; } = new List<UsersMenu>();
+    public virtual ICollection<KfUsersMenu> InverseParent { get; set; } = new List<KfUsersMenu>();
 
     public virtual UsersModule Module { get; set; } = null!;
 
-    public virtual UsersMenu? Parent { get; set; }
+    public virtual KfUsersMenu? Parent { get; set; }
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 

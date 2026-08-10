@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ScholarshipManagementAPI.DTOs.Common.Auth;
-using ScholarshipManagementAPI.DTOs.Common.HrStaff;
+using ScholarshipManagementAPI.DTOs.Common.Staff;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.Common;
-using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Controllers.Common
 {
@@ -31,16 +28,14 @@ namespace ScholarshipManagementAPI.Controllers.Common
         [Authorize]
         public async Task<IActionResult> Create(StaffRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                            // always server-side
-            dto.CreatedBy = JwtClaimHelper.LoginId(User);      // or from claims
-
-            var id = await _service.CreateAsync(dto);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var id = await _service.CreateAsync(dto,currentUser);
 
             return Ok(new ApiResponseDto
             {
                 Success = true,
                 Result = id,
-                Message = "User created successfully"
+                Message = "Staff created successfully"
             });
         }
 
@@ -51,7 +46,8 @@ namespace ScholarshipManagementAPI.Controllers.Common
         public async Task<IActionResult> Update(long id, [FromBody] StaffRequestDto dto)
         {
             dto.StaffId = id;
-            var updated = await _service.UpdateAsync(dto);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var updated = await _service.UpdateAsync(dto, currentUser);
 
             if (!updated)
             {
@@ -66,7 +62,7 @@ namespace ScholarshipManagementAPI.Controllers.Common
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "User updated successfully",
+                Message = "Staff updated successfully",
                 Result = updated,
             });
         }
@@ -77,7 +73,8 @@ namespace ScholarshipManagementAPI.Controllers.Common
         [Authorize]
         public async Task<IActionResult> Delete(long id)
         {
-            var deleted = await _service.DeleteAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var deleted = await _service.DeleteAsync(id,currentUser);
 
             if (!deleted)
             {

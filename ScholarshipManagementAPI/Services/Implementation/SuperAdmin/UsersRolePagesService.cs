@@ -209,7 +209,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
         public async Task<PagedResultDto<RolePagePermissionDto>> GetRolePermissionsAsync(UsersRolePageFilterDto filter)
         {
-            var menus = await _context.UsersMenus
+            var menus = await _context.KfUsersMenus
                 .AsNoTracking()
                 .Include(x => x.Module)
                 .OrderBy(x => x.PageHeading)

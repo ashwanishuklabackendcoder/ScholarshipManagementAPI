@@ -26,6 +26,8 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu
         [Required]
         public bool IsView { get; set; }
 
+        public bool IsActive { get; set; }
+
         [Required]
         public int LevelNo { get; set; }
 
@@ -34,22 +36,25 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu
 
         public string? Icon { get; set; }
 
-        public bool IsDashboard { get; set; }
-
-        [Required]
-        public bool ShowInMenu { get; set; }
-
-
-        [Required]
+        
+        
         public DateTime CreatedDate { get; set; }
 
+        public long CreatedBy { get; set; }
 
-        public string? CreatedBy { get; set; }
+        public string? CreatedByName { get; set; }
 
+
+        public DateTime? UpdatedDate { get; set; }
+
+        public long? UpdatedBy { get; set; }
+
+        public string? UpdatedByName { get; set; }
 
 
         // Additional properties for response purposes
         public string? ModuleName { get; set; }
         public string? ParentName { get; set; }
+
     }
 }
