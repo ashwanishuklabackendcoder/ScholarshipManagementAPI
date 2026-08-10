@@ -198,7 +198,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
             // ---------- Ordering ----------
             query = query
-                .OrderBy(x => x.ParentId ?? x.MenuLinkId)
+                .OrderBy(x => x.ModuleId)
+                .ThenBy(x => x.ParentId ?? x.MenuLinkId)
                 .ThenBy(x => x.LevelNo)
                 .ThenBy(x => x.SequenceNo);
 
