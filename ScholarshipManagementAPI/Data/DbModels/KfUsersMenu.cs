@@ -39,11 +39,11 @@ public partial class KfUsersMenu
 
     public virtual ICollection<KfUsersMenu> InverseParent { get; set; } = new List<KfUsersMenu>();
 
-    public virtual UsersModule Module { get; set; } = null!;
+    public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissions { get; set; } = new List<KfUsersRolePermission>();
+
+    public virtual KfUsersModule Module { get; set; } = null!;
 
     public virtual KfUsersMenu? Parent { get; set; }
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
-
-    public virtual ICollection<UsersRolePage> UsersRolePages { get; set; } = new List<UsersRolePage>();
 }

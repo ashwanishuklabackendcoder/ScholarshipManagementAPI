@@ -4,9 +4,6 @@ using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginLog;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole;
-using ScholarshipManagementAPI.Helper;
-using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
@@ -24,7 +21,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(UsersLoginLogRequestDto dto)
         {
-            var entity = new UsersLoginsLog
+            var entity = new KfUsersLoginLog
             {
                 LoginId = dto.LoginId,
                 IpAddress = dto.IpAddress,
@@ -37,7 +34,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 // LoutDateTime is null on purpose
             };
 
-            _context.UsersLoginsLogs.Add(entity);
+            _context.KfUsersLoginLogs.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.LoginLogId;
@@ -50,7 +47,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (dto.LoginLogId == null || dto.LoginLogId == 0)
                 return false;
 
-            var entity = await _context.UsersLoginsLogs
+            var entity = await _context.KfUsersLoginLogs
                 .FirstOrDefaultAsync(x => x.LoginLogId == dto.LoginLogId);
 
             if (entity == null)
@@ -71,7 +68,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET BY ID ----------------
         public async Task<UsersLoginLogRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.UsersLoginsLogs
+            return await _context.KfUsersLoginLogs
                 .AsNoTracking()
                 .Include(x => x.Login)
                 .Where(x => x.LoginLogId == id)
@@ -96,7 +93,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<UsersLoginLogRequestDto>> GetByFilterAsync(UsersLoginLogFilterDto filter, LoggedInUserDto currentUser)
         {
-            var query = _context.UsersLoginsLogs
+            var query = _context.KfUsersLoginLogs
                 .AsNoTracking()
                 .Include(x => x.Login)
                 .ThenInclude(l => l.Staff)

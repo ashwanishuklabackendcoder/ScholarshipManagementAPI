@@ -1,0 +1,39 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace ScholarshipManagementAPI.Data.DbModels;
+
+public partial class KfUsersRolePermission
+{
+    public long RoleFormId { get; set; }
+
+    public long RoleId { get; set; }
+
+    public long MenuLinkId { get; set; }
+
+    public bool InsertPer { get; set; }
+
+    public bool UpdatePer { get; set; }
+
+    public bool DeletePer { get; set; }
+
+    public bool ViewPer { get; set; }
+
+    public DateTime CreatedDate { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public long CreatedBy { get; set; }
+
+    public long? UpdatedBy { get; set; }
+
+    public DateTime? UpdatedDate { get; set; }
+
+    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+
+    public virtual KfUsersMenu MenuLink { get; set; } = null!;
+
+    public virtual KfUsersRole Role { get; set; } = null!;
+
+    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+}

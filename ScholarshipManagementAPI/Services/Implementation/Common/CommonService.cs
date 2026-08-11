@@ -26,7 +26,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<List<UsersModuleDto>> GetAllUsersModule()
         {
-            return await _context.UsersModules
+            return await _context.KfUsersModules
                 .AsNoTracking()
                 .OrderBy(x => x.ModuleId)
                 .Select(x => new UsersModuleDto
@@ -42,7 +42,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         public async Task<List<LoadMenuDto>> LoadMenusByRoleAsync(long roleId)
         {
             // Fetch role-page permissions + menu
-            var roleMenus = await _context.UsersRolePages
+            var roleMenus = await _context.KfUsersRolePermissions
                 .AsNoTracking()
                 .Include(rp => rp.MenuLink)
                 .Where(rp => rp.RoleId == roleId && rp.ViewPer)

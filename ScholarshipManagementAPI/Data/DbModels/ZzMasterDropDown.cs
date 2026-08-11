@@ -49,7 +49,7 @@ public partial class ZzMasterDropDown
 
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrationSelfRelianceLevels { get; set; } = new List<KfStudentRegistration>();
 
-    public virtual UsersModule? Module { get; set; }
+    public virtual KfUsersModule? Module { get; set; }
 
     public virtual ZzMasterDropDown? Parent { get; set; }
 

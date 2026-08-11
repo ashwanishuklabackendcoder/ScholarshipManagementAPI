@@ -60,7 +60,7 @@ public partial class KfStaff
 
     public virtual ZzMasterCountry? PermCountry { get; set; }
 
-    public virtual UsersModule StaffTypeNavigation { get; set; } = null!;
+    public virtual KfUsersModule StaffTypeNavigation { get; set; } = null!;
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
 

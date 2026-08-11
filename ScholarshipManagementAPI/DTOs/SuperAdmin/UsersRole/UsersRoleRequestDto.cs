@@ -17,8 +17,6 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole
         [Required(ErrorMessage = "Module is required")]
         public long ModuleId { get; set; }
 
-
-        [Required]
         public bool IsActive { get; set; }
 
 
@@ -27,9 +25,15 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole
         public DateTime CreatedDate { get; set; }
         public long CreatedBy { get; set; }
 
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedBy { get; set; }
 
 
         // required for display purposes
+        public string? CreatedByName { get; set; }
+
+        public string? UpdatedByName { get; set; }
+
         public string? ModuleName { get; set; }
 
     }

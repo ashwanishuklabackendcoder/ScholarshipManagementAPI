@@ -64,21 +64,21 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfStudentRegistration> KfStudentRegistrations { get; set; }
 
+    public virtual DbSet<KfUsersLoginLog> KfUsersLoginLogs { get; set; }
+
+    public virtual DbSet<KfUsersLoginRolesAssignment> KfUsersLoginRolesAssignments { get; set; }
+
     public virtual DbSet<KfUsersMenu> KfUsersMenus { get; set; }
+
+    public virtual DbSet<KfUsersModule> KfUsersModules { get; set; }
+
+    public virtual DbSet<KfUsersRole> KfUsersRoles { get; set; }
+
+    public virtual DbSet<KfUsersRolePermission> KfUsersRolePermissions { get; set; }
 
     public virtual DbSet<UnUniversityRegistration> UnUniversityRegistrations { get; set; }
 
     public virtual DbSet<UsersLogin> UsersLogins { get; set; }
-
-    public virtual DbSet<UsersLoginRole> UsersLoginRoles { get; set; }
-
-    public virtual DbSet<UsersLoginsLog> UsersLoginsLogs { get; set; }
-
-    public virtual DbSet<UsersModule> UsersModules { get; set; }
-
-    public virtual DbSet<UsersRole> UsersRoles { get; set; }
-
-    public virtual DbSet<UsersRolePage> UsersRolePages { get; set; }
 
     public virtual DbSet<ZzGeneralSetting> ZzGeneralSettings { get; set; }
 
@@ -90,6 +90,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -851,6 +852,57 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_kf_student_registrations_UpdatedBy");
         });
 
+        modelBuilder.Entity<KfUsersLoginLog>(entity =>
+        {
+            entity.HasKey(e => e.LoginLogId).HasName("PK_UsersLoginsLog");
+
+            entity.ToTable("kf_users_login_log");
+
+            entity.Property(e => e.BrowserName).HasMaxLength(200);
+            entity.Property(e => e.ComputerName).HasMaxLength(200);
+            entity.Property(e => e.IpAddress).HasMaxLength(200);
+            entity.Property(e => e.LoginDateTime).HasColumnType("datetime");
+            entity.Property(e => e.LogoutDateTime).HasColumnType("datetime");
+            entity.Property(e => e.OperatingSystem).HasMaxLength(200);
+            entity.Property(e => e.UserName).HasMaxLength(200);
+
+            entity.HasOne(d => d.Login).WithMany(p => p.KfUsersLoginLogs)
+                .HasForeignKey(d => d.LoginId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginsLog_UsersLogin");
+        });
+
+        modelBuilder.Entity<KfUsersLoginRolesAssignment>(entity =>
+        {
+            entity.HasKey(e => e.UserLoginRoleId).HasName("PK_UsersLoginRoles");
+
+            entity.ToTable("kf_users_login_roles_assignment");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersLoginRolesAssignmentCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginRoles_CreatedBy");
+
+            entity.HasOne(d => d.Login).WithMany(p => p.KfUsersLoginRolesAssignmentLogins)
+                .HasForeignKey(d => d.LoginId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginRoles_UsersLogin");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.KfUsersLoginRolesAssignments)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginRoles_UsersRole");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersLoginRolesAssignmentUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersLoginRoles_UpdatedBy");
+        });
+
         modelBuilder.Entity<KfUsersMenu>(entity =>
         {
             entity.HasKey(e => e.MenuLinkId).HasName("PK_UsersMenu");
@@ -886,6 +938,84 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersMenuUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_UsersMenu_UpdatedBy_UsersLogin");
+        });
+
+        modelBuilder.Entity<KfUsersModule>(entity =>
+        {
+            entity.HasKey(e => e.ModuleId).HasName("PK_UsersModule");
+
+            entity.ToTable("kf_users_module");
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModuleName).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersModuleCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_UsersModule_CreatedBy");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersModuleUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersModule_UpdatedBy");
+        });
+
+        modelBuilder.Entity<KfUsersRole>(entity =>
+        {
+            entity.HasKey(e => e.RoleId).HasName("PK_UsersRole");
+
+            entity.ToTable("kf_users_role");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.RoleName).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersRoleCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersRole_CreatedBy");
+
+            entity.HasOne(d => d.Module).WithMany(p => p.KfUsersRoles)
+                .HasForeignKey(d => d.ModuleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersRole_UsersModule");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersRoleUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersRole_UpdatedBy");
+        });
+
+        modelBuilder.Entity<KfUsersRolePermission>(entity =>
+        {
+            entity.HasKey(e => e.RoleFormId).HasName("PK_UsersRolePages");
+
+            entity.ToTable("kf_users_role_permissions");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersRolePermissionCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersRolePages_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.MenuLink).WithMany(p => p.KfUsersRolePermissions)
+                .HasForeignKey(d => d.MenuLinkId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersRolePages_UsersMenu");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.KfUsersRolePermissions)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersRolePages_UsersRoles");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersRolePermissionUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersRolePages_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<UnUniversityRegistration>(entity =>
@@ -986,126 +1116,6 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InverseUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_UsersLogin_UpdatedBy");
-        });
-
-        modelBuilder.Entity<UsersLoginRole>(entity =>
-        {
-            entity.HasKey(e => e.UserLoginRoleId);
-
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UsersLoginRoleCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLoginRoles_CreatedBy");
-
-            entity.HasOne(d => d.Login).WithMany(p => p.UsersLoginRoleLogins)
-                .HasForeignKey(d => d.LoginId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLoginRoles_UsersLogin");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.UsersLoginRoles)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLoginRoles_UsersRole");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UsersLoginRoleUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_UsersLoginRoles_UpdatedBy");
-        });
-
-        modelBuilder.Entity<UsersLoginsLog>(entity =>
-        {
-            entity.HasKey(e => e.LoginLogId);
-
-            entity.ToTable("UsersLoginsLog");
-
-            entity.Property(e => e.BrowserName).HasMaxLength(200);
-            entity.Property(e => e.ComputerName).HasMaxLength(200);
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IpAddress).HasMaxLength(200);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.LoginDateTime).HasColumnType("datetime");
-            entity.Property(e => e.LogoutDateTime).HasColumnType("datetime");
-            entity.Property(e => e.OperatingSystem).HasMaxLength(200);
-            entity.Property(e => e.UserName).HasMaxLength(200);
-
-            entity.HasOne(d => d.Login).WithMany(p => p.UsersLoginsLogs)
-                .HasForeignKey(d => d.LoginId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLoginsLog_UsersLogin");
-        });
-
-        modelBuilder.Entity<UsersModule>(entity =>
-        {
-            entity.HasKey(e => e.ModuleId);
-
-            entity.ToTable("UsersModule");
-
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.ModuleName).HasMaxLength(200);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UsersModuleCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK_UsersModule_CreatedBy");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UsersModuleUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_UsersModule_UpdatedBy");
-        });
-
-        modelBuilder.Entity<UsersRole>(entity =>
-        {
-            entity.HasKey(e => e.RoleId);
-
-            entity.ToTable("UsersRole");
-
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.Description).HasMaxLength(500);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.RoleName).HasMaxLength(200);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UsersRoleCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersRole_CreatedBy");
-
-            entity.HasOne(d => d.Module).WithMany(p => p.UsersRoles)
-                .HasForeignKey(d => d.ModuleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersRole_UsersModule");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UsersRoleUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_UsersRole_UpdatedBy");
-        });
-
-        modelBuilder.Entity<UsersRolePage>(entity =>
-        {
-            entity.HasKey(e => e.RoleFormId);
-
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-
-            entity.HasOne(d => d.MenuLink).WithMany(p => p.UsersRolePages)
-                .HasForeignKey(d => d.MenuLinkId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersRolePages_UsersMenu");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.UsersRolePages)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersRolePages_UsersRoles");
         });
 
         modelBuilder.Entity<ZzGeneralSetting>(entity =>

@@ -23,25 +23,25 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(UsersRoleRequestDto dto)
         {
-            if (await _context.UsersRoles
+            if (await _context.KfUsersRoles
                 .AnyAsync(x => x.RoleName.ToLower() == dto.RoleName.ToLower()))
             {
                 throw new CustomException("Role with same RoleName already exists");
             }
 
 
-            var entity = new UsersRole
+            var entity = new KfUsersRole
             {
                 RoleName = dto.RoleName,
                 Description = dto.Description,
-                IsActive = dto.IsActive,
+                IsActive =true,
                 ModuleId = dto.ModuleId,
 
                 CreatedBy = dto.CreatedBy,                        // or from token
                 CreatedDate = dto.CreatedDate                     // always server-side
             };
 
-            _context.UsersRoles.Add(entity);
+            _context.KfUsersRoles.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.RoleId;
@@ -54,14 +54,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (dto.RoleId == null || dto.RoleId == 0)
                 return false;
 
-            if (await _context.UsersRoles.AnyAsync(x =>
+            if (await _context.KfUsersRoles.AnyAsync(x =>
                       x.RoleName.ToLower() == dto.RoleName.ToLower()
                       && x.RoleId != dto.RoleId))
             {
                 throw new CustomException("Role with same RoleName already exists");
             }
 
-            var entity = await _context.UsersRoles
+            var entity = await _context.KfUsersRoles
                 .FirstOrDefaultAsync(x => x.RoleId == dto.RoleId);
 
             if (entity == null)
@@ -70,8 +70,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             
             entity.RoleName = dto.RoleName;
             entity.Description = dto.Description;
-            entity.IsActive = dto.IsActive;
+            entity.IsActive = true;
             entity.ModuleId = dto.ModuleId;
+            entity.UpdatedBy = dto.UpdatedBy;
+            entity.UpdatedDate = dto.UpdatedDate;
 
             // entity.CreatedBy = dto.CreatedBy;        
             // CreatedDate NOT updated on purpose
@@ -84,13 +86,15 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.UsersRoles
+            var entity = await _context.KfUsersRoles
                 .FirstOrDefaultAsync(x => x.RoleId == id);
 
             if (entity == null)
                 return false;
 
-            _context.UsersRoles.Remove(entity);
+            //_context.KfUsersRoles.Remove(entity);
+
+            entity.IsActive = false;
             await _context.SaveChangesAsync();
 
             return true;
@@ -100,9 +104,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET BY ID ----------------
         public async Task<UsersRoleRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.UsersRoles
+            return await _context.KfUsersRoles
                 .AsNoTracking()
-                .Where(x => x.RoleId == id)
+                .Where(x => x.RoleId == id && x.IsActive)
                 .Select(x => new UsersRoleRequestDto
                 {
                     RoleId = x.RoleId,
@@ -112,9 +116,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     IsActive = x.IsActive,
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
-
+                    CreatedByName = x.CreatedByNavigation != null ? x.CreatedByNavigation.Staff.StaffFirstName : null,
+                    UpdatedBy = x.UpdatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedByName = x.UpdatedByNavigation != null ? x.UpdatedByNavigation.Staff.StaffFirstName : null,
                     ModuleName = x.Module.ModuleName,
-                
                 })
                 .FirstOrDefaultAsync();
         }
@@ -123,8 +129,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<UsersRoleRequestDto>> GetByFilterAsync(UsersRoleFilterDto filter)
         {
-            var query = _context.UsersRoles
+            var query = _context.KfUsersRoles
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .Include(x => x.Module)
                 .AsQueryable();
 
@@ -174,9 +181,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     IsActive = x.IsActive,
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
-
+                    CreatedByName = x.CreatedByNavigation != null ? x.CreatedByNavigation.Staff.StaffFirstName : null,
+                    UpdatedBy = x.UpdatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedByName = x.UpdatedByNavigation != null ? x.UpdatedByNavigation.Staff.StaffFirstName : null,
                     ModuleName = x.Module.ModuleName,
-               
                 })
                 .ToListAsync();
 
@@ -191,15 +200,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
 
-
-
         // ---------------- GET ALL LOOKUP ----------------
         public async Task<List<UsersRoleLookupDto>> GetByModuleIdsAsync(UsersRoleByModulesRequestDto dto)
         {
             if (dto.ModuleIds == null || !dto.ModuleIds.Any())
                 return new List<UsersRoleLookupDto>();
 
-            return await _context.UsersRoles
+            return await _context.KfUsersRoles
                 .Where(x => x.IsActive && dto.ModuleIds.Contains(x.ModuleId))
                 .OrderBy(x => x.Module.ModuleName)
                 .ThenBy(x => x.RoleName)

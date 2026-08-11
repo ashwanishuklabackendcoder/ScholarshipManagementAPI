@@ -23,14 +23,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(UsersRolePageRequestDto dto)
         {
-            if (await _context.UsersRolePages
+            if (await _context.KfUsersRolePermissions
                 .AnyAsync(x => x.RoleId == dto.RoleId && x.MenuLinkId == dto.MenuLinkId))
             {
                 throw new CustomException("Role with same MenuLink already exists");
             }
 
 
-            var entity = new UsersRolePage
+            var entity = new KfUsersRolePermission
             {
                 RoleId = dto.RoleId,
                 MenuLinkId = dto.MenuLinkId,
@@ -42,7 +42,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 CreatedDate = DateTime.UtcNow     // always server-side
             };
 
-            _context.UsersRolePages.Add(entity);
+            _context.KfUsersRolePermissions.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.RoleId;
@@ -55,14 +55,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (dto.RoleFormId == null || dto.RoleId == 0)
                 return false;
 
-            if (await _context.UsersRolePages.AnyAsync(x =>
+            if (await _context.KfUsersRolePermissions.AnyAsync(x =>
                       x.RoleId == dto.RoleId && x.MenuLinkId == dto.MenuLinkId
                       && x.RoleId != dto.RoleId))
             {
                 throw new CustomException("Role with same MenuLink already exists");
             }
 
-            var entity = await _context.UsersRolePages
+            var entity = await _context.KfUsersRolePermissions
                 .FirstOrDefaultAsync(x => x.RoleFormId == dto.RoleFormId);
 
             if (entity == null)
@@ -86,13 +86,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.UsersRolePages
+            var entity = await _context.KfUsersRolePermissions
                 .FirstOrDefaultAsync(x => x.RoleFormId == id);
 
             if (entity == null)
                 return false;
 
-            _context.UsersRolePages.Remove(entity);
+            _context.KfUsersRolePermissions.Remove(entity);
             await _context.SaveChangesAsync();
 
             return true;
@@ -102,7 +102,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET BY ID ----------------
         public async Task<UsersRolePageRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.UsersRolePages
+            return await _context.KfUsersRolePermissions
                 .AsNoTracking()
                 .Where(x => x.RoleFormId == id)
                 .Select(x => new UsersRolePageRequestDto
@@ -128,7 +128,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<UsersRolePageRequestDto>> GetByFilterAsync(UsersRolePageFilterDto filter)
         {
-            var query = _context.UsersRolePages
+            var query = _context.KfUsersRolePermissions
                 .AsNoTracking()
                 .Include(x => x.Role)
                 .Include(x => x.MenuLink)
@@ -216,7 +216,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 .ToListAsync();
 
 
-            var permissions = await _context.UsersRolePages
+            var permissions = await _context.KfUsersRolePermissions
                 .Where(x => x.RoleId == filter.RoleId)
                 .Include(x => x.Role)
                 .ToListAsync();
@@ -286,7 +286,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
             try
             {
-                var existing = await _context.UsersRolePages
+                var existing = await _context.KfUsersRolePermissions
                     .Where(x => x.RoleId == dto.RoleId)
                     .ToListAsync();
 
@@ -302,7 +302,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     // INSERT
                     if (hasPermission && existingRecord == null)
                     {
-                        _context.UsersRolePages.Add(new UsersRolePage
+                        _context.KfUsersRolePermissions.Add(new KfUsersRolePermission
                         {
                             RoleId = dto.RoleId,
                             MenuLinkId = item.MenuLinkId,
@@ -327,7 +327,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     // DELETE
                     else if (!hasPermission && existingRecord != null)
                     {
-                        _context.UsersRolePages.Remove(existingRecord);
+                        _context.KfUsersRolePermissions.Remove(existingRecord);
                     }
                 }
 

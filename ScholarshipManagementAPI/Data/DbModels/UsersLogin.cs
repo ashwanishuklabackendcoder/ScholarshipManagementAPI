@@ -107,9 +107,29 @@ public partial class UsersLogin
 
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrationUpdatedByNavigations { get; set; } = new List<KfStudentRegistration>();
 
+    public virtual ICollection<KfUsersLoginLog> KfUsersLoginLogs { get; set; } = new List<KfUsersLoginLog>();
+
+    public virtual ICollection<KfUsersLoginRolesAssignment> KfUsersLoginRolesAssignmentCreatedByNavigations { get; set; } = new List<KfUsersLoginRolesAssignment>();
+
+    public virtual ICollection<KfUsersLoginRolesAssignment> KfUsersLoginRolesAssignmentLogins { get; set; } = new List<KfUsersLoginRolesAssignment>();
+
+    public virtual ICollection<KfUsersLoginRolesAssignment> KfUsersLoginRolesAssignmentUpdatedByNavigations { get; set; } = new List<KfUsersLoginRolesAssignment>();
+
     public virtual ICollection<KfUsersMenu> KfUsersMenuCreatedByNavigations { get; set; } = new List<KfUsersMenu>();
 
     public virtual ICollection<KfUsersMenu> KfUsersMenuUpdatedByNavigations { get; set; } = new List<KfUsersMenu>();
+
+    public virtual ICollection<KfUsersModule> KfUsersModuleCreatedByNavigations { get; set; } = new List<KfUsersModule>();
+
+    public virtual ICollection<KfUsersModule> KfUsersModuleUpdatedByNavigations { get; set; } = new List<KfUsersModule>();
+
+    public virtual ICollection<KfUsersRole> KfUsersRoleCreatedByNavigations { get; set; } = new List<KfUsersRole>();
+
+    public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissionCreatedByNavigations { get; set; } = new List<KfUsersRolePermission>();
+
+    public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissionUpdatedByNavigations { get; set; } = new List<KfUsersRolePermission>();
+
+    public virtual ICollection<KfUsersRole> KfUsersRoleUpdatedByNavigations { get; set; } = new List<KfUsersRole>();
 
     public virtual KfStaff Staff { get; set; } = null!;
 
@@ -120,22 +140,6 @@ public partial class UsersLogin
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUpdatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
 
     public virtual UsersLogin? UpdatedByNavigation { get; set; }
-
-    public virtual ICollection<UsersLoginRole> UsersLoginRoleCreatedByNavigations { get; set; } = new List<UsersLoginRole>();
-
-    public virtual ICollection<UsersLoginRole> UsersLoginRoleLogins { get; set; } = new List<UsersLoginRole>();
-
-    public virtual ICollection<UsersLoginRole> UsersLoginRoleUpdatedByNavigations { get; set; } = new List<UsersLoginRole>();
-
-    public virtual ICollection<UsersLoginsLog> UsersLoginsLogs { get; set; } = new List<UsersLoginsLog>();
-
-    public virtual ICollection<UsersModule> UsersModuleCreatedByNavigations { get; set; } = new List<UsersModule>();
-
-    public virtual ICollection<UsersModule> UsersModuleUpdatedByNavigations { get; set; } = new List<UsersModule>();
-
-    public virtual ICollection<UsersRole> UsersRoleCreatedByNavigations { get; set; } = new List<UsersRole>();
-
-    public virtual ICollection<UsersRole> UsersRoleUpdatedByNavigations { get; set; } = new List<UsersRole>();
 
     public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownCreatedByNavigations { get; set; } = new List<ZzMasterDropDown>();
 

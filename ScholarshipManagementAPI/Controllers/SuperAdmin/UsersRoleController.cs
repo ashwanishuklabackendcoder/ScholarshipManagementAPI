@@ -47,6 +47,8 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         public async Task<IActionResult> Update(long id, [FromBody] UsersRoleRequestDto dto)
         {
             dto.RoleId = id;
+            dto.UpdatedDate = DateTime.UtcNow;                       // always server-side
+            dto.UpdatedBy = JwtClaimHelper.LoginId(User);            // or from claims
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)
@@ -136,6 +138,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
                     : "Data fetched successfully"
             });
         }
+
 
 
         // -------- GET ROLES BY MODULE IDS --------
