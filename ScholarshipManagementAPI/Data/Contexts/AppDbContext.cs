@@ -64,6 +64,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfStudentRegistration> KfStudentRegistrations { get; set; }
 
+    public virtual DbSet<KfUniversity> KfUniversities { get; set; }
+
     public virtual DbSet<KfUsersLogin> KfUsersLogins { get; set; }
 
     public virtual DbSet<KfUsersLoginLog> KfUsersLoginLogs { get; set; }
@@ -78,8 +80,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfUsersRolePermission> KfUsersRolePermissions { get; set; }
 
-    public virtual DbSet<UnUniversityRegistration> UnUniversityRegistrations { get; set; }
-
     public virtual DbSet<ZzGeneralSetting> ZzGeneralSettings { get; set; }
 
     public virtual DbSet<ZzLabel> ZzLabels { get; set; }
@@ -90,6 +90,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -855,6 +858,73 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_kf_student_registrations_UpdatedBy");
         });
 
+        modelBuilder.Entity<KfUniversity>(entity =>
+        {
+            entity.HasKey(e => e.RegistrationId).HasName("PK__UnUniver__6EF588100A965F01");
+
+            entity.ToTable("kf_university");
+
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.CharterAccreditation).HasMaxLength(500);
+            entity.Property(e => e.City).HasMaxLength(150);
+            entity.Property(e => e.CommitteeComment).HasMaxLength(2000);
+            entity.Property(e => e.CoordEmail)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.CoordName).HasMaxLength(200);
+            entity.Property(e => e.CoordPhone)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.CoordPosition).HasMaxLength(150);
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.EmployabilityPct).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.ExternalGrants).HasMaxLength(500);
+            entity.Property(e => e.FteRatio).HasMaxLength(50);
+            entity.Property(e => e.IntlStudentsPct).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsDraft).HasDefaultValue(true);
+            entity.Property(e => e.OpSustainabilityPct).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.PhdStaffPct).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.TeachingLoadHours).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.UniversityName).HasMaxLength(300);
+            entity.Property(e => e.VcEmail)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.VcMobile)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.VcName).HasMaxLength(200);
+            entity.Property(e => e.Website)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.AccreditationByNavigation).WithMany(p => p.KfUniversityAccreditationByNavigations)
+                .HasForeignKey(d => d.AccreditationBy)
+                .HasConstraintName("FK_UnUniversityRegistration_AccreditationBy_UsersLogin");
+
+            entity.HasOne(d => d.Country).WithMany(p => p.KfUniversities)
+                .HasForeignKey(d => d.CountryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UnUniversityRegistration_Country");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUniversityCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UnUniversityRegistration_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.StudentsGenderType).WithMany(p => p.KfUniversityStudentsGenderTypes)
+                .HasForeignKey(d => d.StudentsGenderTypeId)
+                .HasConstraintName("FK_UnUniversityRegistration_StudentsGenderType_ZzMasterDropDown");
+
+            entity.HasOne(d => d.UniversityTypeNavigation).WithMany(p => p.KfUniversityUniversityTypeNavigations)
+                .HasForeignKey(d => d.UniversityType)
+                .HasConstraintName("FK_UnUniversityRegistration_UniversityType_ZzMasterDropDown");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUniversityUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UnUniversityRegistration_UpdatedBy_UsersLogin");
+        });
+
         modelBuilder.Entity<KfUsersLogin>(entity =>
         {
             entity.HasKey(e => e.LoginId).HasName("PK_UsersLogin");
@@ -1040,73 +1110,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersRolePages_UsersRoles");
-        });
-
-        modelBuilder.Entity<UnUniversityRegistration>(entity =>
-        {
-            entity.HasKey(e => e.RegistrationId).HasName("PK__UnUniver__6EF588100A965F01");
-
-            entity.ToTable("UnUniversityRegistration");
-
-            entity.Property(e => e.Address).HasMaxLength(500);
-            entity.Property(e => e.CharterAccreditation).HasMaxLength(500);
-            entity.Property(e => e.City).HasMaxLength(150);
-            entity.Property(e => e.CommitteeComment).HasMaxLength(2000);
-            entity.Property(e => e.CoordEmail)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.CoordName).HasMaxLength(200);
-            entity.Property(e => e.CoordPhone)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.CoordPosition).HasMaxLength(150);
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.EmployabilityPct).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.ExternalGrants).HasMaxLength(500);
-            entity.Property(e => e.FteRatio).HasMaxLength(50);
-            entity.Property(e => e.IntlStudentsPct).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.OpSustainabilityPct).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.PhdStaffPct).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.TeachingLoadHours).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.UniversityName).HasMaxLength(300);
-            entity.Property(e => e.VcEmail)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.VcMobile)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.VcName).HasMaxLength(200);
-            entity.Property(e => e.Website)
-                .HasMaxLength(250)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.AccreditationByNavigation).WithMany(p => p.UnUniversityRegistrationAccreditationByNavigations)
-                .HasForeignKey(d => d.AccreditationBy)
-                .HasConstraintName("FK_UnUniversityRegistration_AccreditationBy_UsersLogin");
-
-            entity.HasOne(d => d.Country).WithMany(p => p.UnUniversityRegistrations)
-                .HasForeignKey(d => d.CountryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UnUniversityRegistration_Country");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UnUniversityRegistrationCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UnUniversityRegistration_CreatedBy_UsersLogin");
-
-            entity.HasOne(d => d.StudentsGenderType).WithMany(p => p.UnUniversityRegistrationStudentsGenderTypes)
-                .HasForeignKey(d => d.StudentsGenderTypeId)
-                .HasConstraintName("FK_UnUniversityRegistration_StudentsGenderType_ZzMasterDropDown");
-
-            entity.HasOne(d => d.UniversityTypeNavigation).WithMany(p => p.UnUniversityRegistrationUniversityTypeNavigations)
-                .HasForeignKey(d => d.UniversityType)
-                .HasConstraintName("FK_UnUniversityRegistration_UniversityType_ZzMasterDropDown");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UnUniversityRegistrationUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_UnUniversityRegistration_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<ZzGeneralSetting>(entity =>

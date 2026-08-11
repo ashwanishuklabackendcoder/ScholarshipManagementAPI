@@ -63,7 +63,7 @@ public partial class KfProgram
 
     public virtual ICollection<KfStudentProgramApplication> KfStudentProgramApplications { get; set; } = new List<KfStudentProgramApplication>();
 
-    public virtual UnUniversityRegistration University { get; set; } = null!;
+    public virtual KfUniversity University { get; set; } = null!;
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

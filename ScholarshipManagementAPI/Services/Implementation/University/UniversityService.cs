@@ -24,13 +24,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(UniversityRequestDto dto)
         {
-            if (await _context.UnUniversityRegistrations
+            if (await _context.KfUniversities
                 .AnyAsync(x => x.UniversityName.ToLower() == dto.UniversityName.ToLower()))
             {
                 throw new CustomException("University with same name already exists");
             }
 
-            var entity = new UnUniversityRegistration
+            var entity = new KfUniversity
             {
                 UniversityName = dto.UniversityName,
                 UniversityType = dto.UniversityTypeId,
@@ -99,7 +99,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 CreatedDate = DateTime.UtcNow
             };
 
-            _context.UnUniversityRegistrations.Add(entity);
+            _context.KfUniversities.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.RegistrationId;
@@ -113,14 +113,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (dto.RegistrationId == null || dto.RegistrationId == 0)
                 return false;
 
-            if (await _context.UnUniversityRegistrations.AnyAsync(x =>
+            if (await _context.KfUniversities.AnyAsync(x =>
                       x.UniversityName.ToLower() == dto.UniversityName.ToLower()
                       && x.RegistrationId != dto.RegistrationId))
             {
                 throw new CustomException("University with same name already exists");
             }
 
-            var entity = await _context.UnUniversityRegistrations
+            var entity = await _context.KfUniversities
                 .FirstOrDefaultAsync(x => x.RegistrationId == dto.RegistrationId);
 
             if (entity == null)
@@ -201,7 +201,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.UnUniversityRegistrations
+            var entity = await _context.KfUniversities
                 .FirstOrDefaultAsync(x => x.RegistrationId == id);
 
             if (entity == null)
@@ -219,7 +219,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- GET BY ID ----------------
         public async Task<UniversityRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.UnUniversityRegistrations
+            return await _context.KfUniversities
                 .AsNoTracking()
                 .Where(x => x.RegistrationId == id)
                 .Select(x => new UniversityRequestDto
@@ -332,7 +332,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<UniversityRequestDto>> GetByFilterAsync(UniversityFilterDto filter)
         {
-            var query = _context.UnUniversityRegistrations
+            var query = _context.KfUniversities
                 .AsNoTracking()
                 .AsQueryable();
 

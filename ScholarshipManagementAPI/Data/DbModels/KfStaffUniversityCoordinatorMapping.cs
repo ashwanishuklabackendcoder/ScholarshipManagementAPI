@@ -25,7 +25,7 @@ public partial class KfStaffUniversityCoordinatorMapping
 
     public virtual KfStaff Staff { get; set; } = null!;
 
-    public virtual UnUniversityRegistration University { get; set; } = null!;
+    public virtual KfUniversity University { get; set; } = null!;
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

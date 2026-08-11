@@ -41,5 +41,5 @@ public partial class ZzMasterCountry
 
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrationResidenceCountries { get; set; } = new List<KfStudentRegistration>();
 
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrations { get; set; } = new List<UnUniversityRegistration>();
+    public virtual ICollection<KfUniversity> KfUniversities { get; set; } = new List<KfUniversity>();
 }

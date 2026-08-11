@@ -49,13 +49,13 @@ public partial class ZzMasterDropDown
 
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrationSelfRelianceLevels { get; set; } = new List<KfStudentRegistration>();
 
+    public virtual ICollection<KfUniversity> KfUniversityStudentsGenderTypes { get; set; } = new List<KfUniversity>();
+
+    public virtual ICollection<KfUniversity> KfUniversityUniversityTypeNavigations { get; set; } = new List<KfUniversity>();
+
     public virtual KfUsersModule? Module { get; set; }
 
     public virtual ZzMasterDropDown? Parent { get; set; }
-
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationStudentsGenderTypes { get; set; } = new List<UnUniversityRegistration>();
-
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUniversityTypeNavigations { get; set; } = new List<UnUniversityRegistration>();
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

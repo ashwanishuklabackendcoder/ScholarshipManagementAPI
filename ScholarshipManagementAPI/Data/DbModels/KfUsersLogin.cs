@@ -107,6 +107,12 @@ public partial class KfUsersLogin
 
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrationUpdatedByNavigations { get; set; } = new List<KfStudentRegistration>();
 
+    public virtual ICollection<KfUniversity> KfUniversityAccreditationByNavigations { get; set; } = new List<KfUniversity>();
+
+    public virtual ICollection<KfUniversity> KfUniversityCreatedByNavigations { get; set; } = new List<KfUniversity>();
+
+    public virtual ICollection<KfUniversity> KfUniversityUpdatedByNavigations { get; set; } = new List<KfUniversity>();
+
     public virtual ICollection<KfUsersLoginLog> KfUsersLoginLogs { get; set; } = new List<KfUsersLoginLog>();
 
     public virtual ICollection<KfUsersMenu> KfUsersMenuCreatedByNavigations { get; set; } = new List<KfUsersMenu>();
@@ -128,12 +134,6 @@ public partial class KfUsersLogin
     public virtual ICollection<KfUsersRole> KfUsersRoleUpdatedByNavigations { get; set; } = new List<KfUsersRole>();
 
     public virtual KfStaff Staff { get; set; } = null!;
-
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationAccreditationByNavigations { get; set; } = new List<UnUniversityRegistration>();
-
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationCreatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
-
-    public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUpdatedByNavigations { get; set; } = new List<UnUniversityRegistration>();
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 

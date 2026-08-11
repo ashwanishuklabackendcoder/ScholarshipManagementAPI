@@ -28,7 +28,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             try
             {
-                if (!await _context.UnUniversityRegistrations
+                if (!await _context.KfUniversities
                     .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
                 {
                     throw new CustomException("Selected university does not exist.");
@@ -188,7 +188,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             try
             {
-                if (!await _context.UnUniversityRegistrations
+                if (!await _context.KfUniversities
                     .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
                 {
                     throw new CustomException("Selected university does not exist.");

@@ -31,7 +31,7 @@ public partial class KfFaculty
 
     public virtual ICollection<KfProgram> KfPrograms { get; set; } = new List<KfProgram>();
 
-    public virtual UnUniversityRegistration University { get; set; } = null!;
+    public virtual KfUniversity University { get; set; } = null!;
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

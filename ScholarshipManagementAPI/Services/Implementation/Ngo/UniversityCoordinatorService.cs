@@ -57,7 +57,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             }
 
             // Validate that all selected universities exist and are active
-            var validUniversityCount = await _context.UnUniversityRegistrations
+            var validUniversityCount = await _context.KfUniversities
                 .CountAsync(x => dto.UniversityIds.Contains(x.RegistrationId) && x.IsActive);
 
             if (validUniversityCount != dto.UniversityIds.Distinct().Count())
@@ -210,7 +210,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             }
 
             // Validate selected universities
-            var validUniversityCount = await _context.UnUniversityRegistrations
+            var validUniversityCount = await _context.KfUniversities
                 .CountAsync(x => dto.UniversityIds.Contains(x.RegistrationId) && x.IsActive);
 
             if (validUniversityCount != dto.UniversityIds.Distinct().Count())
