@@ -27,7 +27,7 @@ public partial class ZzMasterDropDown
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<ZzMasterDropDown> InverseParent { get; set; } = new List<ZzMasterDropDown>();
 
@@ -57,5 +57,5 @@ public partial class ZzMasterDropDown
 
     public virtual ICollection<UnUniversityRegistration> UnUniversityRegistrationUniversityTypeNavigations { get; set; } = new List<UnUniversityRegistration>();
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

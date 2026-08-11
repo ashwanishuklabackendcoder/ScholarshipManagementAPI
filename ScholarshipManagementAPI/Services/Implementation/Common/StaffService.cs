@@ -41,7 +41,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             ValidateOrganisation(dto);
 
             // ---------- 2. Duplicate email check ----------
-            if (await _context.UsersLogins
+            if (await _context.KfUsersLogins
                 .AnyAsync(x => x.RecoveryEmail == dto.OfficialEmail))
             {
                 throw new CustomException("User with same email already exists");
@@ -86,7 +86,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 var loginName = HelperMethods.GenerateUsername(dto.StaffType, staff.StaffId);
 
                 // ---------- 5. Create UsersLogin ----------
-                var usersLogin = new UsersLogin
+                var usersLogin = new KfUsersLogin
                 {
                     StaffId = staff.StaffId,
                     LoginName = loginName,
@@ -105,7 +105,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 // hash AFTER object creation
                 usersLogin.Password = HelperMethods.HashPassword(usersLogin, generatedPassword);
 
-                _context.UsersLogins.Add(usersLogin);
+                _context.KfUsersLogins.Add(usersLogin);
                 await _context.SaveChangesAsync();
 
                 // ---------- 6. Commit ----------
@@ -168,11 +168,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             // ---------- 3. Duplicate login check (exclude self) ----------
             if (!string.IsNullOrWhiteSpace(dto.LoginName))
             {
-                var existingLogin = await _context.UsersLogins
+                var existingLogin = await _context.KfUsersLogins
                     .FirstOrDefaultAsync(x => x.StaffId == dto.StaffId);
 
                 if (existingLogin != null &&
-                    await _context.UsersLogins.AnyAsync(x =>
+                    await _context.KfUsersLogins.AnyAsync(x =>
                         x.LoginName == dto.LoginName &&
                         x.StaffId != dto.StaffId))
                 {
@@ -181,7 +181,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             }
 
             // ---------- 4. Duplicate email check ----------
-            if (await _context.UsersLogins
+            if (await _context.KfUsersLogins
                 .AnyAsync(x => x.RecoveryEmail == dto.OfficialEmail && x.StaffId != dto.StaffId))
             {
                 throw new CustomException("User with same email already exists");
@@ -220,7 +220,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 await _context.SaveChangesAsync();
 
                 // ---------- 7. Update UsersLogin ----------
-                var usersLogin = await _context.UsersLogins
+                var usersLogin = await _context.KfUsersLogins
                     .FirstOrDefaultAsync(x => x.StaffId == dto.StaffId);
 
                 if (usersLogin == null)
@@ -233,7 +233,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 usersLogin.UpdatedBy = dto.UpdatedBy;
                 usersLogin.UpdatedDate = DateTime.UtcNow;
 
-                _context.UsersLogins.Update(usersLogin);
+                _context.KfUsersLogins.Update(usersLogin);
                 await _context.SaveChangesAsync();
 
                 // ---------- 8. Commit ----------
@@ -270,7 +270,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 if(staff.StaffType == (long)StaffType.SuperAdmin)
                     throw new CustomException("Super Admin staff cannot be deleted");
 
-                var usersLogin = await _context.UsersLogins
+                var usersLogin = await _context.KfUsersLogins
                     .FirstOrDefaultAsync(x => x.StaffId == staffId);
 
                 if (usersLogin == null)
@@ -282,7 +282,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 usersLogin.IsActive = false;
 
                 _context.KfStaffs.Update(staff);
-                _context.UsersLogins.Update(usersLogin);
+                _context.KfUsersLogins.Update(usersLogin);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -302,7 +302,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         {
             var staff = await _context.KfStaffs
                 .AsNoTracking()
-                .Include(x => x.UsersLogins)
+                .Include(x => x.KfUsersLogins)
                 .Where(x => x.StaffId == id && x.IsActive)
                 .Select(x => new StaffRequestDto
                 {
@@ -332,7 +332,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     Remarks = x.Remarks,
                     IsActive = x.IsActive,
 
-                    LoginName = x.UsersLogins.Select(u => u.LoginName).FirstOrDefault(),
+                    LoginName = x.KfUsersLogins.Select(u => u.LoginName).FirstOrDefault(),
 
 
                     CreatedBy = x.CreatedBy,
@@ -351,7 +351,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         {
             var query = _context.KfStaffs
                 .AsNoTracking()
-                .Include(x => x.UsersLogins)
+                .Include(x => x.KfUsersLogins)
                 .AsQueryable();
 
             // Staff filter
@@ -382,7 +382,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     x.StaffLastName.ToLower().Contains(search) ||
                     x.OfficialEmail.ToLower().Contains(search) ||
                     (x.MobileNumber != null && x.MobileNumber.ToLower().Contains(search)) ||
-                    x.UsersLogins.Any(u => u.LoginName.ToLower().Contains(search))
+                    x.KfUsersLogins.Any(u => u.LoginName.ToLower().Contains(search))
                 );
             }
 
@@ -430,7 +430,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                     Remarks = x.Remarks,
                     IsActive = x.IsActive,
 
-                    LoginName = x.UsersLogins.Select(u => u.LoginName).FirstOrDefault(),
+                    LoginName = x.KfUsersLogins.Select(u => u.LoginName).FirstOrDefault(),
 
 
                     CreatedBy = x.CreatedBy,

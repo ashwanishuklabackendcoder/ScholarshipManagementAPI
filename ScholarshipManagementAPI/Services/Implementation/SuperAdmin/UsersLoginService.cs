@@ -24,13 +24,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(UsersLoginRequestDto dto)
         {
-            if (await _context.UsersLogins
+            if (await _context.KfUsersLogins
                 .AnyAsync(x => x.LoginName == dto.LoginName))
             {
                 throw new CustomException("User with same login name already exists");
             }
 
-            var entity = new UsersLogin
+            var entity = new KfUsersLogin
             {
                 StaffId = dto.StaffId,
 
@@ -48,7 +48,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 CreatedDate = DateTime.UtcNow     // always server-side
             };
       
-            _context.UsersLogins.Add(entity);
+            _context.KfUsersLogins.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.LoginId;
@@ -61,14 +61,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (dto.LoginId == null || dto.LoginId == 0)
                 return false;
 
-            if (await _context.UsersLogins.AnyAsync(x =>
+            if (await _context.KfUsersLogins.AnyAsync(x =>
                       x.LoginName == dto.LoginName
                       && x.LoginId != dto.LoginId))
             {
                 throw new CustomException("User with same login name already exists");
             }
 
-            var entity = await _context.UsersLogins
+            var entity = await _context.KfUsersLogins
                 .FirstOrDefaultAsync(x => x.LoginId == dto.LoginId);
 
             if (entity == null)
@@ -93,13 +93,15 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.UsersLogins
+            var entity = await _context.KfUsersLogins
                 .FirstOrDefaultAsync(x => x.LoginId == id);
 
             if (entity == null)
                 return false;
 
-            _context.UsersLogins.Remove(entity);
+            //_context.KfUsersLogins.Remove(entity);
+
+            entity.IsActive = false; // Soft delete - mark as inactive
             await _context.SaveChangesAsync();
 
             return true;
@@ -110,7 +112,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET BY ID ----------------
         public async Task<UsersLoginRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.UsersLogins
+            return await _context.KfUsersLogins
                 .AsNoTracking()
                 .Where(x => x.LoginId == id)
                 .Include(x => x.Staff)
@@ -134,7 +136,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<UsersLoginRequestDto>> GetByFilterAsync(UsersLoginFilterDto filter)
         {
-            var query = _context.UsersLogins
+            var query = _context.KfUsersLogins
                 .AsNoTracking()
                 .Include(x => x.Staff)
                 .AsQueryable();

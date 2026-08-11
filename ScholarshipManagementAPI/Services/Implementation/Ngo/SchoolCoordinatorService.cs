@@ -44,7 +44,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             }
 
             // Validate Recovery Email
-            if (await _context.UsersLogins
+            if (await _context.KfUsersLogins
                 .AnyAsync(x => x.RecoveryEmail.Trim().ToLower() == dto.RecoveryEmail.Trim().ToLower()))
             {
                 throw new CustomException("Recovery email already exists.");
@@ -104,7 +104,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     staff.StaffId);
 
                 // ---------------- Create Login ----------------
-                var login = new UsersLogin
+                var login = new KfUsersLogin
                 {
                     StaffId = staff.StaffId,
                     LoginName = loginName,
@@ -122,12 +122,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
                 login.Password = HelperMethods.HashPassword(login, generatedPassword);
 
-                _context.UsersLogins.Add(login);
+                _context.KfUsersLogins.Add(login);
 
                 await _context.SaveChangesAsync();
 
                 // ---------------- Assign Role ----------------
-                var loginRole = new KfUsersRolesAssignment
+                var loginRole = new KfUsersRoleAssignment
                 {
                     LoginId = login.LoginId,
                     RoleId = dto.RoleId,
@@ -138,7 +138,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     CreatedBy = currentUser.LoginId
                 };
 
-                _context.KfUsersRolesAssignments.Add(loginRole);
+                _context.KfUsersRoleAssignments.Add(loginRole);
 
                 // ---------------- School Mapping ----------------
                 var schoolMappings = dto.SchoolIds
@@ -238,13 +238,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 staff.UpdatedBy = currentUser.LoginId;
 
                 // ---------------- Update Login ----------------
-                var login = await _context.UsersLogins
+                var login = await _context.KfUsersLogins
                     .FirstOrDefaultAsync(x => x.StaffId == staff.StaffId);
 
                 if (login == null)
                     throw new CustomException("Login details not found.");
 
-                if (await _context.UsersLogins.AnyAsync(x =>
+                if (await _context.KfUsersLogins.AnyAsync(x =>
                     x.LoginId != login.LoginId &&
                     x.RecoveryEmail.Trim().ToLower() == dto.RecoveryEmail.Trim().ToLower()))
                 {
@@ -257,7 +257,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 login.UpdatedBy = currentUser.LoginId;
 
                 // ---------------- Update Role ----------------
-                var loginRole = await _context.KfUsersRolesAssignments
+                var loginRole = await _context.KfUsersRoleAssignments
                     .FirstOrDefaultAsync(x =>
                         x.LoginId == login.LoginId &&
                         x.IsDefault );
@@ -327,7 +327,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 staff.UpdatedDate = DateTime.UtcNow;
 
                 // Login
-                var login = await _context.UsersLogins
+                var login = await _context.KfUsersLogins
                     .FirstOrDefaultAsync(x => x.StaffId == staffId);
 
                 if (login != null)
@@ -336,7 +336,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     login.UpdatedBy = currentUser.LoginId;
                     login.UpdatedDate = DateTime.UtcNow;
 
-                    var loginRoles = await _context.KfUsersRolesAssignments
+                    var loginRoles = await _context.KfUsersRoleAssignments
                         .Where(x => x.LoginId == login.LoginId)
                         .ToListAsync();
 
@@ -346,7 +346,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                         //role.UpdatedBy = currentUser.LoginId;
                         //role.UpdatedDate = DateTime.UtcNow;
 
-                        _context.KfUsersRolesAssignments.Remove(role);
+                        _context.KfUsersRoleAssignments.Remove(role);
                     }
                 }
 
@@ -377,7 +377,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<SchoolCoordinatorRequestDto> GetByIdAsync(long staffId)
         {
-            var schoolCoordinator = await _context.KfUsersRolesAssignments
+            var schoolCoordinator = await _context.KfUsersRoleAssignments
                 .AsNoTracking()
                 .Where(x =>
                     x.Login.IsActive &&
@@ -465,7 +465,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<PagedResultDto<SchoolCoordinatorRequestDto>> GetByFilterAsync(SchoolCoordinatorFilterDto filter)
         {
-            var query = _context.KfUsersRolesAssignments
+            var query = _context.KfUsersRoleAssignments
                 .AsNoTracking()
                 .Where(x =>
                     x.IsDefault &&
@@ -581,7 +581,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
 
 
-        private async Task SendNewUserAccountNotificationAsync(KfStaff staff, UsersLogin login, string generatedPassword)
+        private async Task SendNewUserAccountNotificationAsync(KfStaff staff, KfUsersLogin login, string generatedPassword)
         {
             string organizationName = staff.StaffType switch
             {

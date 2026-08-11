@@ -64,6 +64,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfStudentRegistration> KfStudentRegistrations { get; set; }
 
+    public virtual DbSet<KfUsersLogin> KfUsersLogins { get; set; }
+
     public virtual DbSet<KfUsersLoginLog> KfUsersLoginLogs { get; set; }
 
     public virtual DbSet<KfUsersMenu> KfUsersMenus { get; set; }
@@ -72,13 +74,11 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfUsersRole> KfUsersRoles { get; set; }
 
+    public virtual DbSet<KfUsersRoleAssignment> KfUsersRoleAssignments { get; set; }
+
     public virtual DbSet<KfUsersRolePermission> KfUsersRolePermissions { get; set; }
 
-    public virtual DbSet<KfUsersRolesAssignment> KfUsersRolesAssignments { get; set; }
-
     public virtual DbSet<UnUniversityRegistration> UnUniversityRegistrations { get; set; }
-
-    public virtual DbSet<UsersLogin> UsersLogins { get; set; }
 
     public virtual DbSet<ZzGeneralSetting> ZzGeneralSettings { get; set; }
 
@@ -90,9 +90,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -255,9 +252,12 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfMarketingAdministrativeFeeCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_marketing_administrative_fees_UsersLogin_CreatedBy");
 
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfMarketingAdministrativeFeeUpdatedByNavigations).HasForeignKey(d => d.UpdatedBy);
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfMarketingAdministrativeFeeUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_marketing_administrative_fees_UsersLogin_UpdatedBy");
         });
 
         modelBuilder.Entity<KfProgram>(entity =>
@@ -855,6 +855,39 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_kf_student_registrations_UpdatedBy");
         });
 
+        modelBuilder.Entity<KfUsersLogin>(entity =>
+        {
+            entity.HasKey(e => e.LoginId).HasName("PK_UsersLogin");
+
+            entity.ToTable("kf_users_login");
+
+            entity.HasIndex(e => e.LoginName, "UQ_UsersLogin_LoginName").IsUnique();
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LoginName).HasMaxLength(200);
+            entity.Property(e => e.Password).HasMaxLength(200);
+            entity.Property(e => e.RecoveryEmail).HasMaxLength(200);
+            entity.Property(e => e.TempPassDateTime).HasColumnType("datetime");
+            entity.Property(e => e.TempPassword).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InverseCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLogin_CreatedBy");
+
+            entity.HasOne(d => d.Staff).WithMany(p => p.KfUsersLogins)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLogin_kf_staffs");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InverseUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_UsersLogin_UpdatedBy");
+        });
+
         modelBuilder.Entity<KfUsersLoginLog>(entity =>
         {
             entity.HasKey(e => e.LoginLogId).HasName("PK_UsersLoginsLog");
@@ -959,6 +992,32 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_UsersRole_UpdatedBy");
         });
 
+        modelBuilder.Entity<KfUsersRoleAssignment>(entity =>
+        {
+            entity.HasKey(e => e.UserLoginRoleId).HasName("PK_UsersLoginRoles");
+
+            entity.ToTable("kf_users_role_assignment");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersRoleAssignmentCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginRoles_CreatedBy");
+
+            entity.HasOne(d => d.Login).WithMany(p => p.KfUsersRoleAssignmentLogins)
+                .HasForeignKey(d => d.LoginId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginRoles_UsersLogin");
+
+            entity.HasOne(d => d.Role).WithMany(p => p.KfUsersRoleAssignments)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersLoginRoles_UsersRole");
+        });
+
         modelBuilder.Entity<KfUsersRolePermission>(entity =>
         {
             entity.HasKey(e => e.RoleFormId).HasName("PK_UsersRolePages");
@@ -981,32 +1040,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersRolePages_UsersRoles");
-        });
-
-        modelBuilder.Entity<KfUsersRolesAssignment>(entity =>
-        {
-            entity.HasKey(e => e.UserLoginRoleId).HasName("PK_UsersLoginRoles");
-
-            entity.ToTable("kf_users_roles_assignment");
-
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersRolesAssignmentCreatedByNavigations)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLoginRoles_CreatedBy");
-
-            entity.HasOne(d => d.Login).WithMany(p => p.KfUsersRolesAssignmentLogins)
-                .HasForeignKey(d => d.LoginId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLoginRoles_UsersLogin");
-
-            entity.HasOne(d => d.Role).WithMany(p => p.KfUsersRolesAssignments)
-                .HasForeignKey(d => d.RoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLoginRoles_UsersRole");
         });
 
         modelBuilder.Entity<UnUniversityRegistration>(entity =>
@@ -1074,39 +1107,6 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UnUniversityRegistrationUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_UnUniversityRegistration_UpdatedBy_UsersLogin");
-        });
-
-        modelBuilder.Entity<UsersLogin>(entity =>
-        {
-            entity.HasKey(e => e.LoginId);
-
-            entity.ToTable("UsersLogin");
-
-            entity.HasIndex(e => e.LoginName, "UQ_UsersLogin_LoginName").IsUnique();
-
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.LoginName).HasMaxLength(200);
-            entity.Property(e => e.Password).HasMaxLength(200);
-            entity.Property(e => e.RecoveryEmail).HasMaxLength(200);
-            entity.Property(e => e.TempPassDateTime).HasColumnType("datetime");
-            entity.Property(e => e.TempPassword).HasMaxLength(200);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InverseCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLogin_CreatedBy");
-
-            entity.HasOne(d => d.Staff).WithMany(p => p.UsersLogins)
-                .HasForeignKey(d => d.StaffId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsersLogin_kf_staffs");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InverseUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_UsersLogin_UpdatedBy");
         });
 
         modelBuilder.Entity<ZzGeneralSetting>(entity =>

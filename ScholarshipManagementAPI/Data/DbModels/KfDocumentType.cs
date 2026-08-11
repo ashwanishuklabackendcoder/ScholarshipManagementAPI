@@ -27,11 +27,11 @@ public partial class KfDocumentType
 
     public bool IsDraft { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfProgramDocument> KfProgramDocuments { get; set; } = new List<KfProgramDocument>();
 
     public virtual ICollection<KfStudentProgramDocument> KfStudentProgramDocuments { get; set; } = new List<KfStudentProgramDocument>();
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

@@ -3,21 +3,15 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class KfUsersRolePermission
+public partial class KfUsersRoleAssignment
 {
-    public long RoleFormId { get; set; }
+    public long UserLoginRoleId { get; set; }
 
     public long RoleId { get; set; }
 
-    public long MenuLinkId { get; set; }
+    public long LoginId { get; set; }
 
-    public bool InsertPer { get; set; }
-
-    public bool UpdatePer { get; set; }
-
-    public bool DeletePer { get; set; }
-
-    public bool ViewPer { get; set; }
+    public bool IsDefault { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
@@ -25,7 +19,7 @@ public partial class KfUsersRolePermission
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual KfUsersMenu MenuLink { get; set; } = null!;
+    public virtual KfUsersLogin Login { get; set; } = null!;
 
     public virtual KfUsersRole Role { get; set; } = null!;
 }

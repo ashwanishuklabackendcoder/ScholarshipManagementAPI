@@ -23,7 +23,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(UsersRoleAssignmentRequestDto dto)
         {
-            if (await _context.KfUsersRolesAssignments
+            if (await _context.KfUsersRoleAssignments
                 .AnyAsync(x => x.RoleId == dto.RoleId && x.LoginId == dto.LoginId))
             {
                 throw new CustomException("Role with user already exists");
@@ -32,7 +32,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             // Default role check
             if (dto.IsDefault)
             {
-                var alreadyDefault = await _context.KfUsersRolesAssignments
+                var alreadyDefault = await _context.KfUsersRoleAssignments
                     .AnyAsync(x => x.LoginId == dto.LoginId && x.IsDefault);
 
                 if (alreadyDefault)
@@ -42,7 +42,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             }
 
 
-            var entity = new KfUsersRolesAssignment
+            var entity = new KfUsersRoleAssignment
             {
                 RoleId = dto.RoleId,
                 LoginId = dto.LoginId,
@@ -51,7 +51,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 CreatedDate = dto.CreatedDate     // always server-side
             };
 
-            _context.KfUsersRolesAssignments.Add(entity);
+            _context.KfUsersRoleAssignments.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.LoginId;
@@ -64,14 +64,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (dto.UserLoginRoleId == null || dto.UserLoginRoleId == 0)
                 return false;
 
-            if (await _context.KfUsersRolesAssignments.AnyAsync(x =>
+            if (await _context.KfUsersRoleAssignments.AnyAsync(x =>
                       x.RoleId == dto.RoleId && x.LoginId == dto.LoginId
                       && x.UserLoginRoleId != dto.UserLoginRoleId))
             {
                 throw new CustomException("Role with user already exists");
             }
 
-            var entity = await _context.KfUsersRolesAssignments
+            var entity = await _context.KfUsersRoleAssignments
                 .FirstOrDefaultAsync(x => x.UserLoginRoleId == dto.UserLoginRoleId);
 
             if (entity == null)
@@ -80,7 +80,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
             if (dto.IsDefault)
             {
-                var alreadyDefault = await _context.KfUsersRolesAssignments
+                var alreadyDefault = await _context.KfUsersRoleAssignments
                     .AnyAsync(x =>
                         x.LoginId == dto.LoginId &&
                         x.IsDefault &&
@@ -107,13 +107,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.KfUsersRolesAssignments
+            var entity = await _context.KfUsersRoleAssignments
                 .FirstOrDefaultAsync(x => x.UserLoginRoleId == id);
 
             if (entity == null)
                 return false;
 
-            _context.KfUsersRolesAssignments.Remove(entity);
+            _context.KfUsersRoleAssignments.Remove(entity);
 
             await _context.SaveChangesAsync();
 
@@ -124,7 +124,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET BY ID ----------------
         public async Task<UsersRoleAssignmentRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.KfUsersRolesAssignments
+            return await _context.KfUsersRoleAssignments
                 .AsNoTracking()
                 .Include(x => x.Login)
                 .Include(x => x.Role)
@@ -149,7 +149,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<UsersRoleAssignmentRequestDto>> GetByFilterAsync(UsersRoleAssignmentFilterDto filter)
         {
-            var query = _context.KfUsersRolesAssignments
+            var query = _context.KfUsersRoleAssignments
                 .AsNoTracking()
                 .Include(x => x.Login)
                 .Include(x => x.Role)
@@ -226,7 +226,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 .OrderBy(x => x.RoleName)
                 .ToListAsync();
 
-            var mappedRoles = await _context.KfUsersRolesAssignments
+            var mappedRoles = await _context.KfUsersRoleAssignments
                 .Where(x => x.LoginId == filter.LoginId)
                 .ToListAsync();
 
@@ -295,7 +295,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
             try
             {
-                var existing = await _context.KfUsersRolesAssignments
+                var existing = await _context.KfUsersRoleAssignments
                     .Where(x => x.LoginId == dto.LoginId)
                     .ToListAsync();
 
@@ -309,7 +309,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     {
                         if (existingRole == null)
                         {
-                            _context.KfUsersRolesAssignments.Add(new KfUsersRolesAssignment
+                            _context.KfUsersRoleAssignments.Add(new KfUsersRoleAssignment
                             {
                                 LoginId = dto.LoginId,
                                 RoleId = role.RoleId,
@@ -326,7 +326,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     else
                     {
                         if (existingRole != null)
-                            _context.KfUsersRolesAssignments.Remove(existingRole);
+                            _context.KfUsersRoleAssignments.Remove(existingRole);
                     }
                 }
 

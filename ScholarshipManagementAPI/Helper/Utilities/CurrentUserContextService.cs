@@ -36,7 +36,7 @@ namespace ScholarshipManagementAPI.Helper.Utilities
                 throw new UnauthorizedAccessException("Invalid module");
 
             // Fetch tenant mapping ONCE (DB)
-            var staffInfo = await _context.UsersLogins
+            var staffInfo = await _context.KfUsersLogins
                 .Include(x => x.Staff) // eager load staff for currency lookup
                 .AsNoTracking()
                 .Where(x => x.LoginId == loginId)

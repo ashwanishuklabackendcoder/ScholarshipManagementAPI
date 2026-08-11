@@ -25,7 +25,7 @@ public partial class KfFaculty
 
     public bool IsDraft { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfCourseFaculty> KfCourseFaculties { get; set; } = new List<KfCourseFaculty>();
 
@@ -33,5 +33,5 @@ public partial class KfFaculty
 
     public virtual UnUniversityRegistration University { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

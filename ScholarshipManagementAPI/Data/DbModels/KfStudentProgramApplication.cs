@@ -27,7 +27,7 @@ public partial class KfStudentProgramApplication
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrations { get; set; } = new List<KfStudentAcademicRegistration>();
 
@@ -39,5 +39,5 @@ public partial class KfStudentProgramApplication
 
     public virtual KfStudentRegistration Student { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

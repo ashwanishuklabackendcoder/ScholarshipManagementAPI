@@ -19,7 +19,7 @@ public partial class KfUsersModule
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin? CreatedByNavigation { get; set; }
+    public virtual KfUsersLogin? CreatedByNavigation { get; set; }
 
     public virtual ICollection<KfStaff> KfStaffs { get; set; } = new List<KfStaff>();
 
@@ -27,7 +27,7 @@ public partial class KfUsersModule
 
     public virtual ICollection<KfUsersRole> KfUsersRoles { get; set; } = new List<KfUsersRole>();
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<ZzMasterDropDown> ZzMasterDropDowns { get; set; } = new List<ZzMasterDropDown>();
 }

@@ -47,7 +47,7 @@ public partial class KfProgram
 
     public string? AllowedTanzanianCombinations { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual KfFaculty Faculty { get; set; } = null!;
 
@@ -65,5 +65,5 @@ public partial class KfProgram
 
     public virtual UnUniversityRegistration University { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

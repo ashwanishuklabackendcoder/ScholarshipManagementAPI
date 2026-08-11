@@ -21,11 +21,11 @@ public partial class KfStaffUniversityCoordinatorMapping
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual KfStaff Staff { get; set; } = null!;
 
     public virtual UnUniversityRegistration University { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

@@ -21,9 +21,9 @@ public partial class KfSponsorshipStudentCategory
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfSponsorshipCategoryMapping> KfSponsorshipCategoryMappings { get; set; } = new List<KfSponsorshipCategoryMapping>();
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

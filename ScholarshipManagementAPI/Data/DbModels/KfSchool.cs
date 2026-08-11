@@ -97,11 +97,11 @@ public partial class KfSchool
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin? AccreditationByNavigation { get; set; }
+    public virtual KfUsersLogin? AccreditationByNavigation { get; set; }
 
     public virtual ZzMasterCountry Country { get; set; } = null!;
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ZzMasterCurrency? DefaultCurrency { get; set; }
 
@@ -113,5 +113,5 @@ public partial class KfSchool
 
     public virtual ZzMasterDropDown SchoolTypeNavigation { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

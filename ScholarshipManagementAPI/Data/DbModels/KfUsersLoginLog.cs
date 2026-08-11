@@ -23,5 +23,5 @@ public partial class KfUsersLoginLog
 
     public string? UserName { get; set; }
 
-    public virtual UsersLogin Login { get; set; } = null!;
+    public virtual KfUsersLogin Login { get; set; } = null!;
 }

@@ -39,7 +39,7 @@ public partial class KfStudentProgramDocument
 
     public virtual KfProgramDocument ProgramDocument { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 
-    public virtual UsersLogin UploadedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin UploadedByNavigation { get; set; } = null!;
 }

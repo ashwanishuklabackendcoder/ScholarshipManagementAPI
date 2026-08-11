@@ -50,7 +50,7 @@ public partial class KfStaff
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ZzMasterDropDown GenderNavigation { get; set; } = null!;
 
@@ -58,11 +58,11 @@ public partial class KfStaff
 
     public virtual ICollection<KfStaffUniversityCoordinatorMapping> KfStaffUniversityCoordinatorMappings { get; set; } = new List<KfStaffUniversityCoordinatorMapping>();
 
+    public virtual ICollection<KfUsersLogin> KfUsersLogins { get; set; } = new List<KfUsersLogin>();
+
     public virtual ZzMasterCountry? PermCountry { get; set; }
 
     public virtual KfUsersModule StaffTypeNavigation { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
-
-    public virtual ICollection<UsersLogin> UsersLogins { get; set; } = new List<UsersLogin>();
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

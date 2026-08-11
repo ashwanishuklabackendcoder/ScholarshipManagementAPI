@@ -29,11 +29,11 @@ public partial class KfStudentAcademicRegistration
 
     public virtual KfStudentProgramApplication Application { get; set; } = null!;
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual KfProgram Program { get; set; } = null!;
 
     public virtual KfStudentRegistration Student { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

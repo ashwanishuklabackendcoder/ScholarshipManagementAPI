@@ -58,7 +58,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto) 
         {
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .Where(x =>
                     x.LoginName == dto.LoginName &&
                     x.IsActive
@@ -105,7 +105,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         public async Task<LoginResponseDto> SwitchRoleAsync(long loginId, long roleId)
         {
             // Validate role belongs to this user
-            var userRole = await _context.KfUsersRolesAssignments
+            var userRole = await _context.KfUsersRoleAssignments
                 .Include(x => x.Login)
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
@@ -116,7 +116,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new UnauthorizedAccessException("Role not assigned to user");
 
             // fetch all available roles 
-            var roles = await _context.KfUsersRolesAssignments
+            var roles = await _context.KfUsersRoleAssignments
                 .Where(x => x.LoginId == loginId)
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
@@ -183,7 +183,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             if (string.IsNullOrWhiteSpace(request.EmailOrUsername))
                 throw new CustomException("Email is required.");
 
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .Where(x =>
                     x.RecoveryEmail == request.EmailOrUsername.Trim() &&
                     x.IsActive)
@@ -236,7 +236,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new CustomException("Email is required.");
 
 
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .Include(x => x.Staff)
                 .FirstOrDefaultAsync(x =>
                     (x.RecoveryEmail.Trim() == request.EmailOrUsername.Trim() 
@@ -307,7 +307,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             // Load user by prefixed token
             var dbToken = $"RESET:{request.Token}";
 
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .FirstOrDefaultAsync(x =>
                     x.TempPassword == dbToken &&
                     x.TempPassDateTime != null);
@@ -359,7 +359,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             if (string.IsNullOrWhiteSpace(request.EmailOrUsername))
                 throw new CustomException("Email or Username is required.");
 
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .Include(x => x.Staff)
                 .FirstOrDefaultAsync(x =>
                     (x.LoginName == request.EmailOrUsername.Trim() ||
@@ -426,7 +426,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             if (string.IsNullOrWhiteSpace(request.Code))
                 throw new CustomException("Verification code is required.");
 
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .Where(x =>
                     (x.LoginName == request.EmailOrUsername ||
                      x.RecoveryEmail == request.EmailOrUsername) &&
@@ -467,8 +467,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<CurrentUserProfileDto?> GetMyProfileAsync(long loginId , long roleId)
         {
-            var user = await _context.UsersLogins
-                .Include(x => x.KfUsersRolesAssignmentLogins)
+            var user = await _context.KfUsersLogins
+                .Include(x => x.KfUsersRoleAssignmentLogins)
                 .ThenInclude(x => x.Role)
                 .ThenInclude(x => x.Module)
                 .Include(x => x.Staff)
@@ -479,7 +479,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new CustomException("User not found.");
 
 
-            var roles = user.KfUsersRolesAssignmentLogins
+            var roles = user.KfUsersRoleAssignmentLogins
                 .OrderByDescending(x => x.IsDefault)
                 .Select(x => new AvailableRolesDto
             {
@@ -509,7 +509,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 _ => string.Empty
             };
 
-            var currentRole = user.KfUsersRolesAssignmentLogins
+            var currentRole = user.KfUsersRoleAssignmentLogins
                 .FirstOrDefault(x => x.RoleId == roleId && x.LoginId == loginId);
 
             var currency = await GetDefaultCurrencyAsync(staff);
@@ -562,7 +562,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
         public async Task<bool> UpdateMyProfileAsync(long loginId, UpdateMyProfileDto dto)
         {
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .Include(x => x.Staff)
                 .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
 
@@ -598,7 +598,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
             var newLoginName = request.LoginName.Trim();
 
-            var user = await _context.UsersLogins
+            var user = await _context.KfUsersLogins
                 .FirstOrDefaultAsync(x => x.LoginId == loginId && x.IsActive);
 
             if (user == null)
@@ -609,7 +609,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new CustomException("New login name cannot be the same as current login name.");
 
             // Check duplicate login name
-            var exists = await _context.UsersLogins
+            var exists = await _context.KfUsersLogins
                 .AnyAsync(x => x.LoginName.ToLower() == newLoginName.ToLower()
                  && x.LoginId != loginId);
 
@@ -631,9 +631,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         #region Private Methods
 
         // helper method to build login response
-        private async Task<LoginResponseDto> BuildLoginResponseAsync(UsersLogin user)
+        private async Task<LoginResponseDto> BuildLoginResponseAsync(KfUsersLogin user)
         {
-            var roles = await _context.KfUsersRolesAssignments
+            var roles = await _context.KfUsersRoleAssignments
                 .Where(x => x.LoginId == user.LoginId)
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
@@ -651,7 +651,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             if (!roles.Any())
                 throw new UnauthorizedAccessException("No roles assigned to user");
 
-            var defaultRole = await _context.KfUsersRolesAssignments
+            var defaultRole = await _context.KfUsersRoleAssignments
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
                 .Where(x => x.LoginId == user.LoginId)
@@ -697,7 +697,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
 
 
         // helper method to log login details
-        private async Task LogLoginAsync(UsersLogin user)
+        private async Task LogLoginAsync(KfUsersLogin user)
         {
             var context = _httpContext.HttpContext;
             if (context == null) return;

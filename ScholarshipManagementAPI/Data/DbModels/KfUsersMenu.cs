@@ -35,7 +35,7 @@ public partial class KfUsersMenu
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfUsersMenu> InverseParent { get; set; } = new List<KfUsersMenu>();
 
@@ -45,5 +45,5 @@ public partial class KfUsersMenu
 
     public virtual KfUsersMenu? Parent { get; set; }
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

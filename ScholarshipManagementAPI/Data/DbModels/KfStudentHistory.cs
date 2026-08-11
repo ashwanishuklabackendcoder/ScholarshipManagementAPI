@@ -23,7 +23,7 @@ public partial class KfStudentHistory
 
     public virtual KfStudentProgramApplication? Application { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual KfStudentRegistration Student { get; set; } = null!;
 }

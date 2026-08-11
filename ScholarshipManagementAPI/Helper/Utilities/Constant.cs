@@ -97,10 +97,10 @@ namespace ScholarshipManagementAPI.Helper.Utilities
             }
 
 
-            private static readonly PasswordHasher<UsersLogin> _passwordHasher = new();
+            private static readonly PasswordHasher<KfUsersLogin> _passwordHasher = new();
 
             // Hash password
-            public static string HashPassword(UsersLogin user, string password)
+            public static string HashPassword(KfUsersLogin user, string password)
             {
                 return _passwordHasher.HashPassword(user, password);
             }
@@ -108,7 +108,7 @@ namespace ScholarshipManagementAPI.Helper.Utilities
 
 
             // Verify password
-            public static bool VerifyPassword(UsersLogin user, string hashedPassword, string enteredPassword)
+            public static bool VerifyPassword(KfUsersLogin user, string hashedPassword, string enteredPassword)
             {
                 var result = _passwordHasher.VerifyHashedPassword(
                     user,

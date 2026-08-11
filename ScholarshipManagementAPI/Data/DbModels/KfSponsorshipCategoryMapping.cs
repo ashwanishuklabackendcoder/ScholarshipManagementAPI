@@ -21,11 +21,11 @@ public partial class KfSponsorshipCategoryMapping
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual KfSponsorshipType SponsorshipType { get; set; } = null!;
 
     public virtual KfSponsorshipStudentCategory StudentCategory { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

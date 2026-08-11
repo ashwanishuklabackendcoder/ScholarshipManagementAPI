@@ -23,13 +23,13 @@ public partial class KfUsersRole
 
     public DateTime? UpdatedDate { get; set; }
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
+
+    public virtual ICollection<KfUsersRoleAssignment> KfUsersRoleAssignments { get; set; } = new List<KfUsersRoleAssignment>();
 
     public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissions { get; set; } = new List<KfUsersRolePermission>();
 
-    public virtual ICollection<KfUsersRolesAssignment> KfUsersRolesAssignments { get; set; } = new List<KfUsersRolesAssignment>();
-
     public virtual KfUsersModule Module { get; set; } = null!;
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

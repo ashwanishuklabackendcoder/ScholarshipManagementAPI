@@ -105,7 +105,7 @@ public partial class KfStudentRegistration
 
     public string StudentCode { get; set; } = null!;
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ZzMasterDropDown? FinancialNeedStatus { get; set; }
 
@@ -131,5 +131,5 @@ public partial class KfStudentRegistration
 
     public virtual ZzMasterDropDown? SelfRelianceLevel { get; set; }
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

@@ -111,11 +111,11 @@ public partial class UnUniversityRegistration
 
     public string? CommitteeComment { get; set; }
 
-    public virtual UsersLogin? AccreditationByNavigation { get; set; }
+    public virtual KfUsersLogin? AccreditationByNavigation { get; set; }
 
     public virtual ZzMasterCountry Country { get; set; } = null!;
 
-    public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfCourse> KfCourses { get; set; } = new List<KfCourse>();
 
@@ -129,5 +129,5 @@ public partial class UnUniversityRegistration
 
     public virtual ZzMasterDropDown? UniversityTypeNavigation { get; set; }
 
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }
