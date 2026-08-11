@@ -5,7 +5,7 @@ namespace ScholarshipManagementAPI.Data.DbModels;
 
 public partial class KfUniversity
 {
-    public long RegistrationId { get; set; }
+    public long UniversityId { get; set; }
 
     public string UniversityName { get; set; } = null!;
 

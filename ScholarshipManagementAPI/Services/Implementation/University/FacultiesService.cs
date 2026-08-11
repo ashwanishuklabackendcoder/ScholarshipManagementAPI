@@ -25,7 +25,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         public async Task<long> CreateAsync(FacultyRequestDto dto)
         {
             if (!await _context.KfUniversities
-                .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
+                .AnyAsync(x => x.UniversityId == dto.UniversityId && x.IsActive))
             {
                 throw new CustomException("Selected university does not exist.");
             }
@@ -66,7 +66,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 return false;
 
             if (!await _context.KfUniversities
-                .AnyAsync(x => x.RegistrationId == dto.UniversityId && x.IsActive))
+                .AnyAsync(x => x.UniversityId == dto.UniversityId && x.IsActive))
             {
                 throw new CustomException("Selected university does not exist.");
             }

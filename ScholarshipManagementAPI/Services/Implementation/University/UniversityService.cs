@@ -102,7 +102,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             _context.KfUniversities.Add(entity);
             await _context.SaveChangesAsync();
 
-            return entity.RegistrationId;
+            return entity.UniversityId;
         }
 
 
@@ -115,13 +115,13 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             if (await _context.KfUniversities.AnyAsync(x =>
                       x.UniversityName.ToLower() == dto.UniversityName.ToLower()
-                      && x.RegistrationId != dto.UniversityId))
+                      && x.UniversityId != dto.UniversityId))
             {
                 throw new CustomException("University with same name already exists");
             }
 
             var entity = await _context.KfUniversities
-                .FirstOrDefaultAsync(x => x.RegistrationId == dto.UniversityId);
+                .FirstOrDefaultAsync(x => x.UniversityId == dto.UniversityId);
 
             if (entity == null)
                 return false;
@@ -202,7 +202,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         public async Task<bool> DeleteAsync(long id)
         {
             var entity = await _context.KfUniversities
-                .FirstOrDefaultAsync(x => x.RegistrationId == id);
+                .FirstOrDefaultAsync(x => x.UniversityId == id);
 
             if (entity == null)
                 return false;
@@ -221,10 +221,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         {
             return await _context.KfUniversities
                 .AsNoTracking()
-                .Where(x => x.RegistrationId == id)
+                .Where(x => x.UniversityId == id)
                 .Select(x => new UniversityRequestDto
                 {
-                    UniversityId = x.RegistrationId,
+                    UniversityId = x.UniversityId,
 
                     UniversityName = x.UniversityName,
                     UniversityTypeId = x.UniversityType,
@@ -337,7 +337,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 .AsQueryable();
 
             if (filter.UniversityId.HasValue)
-                query = query.Where(x => x.RegistrationId == filter.UniversityId);
+                query = query.Where(x => x.UniversityId == filter.UniversityId);
 
             if (!string.IsNullOrWhiteSpace(filter.UniversityName))
                 query = query.Where(x => x.UniversityName.Contains(filter.UniversityName));
@@ -387,7 +387,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             var totalCount = await query.CountAsync();
 
-            query = query.OrderByDescending(x => x.RegistrationId);
+            query = query.OrderByDescending(x => x.UniversityId);
 
             if (filter.PageSize > 0)
             {
@@ -399,7 +399,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             var items = await query
                 .Select(x => new UniversityRequestDto
                 {
-                    UniversityId = x.RegistrationId,
+                    UniversityId = x.UniversityId,
 
                     UniversityName = x.UniversityName,
 
