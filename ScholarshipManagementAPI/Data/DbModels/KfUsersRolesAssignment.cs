@@ -17,17 +17,9 @@ public partial class KfUsersRolesAssignment
 
     public long CreatedBy { get; set; }
 
-    public bool IsActive { get; set; }
-
-    public long? UpdatedBy { get; set; }
-
-    public DateTime? UpdatedDate { get; set; }
-
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual UsersLogin Login { get; set; } = null!;
 
     public virtual KfUsersRole Role { get; set; } = null!;
-
-    public virtual UsersLogin? UpdatedByNavigation { get; set; }
 }

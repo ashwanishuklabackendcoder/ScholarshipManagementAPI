@@ -90,7 +90,10 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -963,9 +966,8 @@ public partial class AppDbContext : DbContext
             entity.ToTable("kf_users_role_permissions");
 
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersRolePermissionCreatedByNavigations)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersRolePermissions)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersRolePages_CreatedBy_UsersLogin");
@@ -979,10 +981,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersRolePages_UsersRoles");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersRolePermissionUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_UsersRolePages_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<KfUsersRolesAssignment>(entity =>
@@ -994,7 +992,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getutcdate())")
                 .HasColumnType("smalldatetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUsersRolesAssignmentCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
@@ -1010,10 +1007,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersLoginRoles_UsersRole");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.KfUsersRolesAssignmentUpdatedByNavigations)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_UsersLoginRoles_UpdatedBy");
         });
 
         modelBuilder.Entity<UnUniversityRegistration>(entity =>

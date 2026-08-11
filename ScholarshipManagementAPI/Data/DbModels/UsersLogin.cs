@@ -119,17 +119,13 @@ public partial class UsersLogin
 
     public virtual ICollection<KfUsersRole> KfUsersRoleCreatedByNavigations { get; set; } = new List<KfUsersRole>();
 
-    public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissionCreatedByNavigations { get; set; } = new List<KfUsersRolePermission>();
-
-    public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissionUpdatedByNavigations { get; set; } = new List<KfUsersRolePermission>();
+    public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissions { get; set; } = new List<KfUsersRolePermission>();
 
     public virtual ICollection<KfUsersRole> KfUsersRoleUpdatedByNavigations { get; set; } = new List<KfUsersRole>();
 
     public virtual ICollection<KfUsersRolesAssignment> KfUsersRolesAssignmentCreatedByNavigations { get; set; } = new List<KfUsersRolesAssignment>();
 
     public virtual ICollection<KfUsersRolesAssignment> KfUsersRolesAssignmentLogins { get; set; } = new List<KfUsersRolesAssignment>();
-
-    public virtual ICollection<KfUsersRolesAssignment> KfUsersRolesAssignmentUpdatedByNavigations { get; set; } = new List<KfUsersRolesAssignment>();
 
     public virtual KfStaff Staff { get; set; } = null!;
 

@@ -133,7 +133,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     RoleId = dto.RoleId,
 
                     IsDefault = true,
-                    IsActive = true,
 
                     CreatedDate = DateTime.UtcNow,
                     CreatedBy = currentUser.LoginId
@@ -261,15 +260,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 var loginRole = await _context.KfUsersRolesAssignments
                     .FirstOrDefaultAsync(x =>
                         x.LoginId == login.LoginId &&
-                        x.IsDefault &&
-                        x.IsActive);
+                        x.IsDefault );
 
                 if (loginRole == null)
                     throw new CustomException("Role mapping not found.");
 
                 loginRole.RoleId = dto.RoleId;
-                loginRole.UpdatedDate = DateTime.UtcNow;
-                loginRole.UpdatedBy = currentUser.LoginId;
 
                 // ---------------- Update School Mapping ----------------
                 var existingMappings = await _context.KfStaffSchoolCoordinatorMappings
@@ -341,14 +337,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     login.UpdatedDate = DateTime.UtcNow;
 
                     var loginRoles = await _context.KfUsersRolesAssignments
-                        .Where(x => x.LoginId == login.LoginId && x.IsActive)
+                        .Where(x => x.LoginId == login.LoginId)
                         .ToListAsync();
 
                     foreach (var role in loginRoles)
                     {
-                        role.IsActive = false;
-                        role.UpdatedBy = currentUser.LoginId;
-                        role.UpdatedDate = DateTime.UtcNow;
+                        //role.IsActive = false;
+                        //role.UpdatedBy = currentUser.LoginId;
+                        //role.UpdatedDate = DateTime.UtcNow;
+
+                        _context.KfUsersRolesAssignments.Remove(role);
                     }
                 }
 
@@ -382,7 +380,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             var schoolCoordinator = await _context.KfUsersRolesAssignments
                 .AsNoTracking()
                 .Where(x =>
-                    x.IsActive &&
                     x.Login.IsActive &&
                     x.Login.Staff.IsActive &&
                     x.Login.Staff.StaffType == (long)StaffType.School &&
@@ -420,7 +417,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
                     // Status
                     IsDefaultRole = x.IsDefault,
-                    IsActive = x.IsActive,
+                    IsActive = x.Login.IsActive,
 
                     // Schools
                     SchoolIds = x.Login.Staff.KfStaffSchoolCoordinatorMappings
@@ -472,7 +469,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 .AsNoTracking()
                 .Where(x =>
                     x.IsDefault &&
-                    x.IsActive &&
                     x.Login.IsActive &&
                     x.Login.Staff.IsActive &&
                     x.Login.Staff.StaffType == (long)StaffType.School)
@@ -555,7 +551,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
                     // Status
                     IsDefaultRole = x.IsDefault,
-                    IsActive = x.IsActive,
+                    IsActive = x.Login.IsActive,
 
                     // Audit
                     CreatedDate = x.Login.Staff.CreatedDate,

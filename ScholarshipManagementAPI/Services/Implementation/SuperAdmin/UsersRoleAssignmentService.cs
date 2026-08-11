@@ -47,7 +47,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 RoleId = dto.RoleId,
                 LoginId = dto.LoginId,
                 IsDefault = dto.IsDefault,
-                IsActive = true,
                 CreatedBy = dto.CreatedBy,
                 CreatedDate = dto.CreatedDate     // always server-side
             };
@@ -97,7 +96,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.RoleId = dto.RoleId;
             entity.LoginId = dto.LoginId;
             entity.IsDefault = dto.IsDefault;
-            entity.IsActive = true;
 
             // CREATEDBY and CREATEDDATE not updated on purpose
 
@@ -115,9 +113,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity == null)
                 return false;
 
-            //_context.KfUsersRolesAssignments.Remove(entity);
+            _context.KfUsersRolesAssignments.Remove(entity);
 
-            entity.IsActive = false;   // soft delete
             await _context.SaveChangesAsync();
 
             return true;
