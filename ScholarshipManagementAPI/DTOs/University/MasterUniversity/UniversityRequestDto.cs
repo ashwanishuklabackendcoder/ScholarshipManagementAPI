@@ -4,7 +4,7 @@ namespace ScholarshipManagementAPI.DTOs.University.MasterUniversity
 {
     public class UniversityRequestDto
     {
-        public long? RegistrationId { get; set; }
+        public long? UniversityId { get; set; }
 
         #region Basic Information
 

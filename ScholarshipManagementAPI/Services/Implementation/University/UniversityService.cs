@@ -110,18 +110,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- UPDATE ----------------
         public async Task<bool> UpdateAsync(UniversityRequestDto dto)
         {
-            if (dto.RegistrationId == null || dto.RegistrationId == 0)
+            if (dto.UniversityId == null || dto.UniversityId == 0)
                 return false;
 
             if (await _context.KfUniversities.AnyAsync(x =>
                       x.UniversityName.ToLower() == dto.UniversityName.ToLower()
-                      && x.RegistrationId != dto.RegistrationId))
+                      && x.RegistrationId != dto.UniversityId))
             {
                 throw new CustomException("University with same name already exists");
             }
 
             var entity = await _context.KfUniversities
-                .FirstOrDefaultAsync(x => x.RegistrationId == dto.RegistrationId);
+                .FirstOrDefaultAsync(x => x.RegistrationId == dto.UniversityId);
 
             if (entity == null)
                 return false;
@@ -224,7 +224,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 .Where(x => x.RegistrationId == id)
                 .Select(x => new UniversityRequestDto
                 {
-                    RegistrationId = x.RegistrationId,
+                    UniversityId = x.RegistrationId,
 
                     UniversityName = x.UniversityName,
                     UniversityTypeId = x.UniversityType,
@@ -336,8 +336,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 .AsNoTracking()
                 .AsQueryable();
 
-            if (filter.RegistrationId.HasValue)
-                query = query.Where(x => x.RegistrationId == filter.RegistrationId);
+            if (filter.UniversityId.HasValue)
+                query = query.Where(x => x.RegistrationId == filter.UniversityId);
 
             if (!string.IsNullOrWhiteSpace(filter.UniversityName))
                 query = query.Where(x => x.UniversityName.Contains(filter.UniversityName));
@@ -399,7 +399,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             var items = await query
                 .Select(x => new UniversityRequestDto
                 {
-                    RegistrationId = x.RegistrationId,
+                    UniversityId = x.RegistrationId,
 
                     UniversityName = x.UniversityName,
 

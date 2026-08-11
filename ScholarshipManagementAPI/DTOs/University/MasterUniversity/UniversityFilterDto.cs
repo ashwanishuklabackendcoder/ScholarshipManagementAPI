@@ -4,7 +4,7 @@ namespace ScholarshipManagementAPI.DTOs.University.MasterUniversity
 {
     public class UniversityFilterDto:BaseFilterDto
     {
-        public long? RegistrationId { get; set; }
+        public long? UniversityId { get; set; }
 
         public string? UniversityName { get; set; }
 
