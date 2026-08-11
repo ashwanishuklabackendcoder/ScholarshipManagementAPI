@@ -213,7 +213,7 @@ builder.Services.AddHttpClient<ICurrencyConversionService, CurrencyConversionSer
 builder.Services.AddScoped<ILabelService, LabelService>();
 builder.Services.AddScoped<IUsersMenuService, UsersMenuService>();
 builder.Services.AddScoped<IUsersRoleService, UsersRoleService>();
-builder.Services.AddScoped<IUsersRolePagesService, UsersRolePagesService>();
+builder.Services.AddScoped<IUsersRolePermissionService, UsersRolePermissionService>();
 builder.Services.AddScoped<IUsersLoginService, UsersLoginService>();
 builder.Services.AddScoped<IUsersLoginLogService, UsersLoginLogService>();
 builder.Services.AddScoped<IUsersRoleAssignmentService, UsersRoleAssignmentService>();

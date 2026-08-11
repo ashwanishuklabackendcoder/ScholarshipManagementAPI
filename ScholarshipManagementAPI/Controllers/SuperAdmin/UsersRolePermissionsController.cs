@@ -1,40 +1,39 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRoleAssignment;
+using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePermission;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Controllers.SuperAdmin
 {
     [ApiController]
-    [Route("api/superadmin/users-role-assignment")]
-    public class UsersRoleAssignmentController : ControllerBase
+    [Route("api/superadmin/users-role-permission")]
+    public class UsersRolePermissionsController : ControllerBase
     {
-        private readonly IUsersRoleAssignmentService _service;
+        private readonly IUsersRolePermissionService _service;
 
-        public UsersRoleAssignmentController(IUsersRoleAssignmentService service)
+        public UsersRolePermissionsController(IUsersRolePermissionService service)
         {
             _service = service;
         }
 
 
-        [HttpPost("login-roles")]
+        [HttpPost("role-permissions")]
         [Authorize]
-        public async Task<IActionResult> GetRolesByLogin(UsersRoleAssignmentFilterDto filter)
+        public async Task<IActionResult> GetRolePermissions(UsersRolePermissionFilterDto filter)
         {
-            if (filter.LoginId == null || filter.LoginId <= 0)
+            if (filter.RoleId == null || filter.RoleId <= 0)
             {
                 return BadRequest(new ApiResponseDto
                 {
                     Success = false,
-                    Message = "LoginId is required"
+                    Message = "RoleId is required"
                 });
             }
 
-            var result = await _service.GetRolesByLoginAsync(filter);
+            var result = await _service.GetRolePermissionsAsync(filter);
 
             return Ok(new ApiResponseDto
             {
@@ -47,28 +46,27 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         }
 
 
-
-        [HttpPost("bulk-save")]
+        [HttpPost("role-permissions/bulk-save")]
         [Authorize]
-        public async Task<IActionResult> BulkSave(UsersRoleAssignmentSaveDto dto)
+        public async Task<IActionResult> BulkSave(UsersRolePermissionBulkSaveDto dto)
         {
-            if (dto.LoginId <= 0)
+            if (dto.RoleId <= 0)
             {
                 return BadRequest(new ApiResponseDto
                 {
                     Success = false,
-                    Message = "LoginId is required"
+                    Message = "RoleId is required"
                 });
             }
 
             var createdBy = JwtClaimHelper.LoginId(User);
 
-            await _service.BulkSaveRolesAsync(dto, createdBy);
+            await _service.BulkSaveRolePermissionsAsync(dto, createdBy);
 
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "Roles saved successfully"
+                Message = "Permissions saved successfully"
             });
         }
 

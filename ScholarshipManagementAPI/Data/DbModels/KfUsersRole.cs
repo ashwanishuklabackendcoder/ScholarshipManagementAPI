@@ -25,9 +25,9 @@ public partial class KfUsersRole
 
     public virtual UsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<KfUsersLoginRolesAssignment> KfUsersLoginRolesAssignments { get; set; } = new List<KfUsersLoginRolesAssignment>();
-
     public virtual ICollection<KfUsersRolePermission> KfUsersRolePermissions { get; set; } = new List<KfUsersRolePermission>();
+
+    public virtual ICollection<KfUsersRolesAssignment> KfUsersRolesAssignments { get; set; } = new List<KfUsersRolesAssignment>();
 
     public virtual KfUsersModule Module { get; set; } = null!;
 

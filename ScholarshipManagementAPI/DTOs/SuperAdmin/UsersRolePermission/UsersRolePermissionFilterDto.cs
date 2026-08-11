@@ -1,8 +1,8 @@
 ﻿using ScholarshipManagementAPI.DTOs.Common.Filter;
 
-namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePage
+namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePermission
 {
-    public class UsersRolePageFilterDto:BaseFilterDto
+    public class UsersRolePermissionFilterDto:BaseFilterDto
     {
         /* -------- RolePage specific -------- */
         public long? RoleId { get; set; }

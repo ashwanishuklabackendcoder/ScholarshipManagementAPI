@@ -105,7 +105,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         public async Task<LoginResponseDto> SwitchRoleAsync(long loginId, long roleId)
         {
             // Validate role belongs to this user
-            var userRole = await _context.KfUsersLoginRolesAssignments
+            var userRole = await _context.KfUsersRolesAssignments
                 .Include(x => x.Login)
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
@@ -116,7 +116,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new UnauthorizedAccessException("Role not assigned to user");
 
             // fetch all available roles 
-            var roles = await _context.KfUsersLoginRolesAssignments
+            var roles = await _context.KfUsersRolesAssignments
                 .Where(x => x.LoginId == loginId)
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
@@ -468,7 +468,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         public async Task<CurrentUserProfileDto?> GetMyProfileAsync(long loginId , long roleId)
         {
             var user = await _context.UsersLogins
-                .Include(x => x.KfUsersLoginRolesAssignmentLogins)
+                .Include(x => x.KfUsersRolesAssignmentLogins)
                 .ThenInclude(x => x.Role)
                 .ThenInclude(x => x.Module)
                 .Include(x => x.Staff)
@@ -479,7 +479,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 throw new CustomException("User not found.");
 
 
-            var roles = user.KfUsersLoginRolesAssignmentLogins
+            var roles = user.KfUsersRolesAssignmentLogins
                 .OrderByDescending(x => x.IsDefault)
                 .Select(x => new AvailableRolesDto
             {
@@ -509,7 +509,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
                 _ => string.Empty
             };
 
-            var currentRole = user.KfUsersLoginRolesAssignmentLogins
+            var currentRole = user.KfUsersRolesAssignmentLogins
                 .FirstOrDefault(x => x.RoleId == roleId && x.LoginId == loginId);
 
             var currency = await GetDefaultCurrencyAsync(staff);
@@ -633,7 +633,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
         // helper method to build login response
         private async Task<LoginResponseDto> BuildLoginResponseAsync(UsersLogin user)
         {
-            var roles = await _context.KfUsersLoginRolesAssignments
+            var roles = await _context.KfUsersRolesAssignments
                 .Where(x => x.LoginId == user.LoginId)
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
@@ -651,7 +651,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Common
             if (!roles.Any())
                 throw new UnauthorizedAccessException("No roles assigned to user");
 
-            var defaultRole = await _context.KfUsersLoginRolesAssignments
+            var defaultRole = await _context.KfUsersRolesAssignments
                 .Include(x => x.Role)
                 .ThenInclude(r => r.Module)
                 .Where(x => x.LoginId == user.LoginId)

@@ -127,7 +127,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 await _context.SaveChangesAsync();
 
                 // ---------------- Assign Role ----------------
-                var loginRole = new KfUsersLoginRolesAssignment
+                var loginRole = new KfUsersRolesAssignment
                 {
                     LoginId = login.LoginId,
                     RoleId = dto.RoleId,
@@ -139,7 +139,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     CreatedBy = currentUser.LoginId
                 };
 
-                _context.KfUsersLoginRolesAssignments.Add(loginRole);
+                _context.KfUsersRolesAssignments.Add(loginRole);
 
                 // ---------------- School Mapping ----------------
                 var schoolMappings = dto.SchoolIds
@@ -258,7 +258,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                 login.UpdatedBy = currentUser.LoginId;
 
                 // ---------------- Update Role ----------------
-                var loginRole = await _context.KfUsersLoginRolesAssignments
+                var loginRole = await _context.KfUsersRolesAssignments
                     .FirstOrDefaultAsync(x =>
                         x.LoginId == login.LoginId &&
                         x.IsDefault &&
@@ -340,7 +340,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
                     login.UpdatedBy = currentUser.LoginId;
                     login.UpdatedDate = DateTime.UtcNow;
 
-                    var loginRoles = await _context.KfUsersLoginRolesAssignments
+                    var loginRoles = await _context.KfUsersRolesAssignments
                         .Where(x => x.LoginId == login.LoginId && x.IsActive)
                         .ToListAsync();
 
@@ -379,7 +379,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<SchoolCoordinatorRequestDto> GetByIdAsync(long staffId)
         {
-            var schoolCoordinator = await _context.KfUsersLoginRolesAssignments
+            var schoolCoordinator = await _context.KfUsersRolesAssignments
                 .AsNoTracking()
                 .Where(x =>
                     x.IsActive &&
@@ -468,7 +468,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
 
         public async Task<PagedResultDto<SchoolCoordinatorRequestDto>> GetByFilterAsync(SchoolCoordinatorFilterDto filter)
         {
-            var query = _context.KfUsersLoginRolesAssignments
+            var query = _context.KfUsersRolesAssignments
                 .AsNoTracking()
                 .Where(x =>
                     x.IsDefault &&

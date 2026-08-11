@@ -1,9 +1,10 @@
-﻿namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePage
+﻿namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePermission
 {
-    public class RolePagePermissionDto
+    public class UsersRolePermissionDto
     {
         public long MenuLinkId { get; set; }
         public long RoleId { get; set; }
+        public long ModuleId { get; set; }
 
         public long? RoleFormId { get; set; }   // null if not mapped
 

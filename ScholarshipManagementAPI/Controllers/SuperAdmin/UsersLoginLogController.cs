@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginLog;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePage;
+using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePermission;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 

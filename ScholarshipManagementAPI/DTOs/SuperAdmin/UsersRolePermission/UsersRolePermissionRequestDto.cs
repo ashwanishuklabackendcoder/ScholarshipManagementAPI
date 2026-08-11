@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePage
+namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePermission
 {
-    public class UsersRolePageRequestDto
+    public class UsersRolePermissionRequestDto
     {
         public long? RoleFormId { get; set; } // null/0 = Create, >0 = Update
 

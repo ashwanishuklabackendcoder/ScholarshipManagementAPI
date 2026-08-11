@@ -2,26 +2,25 @@
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePage;
+using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePermission;
 using ScholarshipManagementAPI.Helper;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 {
-    public class UsersRolePagesService: IUsersRolePagesService
+    public class UsersRolePermissionService: IUsersRolePermissionService
     {
         private readonly AppDbContext _context;
 
-        public UsersRolePagesService(AppDbContext context)
+        public UsersRolePermissionService(AppDbContext context)
         {
             _context = context;
         }
 
 
         // ---------------- CREATE ----------------
-        public async Task<long> CreateAsync(UsersRolePageRequestDto dto)
+        public async Task<long> CreateAsync(UsersRolePermissionRequestDto dto)
         {
             if (await _context.KfUsersRolePermissions
                 .AnyAsync(x => x.RoleId == dto.RoleId && x.MenuLinkId == dto.MenuLinkId))
@@ -50,7 +49,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
         // ---------------- UPDATE ----------------
-        public async Task<bool> UpdateAsync(UsersRolePageRequestDto dto)
+        public async Task<bool> UpdateAsync(UsersRolePermissionRequestDto dto)
         {
             if (dto.RoleFormId == null || dto.RoleId == 0)
                 return false;
@@ -100,12 +99,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
         // ---------------- GET BY ID ----------------
-        public async Task<UsersRolePageRequestDto?> GetByIdAsync(long id)
+        public async Task<UsersRolePermissionRequestDto?> GetByIdAsync(long id)
         {
             return await _context.KfUsersRolePermissions
                 .AsNoTracking()
                 .Where(x => x.RoleFormId == id)
-                .Select(x => new UsersRolePageRequestDto
+                .Select(x => new UsersRolePermissionRequestDto
                 {
                     RoleFormId = x.RoleFormId,
                     RoleId = x.RoleId,
@@ -126,7 +125,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<UsersRolePageRequestDto>> GetByFilterAsync(UsersRolePageFilterDto filter)
+        public async Task<PagedResultDto<UsersRolePermissionRequestDto>> GetByFilterAsync(UsersRolePermissionFilterDto filter)
         {
             var query = _context.KfUsersRolePermissions
                 .AsNoTracking()
@@ -179,7 +178,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             }
 
             var items = await query
-                .Select(x => new UsersRolePageRequestDto
+                .Select(x => new UsersRolePermissionRequestDto
                 {
                     RoleFormId = x.RoleFormId,
                     RoleId = x.RoleId,
@@ -197,7 +196,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 })
                 .ToListAsync();
 
-            return new PagedResultDto<UsersRolePageRequestDto>
+            return new PagedResultDto<UsersRolePermissionRequestDto>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -207,7 +206,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         }
 
 
-        public async Task<PagedResultDto<RolePagePermissionDto>> GetRolePermissionsAsync(UsersRolePageFilterDto filter)
+
+        public async Task<PagedResultDto<UsersRolePermissionDto>> GetRolePermissionsAsync(UsersRolePermissionFilterDto filter)
         {
             var menus = await _context.KfUsersMenus
                 .AsNoTracking()
@@ -221,14 +221,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 .Include(x => x.Role)
                 .ToListAsync();
 
+
             var query = menus.Select(menu =>
             {
                 var p = permissions.FirstOrDefault(x => x.MenuLinkId == menu.MenuLinkId);
 
-                return new RolePagePermissionDto
+                return new UsersRolePermissionDto
                 {
                     MenuLinkId = menu.MenuLinkId,
                     RoleId = filter.RoleId ?? 0,
+                    ModuleId = menu.ModuleId,
 
                     RoleFormId = p?.RoleFormId,
 
@@ -250,12 +252,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             }).AsQueryable();
 
 
+            if (filter.ModuleId.HasValue)
+                query = query.Where(x => x.ModuleId == filter.ModuleId);
+
+            if (filter.RoleId.HasValue)
+                query = query.Where(x => x.RoleId == filter.RoleId);
+
             // ---------- Total Count ----------
             var totalCount = query.Count();
 
             // ---------- Ordering ----------
             query = query
-               .OrderBy(x => x.ParentId ?? x.MenuLinkId)
+               .OrderBy(x => x.ModuleId)
+               .ThenBy(x => x.ParentId ?? x.MenuLinkId)
                .ThenBy(x => x.LevelNo)
                .ThenBy(x => x.SequenceNo);
 
@@ -270,7 +279,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
             var items = query.ToList();
 
-            return new PagedResultDto<RolePagePermissionDto>
+            return new PagedResultDto<UsersRolePermissionDto>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -280,7 +289,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         }
 
 
-        public async Task BulkSaveRolePermissionsAsync(RolePermissionBulkSaveDto dto, string createdBy)
+        public async Task BulkSaveRolePermissionsAsync(UsersRolePermissionBulkSaveDto dto, long createdBy)
         {
             await using var tx = await _context.Database.BeginTransactionAsync();
 
@@ -311,7 +320,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                             UpdatePer = item.UpdatePer,
                             DeletePer = item.DeletePer,
                             CreatedDate = DateTime.UtcNow,
-                            //CreatedBy = createdBy
+                            CreatedBy = createdBy
                         });
                     }
 

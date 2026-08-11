@@ -4,7 +4,7 @@ using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePage;
+using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePermission;
 using ScholarshipManagementAPI.Helper;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
