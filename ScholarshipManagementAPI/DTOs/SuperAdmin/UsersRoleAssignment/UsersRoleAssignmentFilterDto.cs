@@ -1,8 +1,8 @@
 ﻿using ScholarshipManagementAPI.DTOs.Common.Filter;
 
-namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole
+namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRoleAssignment
 {
-    public class UsersLoginRoleFilterDto : BaseFilterDto
+    public class UsersRoleAssignmentFilterDto : BaseFilterDto
     {
         public long? RoleId { get; set; }
         public long? LoginId { get; set; }

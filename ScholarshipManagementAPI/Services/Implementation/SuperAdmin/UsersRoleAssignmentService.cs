@@ -4,28 +4,24 @@ using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole;
-using ScholarshipManagementAPI.Helper;
+using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRoleAssignment;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 {
-    public class UsersLoginRoleService : IUsersLoginRoleService
+    public class UsersRoleAssignmentService : IUsersRoleAssignmentService
     {
         private readonly AppDbContext _context;
 
-        public UsersLoginRoleService(AppDbContext context)
+        public UsersRoleAssignmentService(AppDbContext context)
         {
             _context = context;
         }
 
 
         // ---------------- CREATE ----------------
-        public async Task<long> CreateAsync(UsersLoginRoleRequestDto dto)
+        public async Task<long> CreateAsync(UsersRoleAssignmentRequestDto dto)
         {
             if (await _context.KfUsersLoginRolesAssignments
                 .AnyAsync(x => x.RoleId == dto.RoleId && x.LoginId == dto.LoginId))
@@ -63,7 +59,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
         // ---------------- UPDATE ----------------
-        public async Task<bool> UpdateAsync(UsersLoginRoleRequestDto dto)
+        public async Task<bool> UpdateAsync(UsersRoleAssignmentRequestDto dto)
         {
             if (dto.UserLoginRoleId == null || dto.UserLoginRoleId == 0)
                 return false;
@@ -125,14 +121,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
         // ---------------- GET BY ID ----------------
-        public async Task<UsersLoginRoleRequestDto?> GetByIdAsync(long id)
+        public async Task<UsersRoleAssignmentRequestDto?> GetByIdAsync(long id)
         {
             return await _context.KfUsersLoginRolesAssignments
                 .AsNoTracking()
                 .Include(x => x.Login)
                 .Include(x => x.Role)
                 .Where(x => x.UserLoginRoleId == id)
-                .Select(x => new UsersLoginRoleRequestDto
+                .Select(x => new UsersRoleAssignmentRequestDto
                 {
                     UserLoginRoleId = x.UserLoginRoleId,
                     RoleId = x.RoleId,
@@ -150,7 +146,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<UsersLoginRoleRequestDto>> GetByFilterAsync(UsersLoginRoleFilterDto filter)
+        public async Task<PagedResultDto<UsersRoleAssignmentRequestDto>> GetByFilterAsync(UsersRoleAssignmentFilterDto filter)
         {
             var query = _context.KfUsersLoginRolesAssignments
                 .AsNoTracking()
@@ -195,7 +191,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             }
 
             var items = await query
-                .Select(x => new UsersLoginRoleRequestDto
+                .Select(x => new UsersRoleAssignmentRequestDto
                 {
                     UserLoginRoleId = x.UserLoginRoleId,
                     RoleId = x.RoleId,
@@ -210,7 +206,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 })
                 .ToListAsync();
 
-            return new PagedResultDto<UsersLoginRoleRequestDto>
+            return new PagedResultDto<UsersRoleAssignmentRequestDto>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -220,7 +216,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         }
 
 
-        public async Task<PagedResultDto<LoginRoleAssignmentDto>> GetRolesByLoginAsync(UsersLoginRoleFilterDto filter)
+
+        public async Task<PagedResultDto<UsersRoleAssignmentDto>> GetRolesByLoginAsync(UsersRoleAssignmentFilterDto filter)
         {
             var roles = await _context.KfUsersRoles
                 .AsNoTracking()
@@ -236,7 +233,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             {
                 var mapped = mappedRoles.FirstOrDefault(x => x.RoleId == role.RoleId);
 
-                return new LoginRoleAssignmentDto
+                return new UsersRoleAssignmentDto
                 {
                     RoleId = role.RoleId,
                     LoginId = filter.LoginId ?? 0,
@@ -271,7 +268,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             var items = query.ToList();
 
 
-            return new PagedResultDto<LoginRoleAssignmentDto>
+            return new PagedResultDto<UsersRoleAssignmentDto>
             {
                 Items = items,
                 TotalCount = totalCount,
@@ -281,7 +278,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         }
 
 
-        public async Task BulkSaveRolesAsync(LoginRoleBulkSaveDto dto, long createdBy)
+        public async Task BulkSaveRolesAsync(UsersRoleAssignmentSaveDto dto, long createdBy)
         {
             // multiple role(roleId) assignment for a single user(loginId) is allowed
             // but only one default role is allowed for a single user

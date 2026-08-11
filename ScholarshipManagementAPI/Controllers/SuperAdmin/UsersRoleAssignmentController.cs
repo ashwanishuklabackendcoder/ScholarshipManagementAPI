@@ -3,21 +3,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu;
+using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRoleAssignment;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Controllers.SuperAdmin
 {
     [ApiController]
-    [Route("api/superadmin/users-login-role")]
-    public class UsersLoginRoleController : ControllerBase
+    [Route("api/superadmin/users-role-assignment")]
+    public class UsersRoleAssignmentController : ControllerBase
     {
-        private readonly IUsersLoginRoleService _service;
+        private readonly IUsersRoleAssignmentService _service;
 
-        public UsersLoginRoleController(IUsersLoginRoleService service)
+        public UsersRoleAssignmentController(IUsersRoleAssignmentService service)
         {
             _service = service;
         }
@@ -26,7 +24,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         // -------- CREATE --------
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Create(UsersLoginRoleRequestDto dto)
+        public async Task<IActionResult> Create(UsersRoleAssignmentRequestDto dto)
         {
             dto.CreatedDate = DateTime.UtcNow;                       // always server-side
             dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
@@ -45,7 +43,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         // -------- UPDATE --------
         [HttpPut("update/{id:long}")]
         [Authorize]
-        public async Task<IActionResult> Update(long id, [FromBody] UsersLoginRoleRequestDto dto)
+        public async Task<IActionResult> Update(long id, [FromBody] UsersRoleAssignmentRequestDto dto)
         {
             dto.UserLoginRoleId = id;
             var updated = await _service.UpdateAsync(dto);
@@ -124,7 +122,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(UsersLoginRoleFilterDto filter)
+        public async Task<IActionResult> GetByFilter(UsersRoleAssignmentFilterDto filter)
         {
             var result = await _service.GetByFilterAsync(filter);
 
@@ -139,9 +137,10 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         }
 
 
+
         [HttpPost("login-roles")]
         [Authorize]
-        public async Task<IActionResult> GetRolesByLogin(UsersLoginRoleFilterDto filter)
+        public async Task<IActionResult> GetRolesByLogin(UsersRoleAssignmentFilterDto filter)
         {
             if (filter.LoginId == null || filter.LoginId <= 0)
             {
@@ -168,7 +167,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
 
         [HttpPost("bulk-save")]
         [Authorize]
-        public async Task<IActionResult> BulkSave(LoginRoleBulkSaveDto dto)
+        public async Task<IActionResult> BulkSave(UsersRoleAssignmentSaveDto dto)
         {
             if (dto.LoginId <= 0)
             {

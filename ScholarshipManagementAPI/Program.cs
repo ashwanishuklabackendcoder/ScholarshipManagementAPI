@@ -216,7 +216,7 @@ builder.Services.AddScoped<IUsersRoleService, UsersRoleService>();
 builder.Services.AddScoped<IUsersRolePagesService, UsersRolePagesService>();
 builder.Services.AddScoped<IUsersLoginService, UsersLoginService>();
 builder.Services.AddScoped<IUsersLoginLogService, UsersLoginLogService>();
-builder.Services.AddScoped<IUsersLoginRoleService, UsersLoginRoleService>();
+builder.Services.AddScoped<IUsersRoleAssignmentService, UsersRoleAssignmentService>();
 builder.Services.AddScoped<IAdminEmailTemplateService, AdminEmailTemplateService>();
 
 builder.Services.AddScoped<IMasterSchoolService, MasterSchoolService>();

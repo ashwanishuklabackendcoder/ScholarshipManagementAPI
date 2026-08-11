@@ -6,9 +6,5 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin
     {
         public bool? IsActive { get; set; }
 
-
-        //public int? LoginType { get; set; }
-        //public long? UniversityId { get; set; }
-        //public long? SchoolListId { get; set; }
     }
 }

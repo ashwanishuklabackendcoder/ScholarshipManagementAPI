@@ -1,6 +1,6 @@
-﻿namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole
+﻿namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRoleAssignment
 {
-    public class LoginRoleAssignmentDto
+    public class UsersRoleAssignmentDto
     {
         public long RoleId { get; set; }
         public long LoginId { get; set; }

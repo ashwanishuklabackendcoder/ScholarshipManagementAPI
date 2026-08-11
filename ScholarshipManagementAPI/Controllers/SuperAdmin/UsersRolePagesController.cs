@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRole;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRolePage;
 using ScholarshipManagementAPI.Helper.Utilities;

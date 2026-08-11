@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLoginRole
+namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersRoleAssignment
 {
-    public class UsersLoginRoleRequestDto
+    public class UsersRoleAssignmentRequestDto
     {
         public long? UserLoginRoleId { get; set; }   // null / 0 = Create, >0 = Update
 

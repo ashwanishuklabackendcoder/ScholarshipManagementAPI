@@ -40,9 +40,5 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.UsersLogin
         public string? UpdatedByName { get; set; }
 
 
-
-        //public long? UniversityId { get; set; }
-
-        //public long? SchoolListId { get; set; }
     }
 }
