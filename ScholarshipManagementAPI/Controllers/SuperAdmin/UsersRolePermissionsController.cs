@@ -20,7 +20,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         }
 
 
-        [HttpPost("role-permissions")]
+        [HttpPost("search")]
         [Authorize]
         public async Task<IActionResult> GetRolePermissions(UsersRolePermissionFilterDto filter)
         {
@@ -46,7 +46,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         }
 
 
-        [HttpPost("role-permissions/bulk-save")]
+        [HttpPost("bulk-save")]
         [Authorize]
         public async Task<IActionResult> BulkSave(UsersRolePermissionBulkSaveDto dto)
         {

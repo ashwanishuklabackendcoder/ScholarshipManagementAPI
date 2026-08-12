@@ -5,6 +5,7 @@ using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.Common.Settings;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.GeneralSettings;
+using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Implementation.SuperAdmin;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
@@ -27,6 +28,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> Create(GeneralSettingRequestDto dto)
         {
+            dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
             var id = await _service.CreateAsync(dto);
 
             return Ok(new ApiResponseDto
@@ -44,6 +46,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         public async Task<IActionResult> Update(long id, [FromBody] GeneralSettingRequestDto dto)
         {
             dto.ConfigId = id;
+            dto.UpdatedBy = JwtClaimHelper.LoginId(User);            // or from claims
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)
@@ -133,6 +136,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
                     : "Data fetched successfully"
             });
         }
+
 
 
 

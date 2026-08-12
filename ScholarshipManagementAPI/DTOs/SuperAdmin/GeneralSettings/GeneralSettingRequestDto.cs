@@ -18,5 +18,24 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.GeneralSettings
         [StringLength(500, ErrorMessage = "Config description cannot exceed 500 characters")]
         public string? ConfigDescription { get; set; }
 
+
+
+        public bool IsActive { get; set; }
+
+
+        // These should usually be server-controlled
+        public DateTime CreatedDate { get; set; }
+        public long CreatedBy { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedBy { get; set; }
+
+
+        // required for display purposes
+        public string? CreatedByName { get; set; }
+
+        public string? UpdatedByName { get; set; }
+
+
     }
 }

@@ -90,6 +90,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1111,7 +1114,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<ZzGeneralSetting>(entity =>
         {
-            entity.HasKey(e => e.ConfigId);
+            entity.HasKey(e => e.ConfigId).HasName("PK_ZzGeneralSettings");
+
+            entity.ToTable("zz_general_settings");
 
             entity.Property(e => e.ConfigId).HasColumnName("ConfigID");
             entity.Property(e => e.ConfigDescription).HasMaxLength(500);
@@ -1119,7 +1124,15 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ConfigValue).HasMaxLength(200);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzGeneralSettingCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ZzGeneralSettings_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzGeneralSettingUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_ZzGeneralSettings_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<ZzLabel>(entity =>

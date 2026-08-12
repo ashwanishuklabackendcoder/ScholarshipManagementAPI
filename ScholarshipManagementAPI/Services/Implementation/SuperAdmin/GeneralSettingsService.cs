@@ -38,11 +38,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             {
                 ConfigKey = dto.ConfigKey,
                 ConfigValue = dto.ConfigValue,
-                ConfigDescription = dto.ConfigDescription
+                ConfigDescription = dto.ConfigDescription,
+                IsActive = true,
+                CreatedBy = dto.CreatedBy,
+                CreatedDate = DateTime.UtcNow
             };
 
             _context.ZzGeneralSettings.Add(entity);
             await _context.SaveChangesAsync();
+
+            // Invalidate cache for general config when any setting is created
+            _cache.Remove(CacheKeys.GeneralConfig);
 
             return entity.ConfigId;
         }
@@ -71,6 +77,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.ConfigKey = dto.ConfigKey;
             entity.ConfigValue = dto.ConfigValue;
             entity.ConfigDescription = dto.ConfigDescription;
+            entity.IsActive = true;
+            entity.UpdatedBy = dto.UpdatedBy;
+            entity.UpdatedDate = DateTime.UtcNow;
             // CreatedDate NOT updated on purpose
 
             await _context.SaveChangesAsync();
@@ -92,11 +101,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity == null)
                 return false;
 
-            _context.ZzGeneralSettings.Remove(entity);
+            //_context.ZzGeneralSettings.Remove(entity);
+            entity.IsActive = false;
             await _context.SaveChangesAsync();
 
 
-            // Invalidate cache for general config when any setting is updated
+            // Invalidate cache for general config when any setting is deleted
             _cache.Remove(CacheKeys.GeneralConfig);
 
             return true;
@@ -109,13 +119,31 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         {
             return await _context.ZzGeneralSettings
                 .AsNoTracking()
-                .Where(x => x.ConfigId == id)
+                .Where(x => x.ConfigId == id && x.IsActive)
                 .Select(x => new GeneralSettingRequestDto
                 {
                     ConfigId = x.ConfigId,
                     ConfigKey = x.ConfigKey,
                     ConfigValue = x.ConfigValue,
-                    ConfigDescription = x.ConfigDescription
+                    ConfigDescription = x.ConfigDescription,
+                    IsActive = x.IsActive,
+                    CreatedDate = x.CreatedDate,
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
+
                 })
                 .FirstOrDefaultAsync();
 
@@ -127,6 +155,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         {
             var query = _context.ZzGeneralSettings
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .AsQueryable();
 
             /* Filter by ConfigKey */
@@ -175,7 +204,25 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     ConfigId = x.ConfigId,
                     ConfigKey = x.ConfigKey,
                     ConfigValue = x.ConfigValue,
-                    ConfigDescription = x.ConfigDescription
+                    ConfigDescription = x.ConfigDescription,
+                    IsActive = x.IsActive,
+                    CreatedDate = x.CreatedDate,
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
+
                 })
                 .ToListAsync();
 
@@ -213,6 +260,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
             return result!;
         }
+
 
 
     }
