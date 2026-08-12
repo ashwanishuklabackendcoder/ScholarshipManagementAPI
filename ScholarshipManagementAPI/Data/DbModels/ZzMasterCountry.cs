@@ -13,25 +13,17 @@ public partial class ZzMasterCountry
 
     public string? CountryAlphaCode3 { get; set; }
 
-    public string? CurrencyName { get; set; }
-
-    public string? CurrencyFracUnit { get; set; }
-
-    public string? CurrencySymbol { get; set; }
-
-    public string? CurrencyAbb { get; set; }
-
     public bool IsActive { get; set; }
 
-    public bool IsDraft { get; set; }
-
-    public long? CreatedBy { get; set; }
+    public long CreatedBy { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
+
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfSchool> KfSchools { get; set; } = new List<KfSchool>();
 
@@ -42,4 +34,6 @@ public partial class ZzMasterCountry
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrationResidenceCountries { get; set; } = new List<KfStudentRegistration>();
 
     public virtual ICollection<KfUniversity> KfUniversities { get; set; } = new List<KfUniversity>();
+
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

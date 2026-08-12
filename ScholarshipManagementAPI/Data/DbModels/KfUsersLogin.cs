@@ -141,6 +141,10 @@ public partial class KfUsersLogin
 
     public virtual ICollection<ZzGeneralSetting> ZzGeneralSettingUpdatedByNavigations { get; set; } = new List<ZzGeneralSetting>();
 
+    public virtual ICollection<ZzMasterCountry> ZzMasterCountryCreatedByNavigations { get; set; } = new List<ZzMasterCountry>();
+
+    public virtual ICollection<ZzMasterCountry> ZzMasterCountryUpdatedByNavigations { get; set; } = new List<ZzMasterCountry>();
+
     public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownCreatedByNavigations { get; set; } = new List<ZzMasterDropDown>();
 
     public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownUpdatedByNavigations { get; set; } = new List<ZzMasterDropDown>();

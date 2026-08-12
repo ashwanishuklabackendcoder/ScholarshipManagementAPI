@@ -34,12 +34,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 CountryName = dto.CountryName,
                 CountryIsdCode = dto.CountryIsdCode,
                 CountryAlphaCode3 = dto.CountryAlphaCode3,
-                //CurrencyName = dto.CurrencyName,
-                //CurrencyFracUnit = dto.CurrencyFracUnit,
-                //CurrencySymbol = dto.CurrencySymbol,
-                //CurrencyAbb = dto.CurrencyAbb,
                 IsActive = true,
-
+                CreatedBy = dto.CreatedBy,
+                CreatedDate = DateTime.UtcNow
             };
 
             _context.ZzMasterCountries.Add(entity);
@@ -71,11 +68,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.CountryName = dto.CountryName;
             entity.CountryIsdCode = dto.CountryIsdCode;
             entity.CountryAlphaCode3 = dto.CountryAlphaCode3;
-            //entity.CurrencyName = dto.CurrencyName;
-            //entity.CurrencyFracUnit = dto.CurrencyFracUnit;
-            //entity.CurrencySymbol = dto.CurrencySymbol;
-            //entity.CurrencyAbb = dto.CurrencyAbb;
-            //
+            entity.IsActive = true;
+            entity.UpdatedBy = dto.UpdatedBy;
+            entity.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
@@ -111,11 +106,25 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     CountryName = x.CountryName,
                     CountryIsdCode = x.CountryIsdCode,
                     CountryAlphaCode3 = x.CountryAlphaCode3,
-                    //CurrencyName = x.CurrencyName,
-                    //CurrencyFracUnit = x.CurrencyFracUnit,
-                    //CurrencySymbol = x.CurrencySymbol,
-                    //CurrencyAbb = x.CurrencyAbb,
-                    //IsActive = x.IsActive
+                    IsActive = x.IsActive,
+
+                    CreatedDate = x.CreatedDate,
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
+
                 })
                 .FirstOrDefaultAsync();
         }
@@ -138,8 +147,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (!string.IsNullOrWhiteSpace(filter.CountryAlphaCode3))
                 query = query.Where(x => x.CountryAlphaCode3 == filter.CountryAlphaCode3);
 
-            //if (!string.IsNullOrWhiteSpace(filter.CurrencyName))
-            //    query = query.Where(x => x.CurrencyName == filter.CurrencyName);
 
             if (filter.IsActive.HasValue)
                 query = query.Where(x => x.IsActive == filter.IsActive);
@@ -158,7 +165,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
                 query = query.Where(x =>
                     x.CountryName.ToLower().Contains(search)
-                    || (x.CurrencyName != null && x.CurrencyName.ToLower().Contains(search))
                     || (x.CountryAlphaCode3 != null && x.CountryAlphaCode3.ToLower().Contains(search))
                     || (isdCode.HasValue && x.CountryIsdCode == isdCode.Value)
                 );
@@ -187,11 +193,25 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     CountryName = x.CountryName,
                     CountryIsdCode = x.CountryIsdCode,
                     CountryAlphaCode3 = x.CountryAlphaCode3,
-                    //CurrencyName = x.CurrencyName,
-                    //CurrencyFracUnit = x.CurrencyFracUnit,
-                    //CurrencySymbol = x.CurrencySymbol,
-                    //CurrencyAbb = x.CurrencyAbb,
-                    //IsActive = x.IsActive
+                    IsActive = x.IsActive,
+
+                    CreatedDate = x.CreatedDate,
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
+
                 })
                 .ToListAsync();
 

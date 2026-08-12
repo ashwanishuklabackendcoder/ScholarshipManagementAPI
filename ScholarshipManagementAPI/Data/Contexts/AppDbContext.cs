@@ -90,10 +90,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -1156,20 +1153,24 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<ZzMasterCountry>(entity =>
         {
-            entity.HasKey(e => e.CountryId);
+            entity.HasKey(e => e.CountryId).HasName("PK_ZzMasterCountry");
 
-            entity.ToTable("ZzMasterCountry");
+            entity.ToTable("zz_master_country");
 
             entity.Property(e => e.CountryId).ValueGeneratedNever();
             entity.Property(e => e.CountryAlphaCode3).HasMaxLength(5);
             entity.Property(e => e.CountryName).HasMaxLength(200);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.CurrencyAbb).HasMaxLength(10);
-            entity.Property(e => e.CurrencyFracUnit).HasMaxLength(250);
-            entity.Property(e => e.CurrencyName).HasMaxLength(50);
-            entity.Property(e => e.CurrencySymbol).HasMaxLength(250);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzMasterCountryCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ZzMasterCountry_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzMasterCountryUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_ZzMasterCountry_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<ZzMasterCurrency>(entity =>
