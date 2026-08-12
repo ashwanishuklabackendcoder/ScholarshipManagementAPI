@@ -11,7 +11,7 @@ public partial class ZzUsersModule
 
     public bool? IsActive { get; set; }
 
-    public virtual ICollection<ZzMasterDropDown> ZzMasterDropDowns { get; set; } = new List<ZzMasterDropDown>();
+    public virtual ICollection<ZzMasterDropdown> ZzMasterDropDowns { get; set; } = new List<ZzMasterDropdown>();
 
     public virtual ICollection<ZzUsersMenu> ZzUsersMenus { get; set; } = new List<ZzUsersMenu>();
 

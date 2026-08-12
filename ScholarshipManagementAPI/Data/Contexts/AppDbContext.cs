@@ -88,12 +88,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterCurrency> ZzMasterCurrencies { get; set; }
 
-    public virtual DbSet<ZzMasterDropDown> ZzMasterDropDowns { get; set; }
+    public virtual DbSet<ZzMasterDropdown> ZzMasterDropdowns { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -1205,11 +1202,11 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_ZzMasterCurrency_UpdatedBy_UsersLogin");
         });
 
-        modelBuilder.Entity<ZzMasterDropDown>(entity =>
+        modelBuilder.Entity<ZzMasterDropdown>(entity =>
         {
-            entity.HasKey(e => e.UniqueId);
+            entity.HasKey(e => e.UniqueId).HasName("PK_ZzMasterDropDown");
 
-            entity.ToTable("ZzMasterDropDown");
+            entity.ToTable("zz_master_dropdown");
 
             entity.Property(e => e.UniqueId).ValueGeneratedNever();
             entity.Property(e => e.CreatedDate)
@@ -1217,22 +1214,17 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("smalldatetime");
             entity.Property(e => e.DisplayText).HasMaxLength(500);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzMasterDropDownCreatedByNavigations)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzMasterDropdownCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ZzMasterDropDown_CreatedBy_UsersLogin");
-
-            entity.HasOne(d => d.Module).WithMany(p => p.ZzMasterDropDowns)
-                .HasForeignKey(d => d.ModuleId)
-                .HasConstraintName("FK_ZzMasterDropDown_UsersModule");
 
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
                 .HasForeignKey(d => d.ParentId)
                 .HasConstraintName("FK_ZzMasterDropDown_ZzMasterDropDown");
 
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzMasterDropDownUpdatedByNavigations)
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzMasterDropdownUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_ZzMasterDropDown_UpdatedBy_UsersLogin");
         });

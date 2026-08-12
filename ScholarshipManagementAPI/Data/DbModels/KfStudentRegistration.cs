@@ -107,11 +107,11 @@ public partial class KfStudentRegistration
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual ZzMasterDropDown? FinancialNeedStatus { get; set; }
+    public virtual ZzMasterDropdown? FinancialNeedStatus { get; set; }
 
-    public virtual ZzMasterDropDown? FutureGoalsLevel { get; set; }
+    public virtual ZzMasterDropdown? FutureGoalsLevel { get; set; }
 
-    public virtual ZzMasterDropDown? Gender { get; set; }
+    public virtual ZzMasterDropdown? Gender { get; set; }
 
     public virtual ICollection<KfStudentAcademicRegistration> KfStudentAcademicRegistrations { get; set; } = new List<KfStudentAcademicRegistration>();
 
@@ -119,17 +119,17 @@ public partial class KfStudentRegistration
 
     public virtual ICollection<KfStudentProgramApplication> KfStudentProgramApplications { get; set; } = new List<KfStudentProgramApplication>();
 
-    public virtual ZzMasterDropDown? MotivationLevel { get; set; }
+    public virtual ZzMasterDropdown? MotivationLevel { get; set; }
 
     public virtual ZzMasterCountry? Nationality { get; set; }
 
-    public virtual ZzMasterDropDown? Religion { get; set; }
+    public virtual ZzMasterDropdown? Religion { get; set; }
 
     public virtual ZzMasterCountry? ResidenceCountry { get; set; }
 
     public virtual KfSchool School { get; set; } = null!;
 
-    public virtual ZzMasterDropDown? SelfRelianceLevel { get; set; }
+    public virtual ZzMasterDropdown? SelfRelianceLevel { get; set; }
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

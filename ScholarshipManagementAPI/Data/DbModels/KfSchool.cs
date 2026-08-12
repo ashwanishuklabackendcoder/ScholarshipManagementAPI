@@ -109,9 +109,9 @@ public partial class KfSchool
 
     public virtual ICollection<KfStudentRegistration> KfStudentRegistrations { get; set; } = new List<KfStudentRegistration>();
 
-    public virtual ZzMasterDropDown SchoolStatusNavigation { get; set; } = null!;
+    public virtual ZzMasterDropdown SchoolStatusNavigation { get; set; } = null!;
 
-    public virtual ZzMasterDropDown SchoolTypeNavigation { get; set; } = null!;
+    public virtual ZzMasterDropdown SchoolTypeNavigation { get; set; } = null!;
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

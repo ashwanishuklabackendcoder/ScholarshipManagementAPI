@@ -29,5 +29,5 @@ public partial class UsersModule
 
     public virtual ICollection<UsersRole> UsersRoles { get; set; } = new List<UsersRole>();
 
-    public virtual ICollection<ZzMasterDropDown> ZzMasterDropDowns { get; set; } = new List<ZzMasterDropDown>();
+    public virtual ICollection<ZzMasterDropdown> ZzMasterDropdowns { get; set; } = new List<ZzMasterDropdown>();
 }

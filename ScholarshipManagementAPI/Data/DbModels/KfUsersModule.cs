@@ -28,6 +28,4 @@ public partial class KfUsersModule
     public virtual ICollection<KfUsersRole> KfUsersRoles { get; set; } = new List<KfUsersRole>();
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
-
-    public virtual ICollection<ZzMasterDropDown> ZzMasterDropDowns { get; set; } = new List<ZzMasterDropDown>();
 }

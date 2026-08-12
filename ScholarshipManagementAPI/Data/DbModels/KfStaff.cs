@@ -52,7 +52,7 @@ public partial class KfStaff
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual ZzMasterDropDown GenderNavigation { get; set; } = null!;
+    public virtual ZzMasterDropdown GenderNavigation { get; set; } = null!;
 
     public virtual ICollection<KfStaffSchoolCoordinatorMapping> KfStaffSchoolCoordinatorMappings { get; set; } = new List<KfStaffSchoolCoordinatorMapping>();
 

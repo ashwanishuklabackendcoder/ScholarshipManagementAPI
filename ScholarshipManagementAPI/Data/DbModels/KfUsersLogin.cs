@@ -149,7 +149,7 @@ public partial class KfUsersLogin
 
     public virtual ICollection<ZzMasterCurrency> ZzMasterCurrencyUpdatedByNavigations { get; set; } = new List<ZzMasterCurrency>();
 
-    public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownCreatedByNavigations { get; set; } = new List<ZzMasterDropDown>();
+    public virtual ICollection<ZzMasterDropdown> ZzMasterDropdownCreatedByNavigations { get; set; } = new List<ZzMasterDropdown>();
 
-    public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownUpdatedByNavigations { get; set; } = new List<ZzMasterDropDown>();
+    public virtual ICollection<ZzMasterDropdown> ZzMasterDropdownUpdatedByNavigations { get; set; } = new List<ZzMasterDropdown>();
 }

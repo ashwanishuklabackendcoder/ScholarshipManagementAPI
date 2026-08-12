@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class ZzMasterDropDown
+public partial class ZzMasterDropdown
 {
     public long UniqueId { get; set; }
 
@@ -17,10 +17,6 @@ public partial class ZzMasterDropDown
 
     public long CreatedBy { get; set; }
 
-    public long? ModuleId { get; set; }
-
-    public bool IsDraft { get; set; }
-
     public bool IsActive { get; set; }
 
     public long? UpdatedBy { get; set; }
@@ -29,7 +25,7 @@ public partial class ZzMasterDropDown
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<ZzMasterDropDown> InverseParent { get; set; } = new List<ZzMasterDropDown>();
+    public virtual ICollection<ZzMasterDropdown> InverseParent { get; set; } = new List<ZzMasterDropdown>();
 
     public virtual ICollection<KfSchool> KfSchoolSchoolStatusNavigations { get; set; } = new List<KfSchool>();
 
@@ -53,9 +49,7 @@ public partial class ZzMasterDropDown
 
     public virtual ICollection<KfUniversity> KfUniversityUniversityTypeNavigations { get; set; } = new List<KfUniversity>();
 
-    public virtual KfUsersModule? Module { get; set; }
-
-    public virtual ZzMasterDropDown? Parent { get; set; }
+    public virtual ZzMasterDropdown? Parent { get; set; }
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

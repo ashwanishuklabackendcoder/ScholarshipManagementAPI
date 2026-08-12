@@ -25,9 +25,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> Create(MasterDropDownRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                       // always server-side
             dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
-
             var id = await _service.CreateAsync(dto);
 
             return Ok(new ApiResponseDto
@@ -45,6 +43,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         public async Task<IActionResult> Update(long id, [FromBody] MasterDropDownRequestDto dto)
         {
             dto.UniqueId = id;
+            dto.UpdatedBy = JwtClaimHelper.LoginId(User); // or from claims
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)
@@ -135,9 +134,10 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
             });
         }
 
+
+        // should be used for dropdowns in front-end, so no need to authorize
         // -------- GET BY PARENT ID --------
         [HttpGet("getByParentId/{parentId:long}")]
-        
         public async Task<IActionResult> GetByParentId(long parentId)
         {
             var data = await _service.GetByParentIdAsync(parentId);
@@ -151,33 +151,5 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         }
 
 
-
-        //[HttpPost("search")]
-        //public async Task<IActionResult> GetByFilter(MasterDropDownFilterDto filter)
-        //{
-        //    var data = await _service.GetByFilterAsync(filter);
-
-        //    return Ok(new ApiResponseDto
-        //    {
-        //        Success = data.Count == 0 ? false : true,
-        //        Result = data,
-        //        Message = data.Count == 0 ? "Data not found" : "Data fetched successfully"
-        //    });
-        //}
-   
-      
-        //public  async Task<IActionResult> GetAll()
-        //{
-        //    var data = await _service.GetAllAsync(new ZzMasterDropDownFilterDto());
-        //    return Ok(new ApiResponseDto
-        //    {
-        //        Success = true,
-        //        Result = data,
-        //        Message = "Data fetched successfully"
-        //    });
-        //}
-    
-    
     }
-
 }

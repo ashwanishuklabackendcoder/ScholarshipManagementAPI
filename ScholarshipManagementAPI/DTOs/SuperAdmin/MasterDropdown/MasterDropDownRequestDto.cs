@@ -18,15 +18,20 @@ namespace ScholarshipManagementAPI.DTOs.SuperADmin.ZzMasterDropdown
         public bool IsActive { get; set; }
 
 
+        // These should usually be server-controlled
+        public DateTime CreatedDate { get; set; }
         public long CreatedBy { get; set; }
 
-        public DateTime CreatedDate { get; set; } // dd-mm-yyyy hh:mm:ss
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedBy { get; set; }
 
-        public long? ModuleId { get; set; }
+
+        // required for display purposes
+        public string? CreatedByName { get; set; }
+
+        public string? UpdatedByName { get; set; }
 
 
-        // response
-        public string? ModuleName { get; set; }
-
+        public string? ParentName { get; set; }
     }
 }
