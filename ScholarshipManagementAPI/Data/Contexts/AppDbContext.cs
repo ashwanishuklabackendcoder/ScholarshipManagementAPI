@@ -16,8 +16,6 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<AcCurrencyConversion> AcCurrencyConversions { get; set; }
-
     public virtual DbSet<KfCourse> KfCourses { get; set; }
 
     public virtual DbSet<KfCourseFaculty> KfCourseFaculties { get; set; }
@@ -80,6 +78,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzAdminEmailTemplate> ZzAdminEmailTemplates { get; set; }
 
+    public virtual DbSet<ZzCurrencyConversion> ZzCurrencyConversions { get; set; }
+
     public virtual DbSet<ZzGeneralSetting> ZzGeneralSettings { get; set; }
 
     public virtual DbSet<ZzLabel> ZzLabels { get; set; }
@@ -90,29 +90,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropdown> ZzMasterDropdowns { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AcCurrencyConversion>(entity =>
-        {
-            entity.HasKey(e => e.CurrencyConversionId);
-
-            entity.ToTable("AcCurrencyConversion");
-
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.Rates).HasColumnType("decimal(18, 6)");
-            entity.Property(e => e.Remarks).HasMaxLength(500);
-
-            entity.HasOne(d => d.Currency).WithMany(p => p.AcCurrencyConversions)
-                .HasForeignKey(d => d.CurrencyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AcCurrencyConversion_ZzMasterCurrency");
-        });
-
         modelBuilder.Entity<KfCourse>(entity =>
         {
             entity.HasKey(e => e.CourseId).HasName("PK__kf_cours__C92D71A706135DFF");
@@ -1113,6 +1093,34 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzAdminEmailTemplateUpdatedByNavigations)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_AdminEmailTemplate_UpdatedBy_UsersLogin");
+        });
+
+        modelBuilder.Entity<ZzCurrencyConversion>(entity =>
+        {
+            entity.HasKey(e => e.CurrencyConversionId).HasName("PK_AcCurrencyConversion");
+
+            entity.ToTable("zz_currency_conversion");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("smalldatetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Rates).HasColumnType("decimal(18, 6)");
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzCurrencyConversionCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_ac_currency_conversion_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.Currency).WithMany(p => p.ZzCurrencyConversions)
+                .HasForeignKey(d => d.CurrencyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AcCurrencyConversion_ZzMasterCurrency");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzCurrencyConversionUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_kf_ac_currency_conversion_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<ZzGeneralSetting>(entity =>

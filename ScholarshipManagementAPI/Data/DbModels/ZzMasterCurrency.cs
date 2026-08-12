@@ -25,8 +25,6 @@ public partial class ZzMasterCurrency
 
     public long CountryId { get; set; }
 
-    public virtual ICollection<AcCurrencyConversion> AcCurrencyConversions { get; set; } = new List<AcCurrencyConversion>();
-
     public virtual ZzMasterCountry Country { get; set; } = null!;
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
@@ -34,4 +32,6 @@ public partial class ZzMasterCurrency
     public virtual ICollection<KfSchool> KfSchools { get; set; } = new List<KfSchool>();
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<ZzCurrencyConversion> ZzCurrencyConversions { get; set; } = new List<ZzCurrencyConversion>();
 }

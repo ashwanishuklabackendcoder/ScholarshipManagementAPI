@@ -13,7 +13,7 @@
         public string? Remarks { get; set; }              // optional (admin notes)
 
 
-        public string CreatedBy { get; set; } = string.Empty;  // admin username
+        public long CreatedBy { get; set; } 
 
         public DateTime CreatedDate { get; set; }         // dd-mm-yyyy hh:mm:ss
 
@@ -24,6 +24,7 @@
         public string CurrencyCode { get; set; } = "";
         public string CurrencyName { get; set; } = "";
         public string CurrencySymbol { get; set; } = "";
+
 
         // NEW: Base Currency Info
         //public string BaseCurrencyCode { get; set; } = "";

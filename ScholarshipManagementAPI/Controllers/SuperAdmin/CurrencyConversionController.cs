@@ -25,13 +25,26 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> SyncRates()
         {
-            var result = await _service.SyncRatesAsync("API_TEST");
+            var triggeredBy = JwtClaimHelper.LoginId(User);
 
-            return Ok(new
+            // Only allow super admin (assuming super admin has loginId = 1) to trigger the sync
+            if (triggeredBy != 1)
             {
-                success = true,
-                message = "Currency sync completed",
-                result
+                return Unauthorized(new ApiResponseDto
+                {
+                    Success = false,
+                    Message = "Unauthorized access",
+                    Result = null
+                });
+            }
+
+            var result = await _service.SyncRatesAsync(triggeredBy);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = true,
+                Message = "Currency sync completed",
+                Result = result
             });
         }
 
@@ -44,7 +57,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         {
 
             dto.CreatedDate = DateTime.UtcNow;                            // always server-side
-            dto.CreatedBy = JwtClaimHelper.UserName(User).ToString();      // or from claims
+            dto.CreatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
 
             var id = await _service.AddManualRate(dto);
 

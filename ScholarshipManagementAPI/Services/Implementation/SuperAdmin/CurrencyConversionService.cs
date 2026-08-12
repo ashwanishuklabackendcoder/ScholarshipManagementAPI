@@ -68,7 +68,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
 
 
-        public async Task<CurrencySyncResultDto> SyncRatesAsync(string triggeredBy)
+        public async Task<CurrencySyncResultDto> SyncRatesAsync(long triggeredBy)
         {
             int inserted = 0;
             int skipped = 0;
@@ -84,7 +84,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             var currencyMap = await GetCurrencyCodeMapAsync();
 
             // Step 4: fetch latest rates from DB for comparison
-            var latestRates = await _context.AcCurrencyConversions
+            var latestRates = await _context.ZzCurrencyConversions
                 .GroupBy(x => x.CurrencyId)
                 .Select(g => new
                 {
@@ -96,7 +96,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 .ToDictionaryAsync(x => x.CurrencyId, x => x.Rate);
 
             // Step 5: Insert or Skip
-            var newEntries = new List<AcCurrencyConversion>();
+            var newEntries = new List<ZzCurrencyConversion>();
 
             foreach (var rate in rates)
             {
@@ -120,13 +120,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     }
                 }
 
-                newEntries.Add(new AcCurrencyConversion
+                newEntries.Add(new ZzCurrencyConversion
                 {
                     CurrencyId = currencyId,
                     Rates = newRate,
                     FromDate = DateOnly.FromDateTime(DateTime.UtcNow),
                     CreatedDate = DateTime.UtcNow,
                     CreatedBy = triggeredBy,
+                    IsActive = true,
                     Remarks = $"Synced from API on {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}"
                 });
 
@@ -135,7 +136,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
             if (newEntries.Any())
             {
-                _context.AcCurrencyConversions.AddRange(newEntries);
+                _context.ZzCurrencyConversions.AddRange(newEntries);
                 await _context.SaveChangesAsync();
             }
 
@@ -151,17 +152,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
         public async Task<long> AddManualRate(CurrencyConversionRequestDto dto)
         {
-            var entity = new AcCurrencyConversion
-            {
+            var entity = new ZzCurrencyConversion
+            {            
                 CurrencyId = dto.CurrencyId,
                 Rates = dto.Rates,
                 FromDate = dto.FromDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
                 CreatedDate = dto.CreatedDate,
                 CreatedBy = dto.CreatedBy,
+                IsActive = true,
                 Remarks = dto.Remarks
             };
 
-            _context.AcCurrencyConversions.Add(entity);
+            _context.ZzCurrencyConversions.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.CurrencyConversionId;
@@ -171,7 +173,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET BY ID ----------------
         public async Task<CurrencyConversionRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.AcCurrencyConversions
+            return await _context.ZzCurrencyConversions
                 .Include(x => x.Currency) // Include related currency data
                 .AsNoTracking()
                 .Where(x => x.CurrencyConversionId == id)
@@ -203,7 +205,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             var baseCurrencySymbol = config.BaseCurrencySymbol;
 
             // STEP 1: Get latest records per currency (DB query)
-            var latestEntities = await _context.AcCurrencyConversions
+            var latestEntities = await _context.ZzCurrencyConversions
                 .Include(x => x.Currency) // ✅ LOAD RELATED DATA
                 .GroupBy(x => x.CurrencyId)
                 .Select(g => g
@@ -222,6 +224,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 FromDate = x.FromDate,
                 CreatedDate = x.CreatedDate,
                 CreatedBy = x.CreatedBy,
+                
                 Remarks = x.Remarks,
 
                 CurrencyCode = x.Currency?.CurrencyCode ?? "",
@@ -240,7 +243,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<CurrencyConversionRequestDto>> GetByFilterAsync(CurrencyConversionFilterDto filter)
         {
-            var query = _context.AcCurrencyConversions
+            var query = _context.ZzCurrencyConversions
                 .Include(x => x.Currency) // Include related currency data
                 .AsNoTracking()
                 .AsQueryable();
@@ -328,7 +331,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
         public async Task<decimal> GetRateAsync(string currencyCode)
         {
-            return await _context.AcCurrencyConversions
+            return await _context.ZzCurrencyConversions
                 .Where(x => x.Currency.CurrencyCode == currencyCode)
                 .OrderByDescending(x => x.FromDate)
                 .Select(x => x.Rates)

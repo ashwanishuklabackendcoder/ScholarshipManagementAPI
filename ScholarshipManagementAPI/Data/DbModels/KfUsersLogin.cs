@@ -141,6 +141,10 @@ public partial class KfUsersLogin
 
     public virtual ICollection<ZzAdminEmailTemplate> ZzAdminEmailTemplateUpdatedByNavigations { get; set; } = new List<ZzAdminEmailTemplate>();
 
+    public virtual ICollection<ZzCurrencyConversion> ZzCurrencyConversionCreatedByNavigations { get; set; } = new List<ZzCurrencyConversion>();
+
+    public virtual ICollection<ZzCurrencyConversion> ZzCurrencyConversionUpdatedByNavigations { get; set; } = new List<ZzCurrencyConversion>();
+
     public virtual ICollection<ZzGeneralSetting> ZzGeneralSettingCreatedByNavigations { get; set; } = new List<ZzGeneralSetting>();
 
     public virtual ICollection<ZzGeneralSetting> ZzGeneralSettingUpdatedByNavigations { get; set; } = new List<ZzGeneralSetting>();

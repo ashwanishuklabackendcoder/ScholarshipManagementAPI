@@ -5,7 +5,7 @@ namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
 {
     public interface ICurrencyConversionService
     {
-        Task<CurrencySyncResultDto> SyncRatesAsync(string triggeredBy);
+        Task<CurrencySyncResultDto> SyncRatesAsync(long triggeredBy);
 
         Task<Dictionary<string, decimal>> GetLatestRates(string baseCurrency);
 
