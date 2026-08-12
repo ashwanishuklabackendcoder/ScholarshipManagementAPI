@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.MasterCountry;
+using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Controllers.SuperAdmin
@@ -25,6 +26,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> Create(MasterCurrencyRequestDto dto)
         {
+            dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
             var id = await _service.CreateAsync(dto);
 
             return Ok(new ApiResponseDto
@@ -42,6 +44,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         public async Task<IActionResult> Update(long id, [FromBody] MasterCurrencyRequestDto dto)
         {
             dto.CurrencyId = id;
+            dto.UpdatedBy = JwtClaimHelper.LoginId(User);            // or from claims
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)

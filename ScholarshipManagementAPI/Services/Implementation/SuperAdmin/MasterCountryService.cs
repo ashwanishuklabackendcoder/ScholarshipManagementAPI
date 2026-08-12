@@ -28,9 +28,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 throw new CustomException("Country with same CountryName already exists");
             }
 
+            var maxCountryId = await _context.ZzMasterCountries
+                .MaxAsync(x => (long?)x.CountryId) ?? 0;
 
             var entity = new ZzMasterCountry
             {
+                CountryId = maxCountryId + 1,
                 CountryName = dto.CountryName,
                 CountryIsdCode = dto.CountryIsdCode,
                 CountryAlphaCode3 = dto.CountryAlphaCode3,

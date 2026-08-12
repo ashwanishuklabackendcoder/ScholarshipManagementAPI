@@ -36,4 +36,6 @@ public partial class ZzMasterCountry
     public virtual ICollection<KfUniversity> KfUniversities { get; set; } = new List<KfUniversity>();
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<ZzMasterCurrency> ZzMasterCurrencies { get; set; } = new List<ZzMasterCurrency>();
 }

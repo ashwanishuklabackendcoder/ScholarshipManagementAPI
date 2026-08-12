@@ -18,11 +18,25 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.MasterCountry
         [StringLength(10, ErrorMessage = "Currency symbol cannot exceed 10 characters")]
         public string CurrencySymbol { get; set; } = string.Empty;
 
-        [StringLength(250, ErrorMessage = "Fraction unit cannot exceed 250 characters")]
-        public string? CurrencyFracUnit { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public long CountryId { get; set; } 
 
-        public DateTime CreatedDate { get; set; }   // Set on Create only
+        public bool IsActive { get; set; }
+
+
+        // These should usually be server-controlled
+        public DateTime CreatedDate { get; set; }
+        public long CreatedBy { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedBy { get; set; }
+
+
+        // required for display purposes
+        public string? CreatedByName { get; set; }
+
+        public string? UpdatedByName { get; set; }
+
+        public string? CountryName { get; set; }
     }
 }

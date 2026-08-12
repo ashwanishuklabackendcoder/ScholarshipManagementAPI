@@ -33,9 +33,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                 CurrencyName = dto.CurrencyName,
                 CurrencyCode = dto.CurrencyCode,
                 CurrencySymbol = dto.CurrencySymbol,
-                CurrencyFracUnit = dto.CurrencyFracUnit,
-                IsActive = dto.IsActive,
-                CreatedDate = DateTime.UtcNow     // always server-side
+                IsActive = true,
+                CreatedBy = dto.CreatedBy,
+                CreatedDate = DateTime.UtcNow
             };
 
             _context.ZzMasterCurrencies.Add(entity);
@@ -66,8 +66,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.CurrencyName = dto.CurrencyName;
             entity.CurrencyCode = dto.CurrencyCode;
             entity.CurrencySymbol = dto.CurrencySymbol;
-            entity.CurrencyFracUnit = dto.CurrencyFracUnit;
-            entity.IsActive = dto.IsActive;
+            entity.IsActive = true;
+            entity.UpdatedBy = dto.UpdatedBy;
+            entity.UpdatedDate = DateTime.UtcNow;
             // CreatedDate NOT updated on purpose
 
             await _context.SaveChangesAsync();
@@ -84,7 +85,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity == null)
                 return false;
 
-            _context.ZzMasterCurrencies.Remove(entity);
+            entity.IsActive = false;
+            //_context.ZzMasterCurrencies.Remove(entity);
             await _context.SaveChangesAsync();
 
             return true;
@@ -103,9 +105,28 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     CurrencyName = x.CurrencyName,
                     CurrencyCode = x.CurrencyCode,
                     CurrencySymbol = x.CurrencySymbol,
-                    CurrencyFracUnit = x.CurrencyFracUnit,
                     IsActive = x.IsActive,
-                    CreatedDate = x.CreatedDate
+
+                    CountryId = x.CountryId,
+                    CountryName = x.Country != null ? x.Country.CountryName : null,
+
+                    CreatedDate = x.CreatedDate,
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
+
                 })
                 .FirstOrDefaultAsync();
         }
@@ -159,9 +180,28 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     CurrencyName = x.CurrencyName,
                     CurrencyCode = x.CurrencyCode,
                     CurrencySymbol = x.CurrencySymbol,
-                    CurrencyFracUnit = x.CurrencyFracUnit,
                     IsActive = x.IsActive,
-                    CreatedDate = x.CreatedDate
+
+                    CountryId = x.CountryId,
+                    CountryName = x.Country != null ? x.Country.CountryName : null,
+
+                    CreatedDate = x.CreatedDate,
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
+
                 })
                 .ToListAsync();
 

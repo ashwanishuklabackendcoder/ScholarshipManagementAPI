@@ -145,6 +145,10 @@ public partial class KfUsersLogin
 
     public virtual ICollection<ZzMasterCountry> ZzMasterCountryUpdatedByNavigations { get; set; } = new List<ZzMasterCountry>();
 
+    public virtual ICollection<ZzMasterCurrency> ZzMasterCurrencyCreatedByNavigations { get; set; } = new List<ZzMasterCurrency>();
+
+    public virtual ICollection<ZzMasterCurrency> ZzMasterCurrencyUpdatedByNavigations { get; set; } = new List<ZzMasterCurrency>();
+
     public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownCreatedByNavigations { get; set; } = new List<ZzMasterDropDown>();
 
     public virtual ICollection<ZzMasterDropDown> ZzMasterDropDownUpdatedByNavigations { get; set; } = new List<ZzMasterDropDown>();

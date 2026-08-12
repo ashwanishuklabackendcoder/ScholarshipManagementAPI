@@ -13,21 +13,25 @@ public partial class ZzMasterCurrency
 
     public string CurrencySymbol { get; set; } = null!;
 
-    public string? CurrencyFracUnit { get; set; }
-
     public bool IsActive { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
-    public bool IsDraft { get; set; }
-
-    public long? CreatedBy { get; set; }
+    public long CreatedBy { get; set; }
 
     public long? UpdatedBy { get; set; }
 
     public DateTime? UpdatedDate { get; set; }
 
+    public long CountryId { get; set; }
+
     public virtual ICollection<AcCurrencyConversion> AcCurrencyConversions { get; set; } = new List<AcCurrencyConversion>();
 
+    public virtual ZzMasterCountry Country { get; set; } = null!;
+
+    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
+
     public virtual ICollection<KfSchool> KfSchools { get; set; } = new List<KfSchool>();
+
+    public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 }

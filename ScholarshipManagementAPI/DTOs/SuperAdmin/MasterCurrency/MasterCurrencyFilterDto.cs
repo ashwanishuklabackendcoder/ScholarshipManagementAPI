@@ -10,8 +10,5 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.MasterCountry
 
         public bool? IsActive { get; set; }
 
-        public DateTime? CreatedFrom { get; set; }
-
-        public DateTime? CreatedTo { get; set; }
     }
 }
