@@ -5,6 +5,7 @@ using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.AdminEmailTemplate;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu;
 using ScholarshipManagementAPI.Helper;
+using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Controllers.SuperAdmin
@@ -26,9 +27,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         [Authorize]
         public async Task<IActionResult> Create(AdminEmailTemplateRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                            // always server-side
-            // dto.CreatedBy = JwtClaimHelper.LoginId(User).ToString();      // or from claims
-
+            dto.CreatedBy = JwtClaimHelper.LoginId(User);      // or from claims
             var id = await _service.CreateAsync(dto);
 
             return Ok(new ApiResponseDto
@@ -46,6 +45,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         public async Task<IActionResult> Update(long id, [FromBody] AdminEmailTemplateRequestDto dto)
         {
             dto.EmailTempId = id;
+            dto.UpdatedBy = JwtClaimHelper.LoginId(User);      // or from claims
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)

@@ -7,7 +7,6 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.AdminEmailTemplate
         
         public long? EmailTempId { get; set; }   // null/0 = Create, >0 = Update
        
-        public long? SchoolID { get; set; }   
 
         [Required(ErrorMessage = "Template name is required.")]
         [StringLength(200, ErrorMessage = "Template name cannot exceed 200 characters.")]
@@ -22,12 +21,22 @@ namespace ScholarshipManagementAPI.DTOs.SuperAdmin.AdminEmailTemplate
         [Display(Name = "Email Body")]
         public string? Template { get; set; }
 
-        [Required]
-        [Display(Name = "Active Status")]
-        public bool IsActive { get; set; } = true;
+
+        public bool IsActive { get; set; }
 
 
-        public DateTime CreatedDate { get; set; }   // server-side preferred
+        // These should usually be server-controlled
+        public DateTime CreatedDate { get; set; }
+        public long CreatedBy { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+        public long? UpdatedBy { get; set; }
+
+
+        // required for display purposes
+        public string? CreatedByName { get; set; }
+
+        public string? UpdatedByName { get; set; }
 
 
     }

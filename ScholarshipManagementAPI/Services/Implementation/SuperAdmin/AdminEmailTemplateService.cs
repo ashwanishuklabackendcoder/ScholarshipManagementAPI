@@ -21,24 +21,24 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- CREATE ----------------
         public async Task<long> CreateAsync(AdminEmailTemplateRequestDto dto)
         {
-            if (await _context.AdminEmailTemplates
+            if (await _context.ZzAdminEmailTemplates
                 .AnyAsync(x => x.TemplateName.ToLower() == dto.TemplateName.ToLower()))
             {
                 throw new CustomException("Template name already exists");
             }
 
 
-            var entity = new AdminEmailTemplate
+            var entity = new ZzAdminEmailTemplate
             {
                 TemplateName = dto.TemplateName,
                 Subject = dto.Subject,
                 Template = dto.Template,
-                IsActive = dto.IsActive,
-                CreatedDate = dto.CreatedDate,
-                SchoolId = dto.SchoolID
+                IsActive = true,
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = dto.CreatedBy
             };
 
-            _context.AdminEmailTemplates.Add(entity);
+            _context.ZzAdminEmailTemplates.Add(entity);
             await _context.SaveChangesAsync();
 
             return entity.EmailTempId;
@@ -52,14 +52,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (dto.EmailTempId == null || dto.EmailTempId == 0)
                 return false;
 
-            if (await _context.AdminEmailTemplates.AnyAsync(x =>
+            if (await _context.ZzAdminEmailTemplates.AnyAsync(x =>
                       x.TemplateName.ToLower() == dto.TemplateName.ToLower()
                       && x.EmailTempId != dto.EmailTempId))
             {
                 throw new CustomException("Template name already exists");
             }
 
-            var entity = await _context.AdminEmailTemplates
+            var entity = await _context.ZzAdminEmailTemplates
                 .FirstOrDefaultAsync(x => x.EmailTempId == dto.EmailTempId);
 
             if (entity == null)
@@ -68,9 +68,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             entity.TemplateName = dto.TemplateName;
             entity.Subject = dto.Subject;
             entity.Template = dto.Template;
-            entity.IsActive = dto.IsActive;
-            entity.CreatedDate = dto.CreatedDate;
-            entity.SchoolId = dto.SchoolID;
+            entity.IsActive = true;
+            entity.UpdatedDate = DateTime.UtcNow;
+            entity.UpdatedBy = dto.UpdatedBy;
 
             // CreatedDate NOT updated on purpose
 
@@ -81,7 +81,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.AdminEmailTemplates
+            var entity = await _context.ZzAdminEmailTemplates
                 .FirstOrDefaultAsync(x => x.EmailTempId == id);
 
             if (entity == null)
@@ -99,9 +99,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET BY ID ----------------
         public async Task<AdminEmailTemplateRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.AdminEmailTemplates
+            return await _context.ZzAdminEmailTemplates
                 .AsNoTracking()
-                .Where(x => x.EmailTempId == id)
+                .Where(x => x.EmailTempId == id && x.IsActive)
                 .Select(x => new AdminEmailTemplateRequestDto
                 {
                     EmailTempId = x.EmailTempId,
@@ -109,8 +109,23 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     Subject = x.Subject,
                     Template = x.Template,
                     IsActive = x.IsActive,
+
                     CreatedDate = x.CreatedDate,
-                    SchoolID = x.SchoolId
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
                 })
                 .FirstOrDefaultAsync();
 
@@ -120,21 +135,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<AdminEmailTemplateRequestDto>> GetByFilterAsync(AdminEmailTemplateFilterDto filter)
         {
-            var query = _context.AdminEmailTemplates
+            var query = _context.ZzAdminEmailTemplates
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .AsQueryable();
-
-            // Active status filter
-            if (filter.IsActive.HasValue)
-            {
-                query = query.Where(x => x.IsActive == filter.IsActive.Value);
-            }
-
-            // SchoolId filter
-            if (filter.SchoolId.HasValue)
-            {
-                query = query.Where(x => x.SchoolId == filter.SchoolId.Value);
-            }
 
 
             /* Global Search */
@@ -170,8 +174,23 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
                     Subject = x.Subject,
                     Template = x.Template,
                     IsActive = x.IsActive,
+
                     CreatedDate = x.CreatedDate,
-                    SchoolID = x.SchoolId
+                    CreatedBy = x.CreatedBy,
+                    UpdatedDate = x.UpdatedDate,
+                    UpdatedBy = x.UpdatedBy,
+
+                    CreatedByName = x.CreatedByNavigation != null
+                    ? x.CreatedByNavigation.Staff.StaffSalutation + " " +
+                    x.CreatedByNavigation.Staff.StaffFirstName + " " +
+                    x.CreatedByNavigation.Staff.StaffLastName
+                    : null,
+
+                    UpdatedByName = x.UpdatedByNavigation != null
+                    ? x.UpdatedByNavigation.Staff.StaffSalutation + " " +
+                    x.UpdatedByNavigation.Staff.StaffFirstName + " " +
+                    x.UpdatedByNavigation.Staff.StaffLastName
+                    : null
                 })
                 .ToListAsync();
 

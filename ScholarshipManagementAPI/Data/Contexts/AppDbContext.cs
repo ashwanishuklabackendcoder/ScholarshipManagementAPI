@@ -18,8 +18,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<AcCurrencyConversion> AcCurrencyConversions { get; set; }
 
-    public virtual DbSet<AdminEmailTemplate> AdminEmailTemplates { get; set; }
-
     public virtual DbSet<KfCourse> KfCourses { get; set; }
 
     public virtual DbSet<KfCourseFaculty> KfCourseFaculties { get; set; }
@@ -80,6 +78,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<KfUsersRolePermission> KfUsersRolePermissions { get; set; }
 
+    public virtual DbSet<ZzAdminEmailTemplate> ZzAdminEmailTemplates { get; set; }
+
     public virtual DbSet<ZzGeneralSetting> ZzGeneralSettings { get; set; }
 
     public virtual DbSet<ZzLabel> ZzLabels { get; set; }
@@ -90,7 +90,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropdown> ZzMasterDropdowns { get; set; }
 
-    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AcCurrencyConversion>(entity =>
@@ -112,30 +111,6 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.CurrencyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AcCurrencyConversion_ZzMasterCurrency");
-        });
-
-        modelBuilder.Entity<AdminEmailTemplate>(entity =>
-        {
-            entity.HasKey(e => e.EmailTempId)
-                .HasName("PK_EmailTemplate")
-                .HasFillFactor(80);
-
-            entity.ToTable("AdminEmailTemplate");
-
-            entity.Property(e => e.EmailTempId).HasColumnName("EmailTempID");
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.SchoolId).HasColumnName("SchoolID");
-            entity.Property(e => e.Subject)
-                .HasMaxLength(1000)
-                .HasDefaultValue("");
-            entity.Property(e => e.Template).HasDefaultValue("");
-            entity.Property(e => e.TemplateName)
-                .HasMaxLength(200)
-                .HasDefaultValue("");
         });
 
         modelBuilder.Entity<KfCourse>(entity =>
@@ -1107,6 +1082,37 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersRolePages_UsersRoles");
+        });
+
+        modelBuilder.Entity<ZzAdminEmailTemplate>(entity =>
+        {
+            entity.HasKey(e => e.EmailTempId)
+                .HasName("PK_EmailTemplate")
+                .HasFillFactor(80);
+
+            entity.ToTable("zz_admin_email_template");
+
+            entity.Property(e => e.EmailTempId).HasColumnName("EmailTempID");
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getutcdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Subject)
+                .HasMaxLength(1000)
+                .HasDefaultValue("");
+            entity.Property(e => e.Template).HasDefaultValue("");
+            entity.Property(e => e.TemplateName)
+                .HasMaxLength(200)
+                .HasDefaultValue("");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzAdminEmailTemplateCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AdminEmailTemplate_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzAdminEmailTemplateUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_AdminEmailTemplate_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<ZzGeneralSetting>(entity =>
