@@ -84,6 +84,10 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzLabel> ZzLabels { get; set; }
 
+    public virtual DbSet<ZzLanguage> ZzLanguages { get; set; }
+
+    public virtual DbSet<ZzLanguageTranslation> ZzLanguageTranslations { get; set; }
+
     public virtual DbSet<ZzMasterCountry> ZzMasterCountries { get; set; }
 
     public virtual DbSet<ZzMasterCurrency> ZzMasterCurrencies { get; set; }
@@ -1148,21 +1152,76 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<ZzLabel>(entity =>
         {
-            entity.HasKey(e => e.LabelName);
+            entity.HasKey(e => e.LabelId);
 
-            entity.Property(e => e.LabelName).HasMaxLength(500);
-            entity.Property(e => e.Arabic).HasMaxLength(50);
-            entity.Property(e => e.CreatedBy).HasMaxLength(200);
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getutcdate())")
-                .HasColumnType("smalldatetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
-            entity.Property(e => e.LabelId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("LabelID");
-            entity.Property(e => e.LabelNewValue).HasMaxLength(500);
+            entity.ToTable("zz_labels");
+
+            entity.Property(e => e.LabelKey).HasMaxLength(200);
             entity.Property(e => e.LabelValue).HasMaxLength(500);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzLabelCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_zz_labels_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.Module).WithMany(p => p.ZzLabels)
+                .HasForeignKey(d => d.ModuleId)
+                .HasConstraintName("FK_zz_labels_Module");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzLabelUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_zz_labels_UpdatedBy_UsersLogin");
+        });
+
+        modelBuilder.Entity<ZzLanguage>(entity =>
+        {
+            entity.HasKey(e => e.LanguageId);
+
+            entity.ToTable("zz_languages");
+
+            entity.Property(e => e.CultureCode).HasMaxLength(20);
+            entity.Property(e => e.IsRtl).HasColumnName("IsRTL");
+            entity.Property(e => e.LanguageCode).HasMaxLength(10);
+            entity.Property(e => e.LanguageName).HasMaxLength(100);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzLanguageCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_zz_languages_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzLanguageUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_zz_languages_UpdatedBy_UsersLogin");
+        });
+
+        modelBuilder.Entity<ZzLanguageTranslation>(entity =>
+        {
+            entity.HasKey(e => e.TranslationId);
+
+            entity.ToTable("zz_language_translations");
+
+            entity.HasIndex(e => new { e.LabelId, e.LanguageId }, "UQ_zz_language_translations_Label_Language").IsUnique();
+
+            entity.Property(e => e.LabelValue).HasMaxLength(1000);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ZzLanguageTranslationCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_zz_language_translations_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.Label).WithMany(p => p.ZzLanguageTranslations)
+                .HasForeignKey(d => d.LabelId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_zz_language_translations_Label");
+
+            entity.HasOne(d => d.Language).WithMany(p => p.ZzLanguageTranslations)
+                .HasForeignKey(d => d.LanguageId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_zz_language_translations_Language");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ZzLanguageTranslationUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_zz_language_translations_UpdatedBy_UsersLogin");
         });
 
         modelBuilder.Entity<ZzMasterCountry>(entity =>

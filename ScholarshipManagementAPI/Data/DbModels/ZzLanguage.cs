@@ -3,15 +3,19 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class ZzLabel
+public partial class ZzLanguage
 {
-    public long LabelId { get; set; }
+    public long LanguageId { get; set; }
 
-    public long? ModuleId { get; set; }
+    public string LanguageName { get; set; } = null!;
 
-    public string LabelKey { get; set; } = null!;
+    public string LanguageCode { get; set; } = null!;
 
-    public string LabelValue { get; set; } = null!;
+    public string CultureCode { get; set; } = null!;
+
+    public bool IsRtl { get; set; }
+
+    public bool IsDefault { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -24,8 +28,6 @@ public partial class ZzLabel
     public DateTime? UpdatedDate { get; set; }
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
-
-    public virtual KfUsersModule? Module { get; set; }
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
 

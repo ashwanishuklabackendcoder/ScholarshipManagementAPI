@@ -149,6 +149,18 @@ public partial class KfUsersLogin
 
     public virtual ICollection<ZzGeneralSetting> ZzGeneralSettingUpdatedByNavigations { get; set; } = new List<ZzGeneralSetting>();
 
+    public virtual ICollection<ZzLabel> ZzLabelCreatedByNavigations { get; set; } = new List<ZzLabel>();
+
+    public virtual ICollection<ZzLabel> ZzLabelUpdatedByNavigations { get; set; } = new List<ZzLabel>();
+
+    public virtual ICollection<ZzLanguage> ZzLanguageCreatedByNavigations { get; set; } = new List<ZzLanguage>();
+
+    public virtual ICollection<ZzLanguageTranslation> ZzLanguageTranslationCreatedByNavigations { get; set; } = new List<ZzLanguageTranslation>();
+
+    public virtual ICollection<ZzLanguageTranslation> ZzLanguageTranslationUpdatedByNavigations { get; set; } = new List<ZzLanguageTranslation>();
+
+    public virtual ICollection<ZzLanguage> ZzLanguageUpdatedByNavigations { get; set; } = new List<ZzLanguage>();
+
     public virtual ICollection<ZzMasterCountry> ZzMasterCountryCreatedByNavigations { get; set; } = new List<ZzMasterCountry>();
 
     public virtual ICollection<ZzMasterCountry> ZzMasterCountryUpdatedByNavigations { get; set; } = new List<ZzMasterCountry>();

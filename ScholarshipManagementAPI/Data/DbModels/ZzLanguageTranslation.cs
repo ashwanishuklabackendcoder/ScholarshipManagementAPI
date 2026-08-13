@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace ScholarshipManagementAPI.Data.DbModels;
 
-public partial class ZzLabel
+public partial class ZzLanguageTranslation
 {
+    public long TranslationId { get; set; }
+
     public long LabelId { get; set; }
 
-    public long? ModuleId { get; set; }
-
-    public string LabelKey { get; set; } = null!;
+    public long LanguageId { get; set; }
 
     public string LabelValue { get; set; } = null!;
 
@@ -25,9 +25,9 @@ public partial class ZzLabel
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
-    public virtual KfUsersModule? Module { get; set; }
+    public virtual ZzLabel Label { get; set; } = null!;
+
+    public virtual ZzLanguage Language { get; set; } = null!;
 
     public virtual KfUsersLogin? UpdatedByNavigation { get; set; }
-
-    public virtual ICollection<ZzLanguageTranslation> ZzLanguageTranslations { get; set; } = new List<ZzLanguageTranslation>();
 }
