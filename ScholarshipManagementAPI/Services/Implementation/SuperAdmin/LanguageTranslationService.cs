@@ -393,6 +393,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
 
                         return new LanguageTranslationItemDto
                         {
+                            TranslationId = translation?.TranslationId,
                             LanguageId = language.LanguageId,
                             LanguageName = language.LanguageName,
                             LanguageCode = language.LanguageCode,

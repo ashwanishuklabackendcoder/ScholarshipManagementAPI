@@ -2,6 +2,8 @@
 {
     public class LanguageTranslationItemDto
     {
+        public long? TranslationId { get; set; }
+
         public long LanguageId { get; set; }
 
         public string LanguageName { get; set; } = string.Empty;
