@@ -50,7 +50,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             // One translation per Label + Language
             if (await _context.ZzLanguageTranslations.AnyAsync(x =>
                 x.LabelId == dto.LabelId &&
-                x.LanguageId == dto.LanguageId))
+                x.LanguageId == dto.LanguageId && x.IsActive))
             {
                 throw new CustomException(
                     "Translation already exists for this label and language");

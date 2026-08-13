@@ -94,6 +94,9 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropdown> ZzMasterDropdowns { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1200,7 +1203,9 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("zz_language_translations");
 
-            entity.HasIndex(e => new { e.LabelId, e.LanguageId }, "UQ_zz_language_translations_Label_Language").IsUnique();
+            entity.HasIndex(e => new { e.LabelId, e.LanguageId }, "UX_zz_language_translations_Label_Language_Active")
+                .IsUnique()
+                .HasFilter("([IsActive]=(1))");
 
             entity.Property(e => e.LabelValue).HasMaxLength(1000);
 
