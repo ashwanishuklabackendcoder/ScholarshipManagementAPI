@@ -13,7 +13,5 @@ namespace ScholarshipManagementAPI.Services.Interface.SuperAdmin
         Task<LabelRequestDto?> GetByIdAsync(long id);
         Task<PagedResultDto<LabelRequestDto>> GetByFilterAsync(LabelFilterDto filter);
 
-        Task<LanguageLabelsDto> GetTranslations(LanguageCode language);
-
     }
 }

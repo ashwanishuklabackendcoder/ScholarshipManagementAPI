@@ -1,42 +1,37 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ScholarshipManagementAPI.DTOs.Common;
 using ScholarshipManagementAPI.DTOs.Common.Response;
-using ScholarshipManagementAPI.DTOs.SuperAdmin.Label;
-using ScholarshipManagementAPI.DTOs.SuperADmin.ZzMasterDropdown;
-using ScholarshipManagementAPI.Helper.Enums;
+using ScholarshipManagementAPI.DTOs.SuperAdmin.LanguageTranslation;
 using ScholarshipManagementAPI.Helper.Utilities;
-using ScholarshipManagementAPI.Services.Implementation.SuperAdmin;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 
 namespace ScholarshipManagementAPI.Controllers.SuperAdmin
 {
     [ApiController]
-    [Route("api/superadmin/labels")]
-    public class LabelsController : ControllerBase
+    [Route("api/superadmin/language-translations")]
+    public class LanguageTranslationController : ControllerBase
     {
-        private readonly ILabelService _service;
+        private readonly ILanguageTranslationService _service;
 
-        public LabelsController(ILabelService service)
+        public LanguageTranslationController(ILanguageTranslationService service)
         {
             _service = service;
         }
 
-
         // -------- CREATE --------
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Create(LabelRequestDto dto)
+        public async Task<IActionResult> Create(LanguageTranslationRequestDto dto)
         {
-            dto.CreatedBy = JwtClaimHelper.LoginId(User);      // or from claims
+            dto.CreatedBy = JwtClaimHelper.LoginId(User);            // or from claims
             var id = await _service.CreateAsync(dto);
 
             return Ok(new ApiResponseDto
             {
                 Success = true,
                 Result = id,
-                Message = "Label created successfully"
+                Message = "Language translation created successfully"
             });
         }
 
@@ -44,10 +39,10 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         // -------- UPDATE --------
         [HttpPut("update/{id:long}")]
         [Authorize]
-        public async Task<IActionResult> Update(long id, [FromBody] LabelRequestDto dto)
+        public async Task<IActionResult> Update(long id, [FromBody] LanguageTranslationRequestDto dto)
         {
-            dto.LabelId = id;
-            dto.UpdatedBy = JwtClaimHelper.LoginId(User);      // or from claims
+            dto.TranslationId = id;
+            dto.UpdatedBy = JwtClaimHelper.LoginId(User);            // or from claims
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)
@@ -63,7 +58,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "Label updated successfully",
+                Message = "Language translation updated successfully",
                 Result = updated,
             });
         }
@@ -89,7 +84,7 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "Label deleted successfully",
+                Message = "Language translation deleted successfully",
                 Result = deleted
             });
         }
@@ -124,13 +119,32 @@ namespace ScholarshipManagementAPI.Controllers.SuperAdmin
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(LabelFilterDto filter)
+        public async Task<IActionResult> GetByFilter(LanguageTranslationFilterDto filter)
         {
             var result = await _service.GetByFilterAsync(filter);
 
             return Ok(new ApiResponseDto
             {
-                Success = result.Items.Count == 0 ? false:true,
+                Success = result.Items.Count == 0 ? false : true,
+                Result = result,
+                Message = result.Items.Count == 0
+                    ? "Data not found"
+                    : "Data fetched successfully"
+            });
+        }
+
+
+
+        // -------- TRANSLATION MANAGEMENT --------
+        [HttpPost("management/search")]
+        [Authorize]
+        public async Task<IActionResult> GetManagement(LanguageTranslationFilterDto filter)
+        {
+            var result = await _service.GetManagementAsync(filter);
+
+            return Ok(new ApiResponseDto
+            {
+                Success = result.Items.Count > 0,
                 Result = result,
                 Message = result.Items.Count == 0
                     ? "Data not found"

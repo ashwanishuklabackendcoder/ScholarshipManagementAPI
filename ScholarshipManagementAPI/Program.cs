@@ -210,7 +210,6 @@ builder.Services.AddScoped<IMasterDropDownService, MasterDropDownService>();
 builder.Services.AddScoped<IMasterCountryService, MasterCountryService>();
 builder.Services.AddScoped<IMasterCurrencyService, MasterCurrrencyService>();
 builder.Services.AddHttpClient<ICurrencyConversionService, CurrencyConversionService>();
-builder.Services.AddScoped<ILabelService, LabelService>();
 builder.Services.AddScoped<IUsersMenuService, UsersMenuService>();
 builder.Services.AddScoped<IUsersRoleService, UsersRoleService>();
 builder.Services.AddScoped<IUsersRolePermissionService, UsersRolePermissionService>();
@@ -225,10 +224,6 @@ builder.Services.AddScoped<IStudentProgramApplicationService, StudentProgramAppl
 
 builder.Services.AddScoped<IUniversityService, UniversityService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
-//builder.Services.AddScoped<ICourseTypeService, CourseTypeService>();
-//builder.Services.AddScoped<ICourseService, CourseService>();
-//builder.Services.AddScoped<ICourseRequirementService, CourseRequirementService>();
-//builder.Services.AddScoped<IUniversityDocumentService, UniversityDocumentService>();
 
 builder.Services.AddScoped<IAccreditationService, AccreditationService>();
 
@@ -248,6 +243,9 @@ builder.Services.AddScoped<IPanelUsersService, PanelUsersService>();
 builder.Services.AddScoped<IUniversityCoordinatorService, UniversityCoordinatorService>();
 builder.Services.AddScoped<ISchoolCoordinatorService, SchoolCoordinatorService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
+builder.Services.AddScoped<ILabelService, LabelService>();
+builder.Services.AddScoped<ILanguageTranslationService, LanguageTranslationService>();
+builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 
 
 // Swagger configuration

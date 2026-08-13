@@ -14,10 +14,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
     public class LanguageService : ILanguageService
     {
         private readonly AppDbContext _context;
+        private readonly ILocalizationService _localizationService;
 
-        public LanguageService(AppDbContext context)
+        public LanguageService(AppDbContext context, ILocalizationService localizationService)
         {
             _context = context;
+            _localizationService = localizationService;
         }
 
 
@@ -70,14 +72,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             if (entity == null)
                 return false;
 
-            entity.LanguageCode = dto.LanguageCode;
+            // language code is not updated on purpose,
+            // because it is used in the system for localization and other purposes
+            // entity.LanguageCode = dto.LanguageCode;
+
             entity.LanguageName = dto.LanguageName;
             entity.CultureCode = dto.CultureCode;
             entity.IsRtl = dto.IsRTL;
-            entity.IsDefault = false;
             entity.IsActive = true;
             entity.UpdatedBy = dto.UpdatedBy;
             entity.UpdatedDate = DateTime.UtcNow;
+
             // CreatedDate NOT updated on purpose
 
             await _context.SaveChangesAsync();
@@ -98,6 +103,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.SuperAdmin
             //_context.ZzLanguages.Remove(entity);
             entity.IsActive = false;
             await _context.SaveChangesAsync();
+
+            _localizationService.ClearLanguageCache(entity.LanguageCode);
 
             return true;
         }
