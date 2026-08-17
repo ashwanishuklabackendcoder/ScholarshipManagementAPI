@@ -31,23 +31,23 @@ namespace ScholarshipManagementAPI.Controllers.Ngo
 
         [HttpPost("school")]
         [Authorize]
-        public async Task<IActionResult> ApproveSchool(ApprovalRequestDto dto)
+        public async Task<IActionResult> ApproveSchool(SchoolAccreditationDto dto)
         {
-            // get logged-in user
             var currentUser = await _currentUser.GetCurrentUserAsync();
 
-            // optional role guard (recommended)
-            if (currentUser.StaffType != StaffType.Ngo && currentUser.StaffType != StaffType.SuperAdmin)
+            if (currentUser.StaffType != StaffType.Ngo)
                 throw new CustomException("Only NGO can approve school");
 
-            // approval status should be 1 (approved) or 2 (rejected)
-            // entity id is the school id here 
-            var result = await _service.ApproveSchoolAsync(dto.EntityId, dto.ApprovalStatus, currentUser.LoginId);
+            var result = await _service.AccreditSchoolAsync(dto);
+
+            var message = dto.AccreditationStatus == AccreditationStatusEnum.Accredited
+                ? "School accredited successfully."
+                : "School accreditation rejected successfully.";
 
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "School approval updated successfully",
+                Message = message,
                 Result = result,
             });
         }
@@ -55,24 +55,24 @@ namespace ScholarshipManagementAPI.Controllers.Ngo
 
         [HttpPost("university")]
         [Authorize]
-        public async Task<IActionResult> ApproveUniversity(ApprovalRequestDto dto)
+        public async Task<IActionResult> ApproveUniversity(UniversityAccreditationDto dto)
         {
-            // get logged-in user
             var currentUser = await _currentUser.GetCurrentUserAsync();
 
-            // optional role guard (recommended)
             if (currentUser.StaffType != StaffType.Ngo && currentUser.StaffType != StaffType.SuperAdmin)
                 throw new CustomException("Only NGO can approve university");
+            
+            var result = await _service.AccreditUniversityAsync(dto);
 
-            // approval status should be 1 (approved) or 2 (rejected)
-            // entity id is the school id here 
-            // var result = await _service.ApproveUniversityAsync(dto.EntityId, dto.ApprovalStatus, currentUser.LoginId);
+            var message = dto.AccreditationStatus == AccreditationStatusEnum.Accredited
+                ? "University accredited successfully."
+                : "University accreditation rejected successfully.";
 
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "University approval updated successfully",
-                //Result = result,
+                Message = message,
+                Result = result,
             });
         }
 
@@ -81,15 +81,21 @@ namespace ScholarshipManagementAPI.Controllers.Ngo
         [HttpPost("program")]
         public async Task<IActionResult> AccreditateProgram(ProgramAccreditationDto dto)
         {
-
             var currentUser = await _currentUser.GetCurrentUserAsync();
-            dto.UpdatedBy = currentUser.LoginId;
-            var result = await _service.AccreditateProgram(dto);
+
+            if (currentUser.StaffType != StaffType.Ngo && currentUser.StaffType != StaffType.SuperAdmin)
+                throw new CustomException("Only NGO can approve university");
+
+            var result = await _service.AccreditProgramAsync(dto);
+
+            var message = dto.AccreditationStatus == AccreditationStatusEnum.Accredited
+                ? "Program accredited successfully."
+                : "Program accreditation rejected successfully.";
 
             return Ok(new ApiResponseDto
             {
                 Success = true,
-                Message = "Program updated successfully",
+                Message = message,
                 Result = result,
             });
 

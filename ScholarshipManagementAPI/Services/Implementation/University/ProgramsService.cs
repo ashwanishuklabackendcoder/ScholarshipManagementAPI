@@ -411,7 +411,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     AllowedTanzanianCombinations = x.AllowedTanzanianCombinations,
 
                     IsDraft = x.IsDraft,
-                    AccreditationStatus = x.AccreditationStatus,
+                    AccreditationStatus = (byte)x.AccreditationStatus,
                     CommitteeComment = x.CommitteeComment,
                     SubmittedDate = x.SubmittedDate,
 

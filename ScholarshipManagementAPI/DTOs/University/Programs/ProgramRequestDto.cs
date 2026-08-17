@@ -39,6 +39,14 @@ namespace ScholarshipManagementAPI.DTOs.University.Programs
 
         public string? CommitteeComment { get; set; }
 
+        //public int AccreditationStatus { get; set; }
+
+        //public long? AccreditationBy { get; set; }
+
+        //public DateTime? AccreditationDate { get; set; }
+
+        //public string? CommitteeComment { get; set; }
+
         public DateTime? SubmittedDate { get; set; }
 
         public string? AllowedTanzanianCombinations { get; set; }
