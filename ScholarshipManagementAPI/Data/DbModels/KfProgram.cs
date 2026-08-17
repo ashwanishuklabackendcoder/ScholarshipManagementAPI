@@ -29,7 +29,7 @@ public partial class KfProgram
 
     public bool IsDraft { get; set; }
 
-    public byte? AccreditationStatus { get; set; }
+    public byte AccreditationStatus { get; set; }
 
     public string? CommitteeComment { get; set; }
 
@@ -46,6 +46,12 @@ public partial class KfProgram
     public DateTime? UpdatedDate { get; set; }
 
     public string? AllowedTanzanianCombinations { get; set; }
+
+    public DateTime? AccreditationDate { get; set; }
+
+    public long? AccreditationBy { get; set; }
+
+    public virtual KfUsersLogin? AccreditationByNavigation { get; set; }
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 

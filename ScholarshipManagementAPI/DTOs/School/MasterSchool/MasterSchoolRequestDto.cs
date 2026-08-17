@@ -135,7 +135,7 @@ namespace ScholarshipManagementAPI.DTOs.School.MasterSchool
 
         #region Accreditation
 
-        public byte AccreditationStatus { get; set; } = 1;
+        public byte AccreditationStatus { get; set; }
 
         public long? AccreditationBy { get; set; }
 
@@ -152,7 +152,13 @@ namespace ScholarshipManagementAPI.DTOs.School.MasterSchool
 
         public bool IsActive { get; set; } = true;
 
+        public long? CreatedBy { get; set; }
+
         public DateTime CreatedDate { get; set; }
+
+        public long? UpdatedBy { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
 
         #endregion
 

@@ -51,6 +51,8 @@ public partial class KfUsersLogin
 
     public virtual ICollection<KfMarketingAdministrativeFee> KfMarketingAdministrativeFeeUpdatedByNavigations { get; set; } = new List<KfMarketingAdministrativeFee>();
 
+    public virtual ICollection<KfProgram> KfProgramAccreditationByNavigations { get; set; } = new List<KfProgram>();
+
     public virtual ICollection<KfProgram> KfProgramCreatedByNavigations { get; set; } = new List<KfProgram>();
 
     public virtual ICollection<KfProgramRegistrationWindow> KfProgramRegistrationWindowCreatedByNavigations { get; set; } = new List<KfProgramRegistrationWindow>();

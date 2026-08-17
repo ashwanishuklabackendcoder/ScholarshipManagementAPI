@@ -35,17 +35,13 @@ namespace ScholarshipManagementAPI.DTOs.University.Programs
 
         public bool IsDraft { get; set; }
 
-        public byte? AccreditationStatus { get; set; }
+        public byte AccreditationStatus { get; set; }
+
+        public long? AccreditationBy { get; set; }
+
+        public DateTime? AccreditationDate { get; set; }
 
         public string? CommitteeComment { get; set; }
-
-        //public int AccreditationStatus { get; set; }
-
-        //public long? AccreditationBy { get; set; }
-
-        //public DateTime? AccreditationDate { get; set; }
-
-        //public string? CommitteeComment { get; set; }
 
         public DateTime? SubmittedDate { get; set; }
 

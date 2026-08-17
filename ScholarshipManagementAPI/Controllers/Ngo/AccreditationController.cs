@@ -38,6 +38,7 @@ namespace ScholarshipManagementAPI.Controllers.Ngo
             if (currentUser.StaffType != StaffType.Ngo)
                 throw new CustomException("Only NGO can approve school");
 
+            dto.UpdatedBy = currentUser.LoginId;
             var result = await _service.AccreditSchoolAsync(dto);
 
             var message = dto.AccreditationStatus == AccreditationStatusEnum.Accredited
@@ -61,7 +62,8 @@ namespace ScholarshipManagementAPI.Controllers.Ngo
 
             if (currentUser.StaffType != StaffType.Ngo && currentUser.StaffType != StaffType.SuperAdmin)
                 throw new CustomException("Only NGO can approve university");
-            
+
+            dto.UpdatedBy = currentUser.LoginId;
             var result = await _service.AccreditUniversityAsync(dto);
 
             var message = dto.AccreditationStatus == AccreditationStatusEnum.Accredited
@@ -79,6 +81,7 @@ namespace ScholarshipManagementAPI.Controllers.Ngo
 
 
         [HttpPost("program")]
+        [Authorize]
         public async Task<IActionResult> AccreditateProgram(ProgramAccreditationDto dto)
         {
             var currentUser = await _currentUser.GetCurrentUserAsync();
@@ -86,6 +89,7 @@ namespace ScholarshipManagementAPI.Controllers.Ngo
             if (currentUser.StaffType != StaffType.Ngo && currentUser.StaffType != StaffType.SuperAdmin)
                 throw new CustomException("Only NGO can approve university");
 
+            dto.UpdatedBy = currentUser.LoginId;
             var result = await _service.AccreditProgramAsync(dto);
 
             var message = dto.AccreditationStatus == AccreditationStatusEnum.Accredited

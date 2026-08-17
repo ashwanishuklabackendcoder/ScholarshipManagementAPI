@@ -6,6 +6,7 @@ using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.SuperAdmin.UsersMenu;
 using ScholarshipManagementAPI.DTOs.University.MasterUniversity;
 using ScholarshipManagementAPI.Helper;
+using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Implementation.University;
 using ScholarshipManagementAPI.Services.Interface.SuperAdmin;
 using ScholarshipManagementAPI.Services.Interface.University;
@@ -29,8 +30,10 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> Create(UniversityRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                            // always server-side
-            //dto.CreatedBy = JwtClaimHelper.LoginId(User).ToString();      // or from claims
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                dto.CreatedBy = JwtClaimHelper.LoginId(User);
+            }
 
             var id = await _service.CreateAsync(dto);
 
@@ -49,6 +52,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         public async Task<IActionResult> Update(long id, [FromBody] UniversityRequestDto dto)
         {
             dto.UniversityId = id;
+            dto.UpdatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
             var updated = await _service.UpdateAsync(dto);
 
             if (!updated)

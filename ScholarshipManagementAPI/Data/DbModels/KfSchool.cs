@@ -89,7 +89,7 @@ public partial class KfSchool
 
     public bool IsActive { get; set; }
 
-    public long CreatedBy { get; set; }
+    public long? CreatedBy { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
@@ -101,7 +101,7 @@ public partial class KfSchool
 
     public virtual ZzMasterCountry Country { get; set; } = null!;
 
-    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin? CreatedByNavigation { get; set; }
 
     public virtual ZzMasterCurrency? DefaultCurrency { get; set; }
 

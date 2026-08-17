@@ -91,7 +91,7 @@ public partial class KfUniversity
 
     public string? Notes { get; set; }
 
-    public int AccreditationStatus { get; set; }
+    public byte AccreditationStatus { get; set; }
 
     public long? AccreditationBy { get; set; }
 
@@ -99,7 +99,7 @@ public partial class KfUniversity
 
     public bool IsActive { get; set; }
 
-    public long CreatedBy { get; set; }
+    public long? CreatedBy { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
@@ -115,7 +115,7 @@ public partial class KfUniversity
 
     public virtual ZzMasterCountry Country { get; set; } = null!;
 
-    public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
+    public virtual KfUsersLogin? CreatedByNavigation { get; set; }
 
     public virtual ICollection<KfCourse> KfCourses { get; set; } = new List<KfCourse>();
 

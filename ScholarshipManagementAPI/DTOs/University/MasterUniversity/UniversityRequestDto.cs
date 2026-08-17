@@ -112,7 +112,7 @@ namespace ScholarshipManagementAPI.DTOs.University.MasterUniversity
 
         #region Accreditation
 
-        public int AccreditationStatus { get; set; }
+        public byte AccreditationStatus { get; set; }
 
         public long? AccreditationBy { get; set; }
 
@@ -128,7 +128,7 @@ namespace ScholarshipManagementAPI.DTOs.University.MasterUniversity
 
         public bool IsActive { get; set; }
 
-        public long CreatedBy { get; set; }
+        public long? CreatedBy { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

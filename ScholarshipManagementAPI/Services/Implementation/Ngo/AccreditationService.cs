@@ -103,8 +103,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.Ngo
             }
 
             entity.AccreditationStatus = (byte)dto.AccreditationStatus;
-            //entity.AccreditationBy = dto.UpdatedBy;
-            //entity.AccreditationDate = DateTime.UtcNow;
+            entity.AccreditationBy = dto.UpdatedBy;
+            entity.AccreditationDate = DateTime.UtcNow;
             entity.CommitteeComment = dto.CommitteeComment;
 
             entity.UpdatedBy = dto.UpdatedBy;

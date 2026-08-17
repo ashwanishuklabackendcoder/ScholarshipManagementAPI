@@ -6,6 +6,7 @@ using ScholarshipManagementAPI.DTOs.School.MasterSchool;
 using ScholarshipManagementAPI.DTOs.University;
 using ScholarshipManagementAPI.DTOs.University.MasterUniversity;
 using ScholarshipManagementAPI.Helper;
+using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.University;
 
@@ -181,13 +182,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             entity.ExternalGrants = dto.ExternalGrants;
             entity.Notes = dto.Notes;
 
-            entity.AccreditationStatus = dto.AccreditationStatus;
-            entity.AccreditationBy = dto.AccreditationBy;
-            entity.AccreditationDate = dto.AccreditationDate;
-            entity.CommitteeComment = dto.CommitteeComment;
+            if(dto.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+            {
+                entity.AccreditationStatus = dto.AccreditationStatus;
+            }
+
+            //entity.AccreditationStatus = dto.AccreditationStatus;
+            //entity.AccreditationBy = dto.AccreditationBy;
+            //entity.AccreditationDate = dto.AccreditationDate;
+            //entity.CommitteeComment = dto.CommitteeComment;
 
             entity.IsDraft = dto.IsDraft;
-            entity.IsActive = dto.IsActive;
+
+            // entity.IsActive = dto.IsActive;
 
             entity.UpdatedBy = dto.UpdatedBy;
             entity.UpdatedDate = DateTime.UtcNow;

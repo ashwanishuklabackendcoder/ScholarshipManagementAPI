@@ -34,14 +34,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 throw new CustomException("School with same name already exists");
             }
 
-            long currentUserId = 2;
-            try
-            {
-                var user = await _currentUserContext.GetCurrentUserAsync();
-                if (user != null) currentUserId = user.LoginId;
-            }
-            catch { }
-
             var entity = new KfSchool
             {
                 SchoolName = dto.SchoolName,
@@ -94,7 +86,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
                 IsDraft = dto.IsDraft,
                 IsActive = dto.IsActive,
-                CreatedBy = currentUserId,
+                CreatedBy = dto.CreatedBy,
                 CreatedDate = DateTime.UtcNow,
                 UpdatedBy = null,
                 UpdatedDate = null
@@ -105,6 +97,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             return entity.SchoolId;
         }
+
 
         // ---------------- UPDATE ----------------
         public async Task<bool> UpdateAsync(MasterSchoolRequestDto dto)
@@ -124,14 +117,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             if (entity == null)
                 return false;
-
-            long currentUserId = 2;
-            try
-            {
-                var user = await _currentUserContext.GetCurrentUserAsync();
-                if (user != null) currentUserId = user.LoginId;
-            }
-            catch { }
 
             entity.SchoolName = dto.SchoolName;
             entity.ShortName = dto.ShortName;
@@ -176,20 +161,27 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.StudentCodeFormatSuffix = dto.StudentCodeFormatSuffix;
             entity.StudentSequenceNumber = dto.StudentSequenceNumber;
 
-            entity.AccreditationStatus = dto.AccreditationStatus;
-            entity.AccreditationBy = dto.AccreditationBy;
-            entity.AccreditationDate = dto.AccreditationDate;
-            entity.CommitteeComment = dto.CommitteeComment;
+            if (dto.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+            {
+                entity.AccreditationStatus = dto.AccreditationStatus;
+            }
+
+            //entity.AccreditationStatus = dto.AccreditationStatus;
+            //entity.AccreditationBy = dto.AccreditationBy;
+            //entity.AccreditationDate = dto.AccreditationDate;
+            //entity.CommitteeComment = dto.CommitteeComment;
 
             entity.IsDraft = dto.IsDraft;
-            entity.IsActive = dto.IsActive;
 
-            entity.UpdatedBy = currentUserId;
+            //entity.IsActive = dto.IsActive;
+
+            entity.UpdatedBy = dto.CreatedBy;
             entity.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
         }
+
 
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
@@ -263,6 +255,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 })
                 .FirstOrDefaultAsync();
         }
+
 
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<MasterSchoolRequestDto>> GetByFilterAsync(MasterSchoolFilterDto filter)

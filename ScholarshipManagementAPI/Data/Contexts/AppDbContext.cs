@@ -228,7 +228,6 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("kf_programs");
 
-            entity.Property(e => e.AccreditationStatus).HasDefaultValue((byte)0);
             entity.Property(e => e.CommitteeComment).HasMaxLength(2000);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -238,6 +237,10 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.ProgramName).HasMaxLength(300);
+
+            entity.HasOne(d => d.AccreditationByNavigation).WithMany(p => p.KfProgramAccreditationByNavigations)
+                .HasForeignKey(d => d.AccreditationBy)
+                .HasConstraintName("FK_kf_programs_AccreditationBy_kf_userslogin");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfProgramCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
@@ -395,7 +398,6 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfSchoolCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_kf_schools_CreatedBy");
 
             entity.HasOne(d => d.DefaultCurrency).WithMany(p => p.KfSchools)
@@ -868,7 +870,6 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfUniversityCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UnUniversityRegistration_CreatedBy_UsersLogin");
 
             entity.HasOne(d => d.StudentsGenderType).WithMany(p => p.KfUniversityStudentsGenderTypes)

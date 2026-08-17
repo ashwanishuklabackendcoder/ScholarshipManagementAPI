@@ -95,7 +95,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 // Draft / Submit Logic
                 if (dto.IsDraft)
                 {
-                    entity.AccreditationStatus = null;
+                    entity.AccreditationStatus = 0;
                     entity.SubmittedDate = null;
                     entity.CommitteeComment = null;
                 }
