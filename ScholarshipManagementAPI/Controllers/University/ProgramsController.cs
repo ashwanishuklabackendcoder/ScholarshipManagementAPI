@@ -29,9 +29,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> Create(ProgramRequestDto dto)
         {
-            dto.CreatedDate = DateTime.UtcNow;                            // always server-side
             dto.CreatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
-
             var id = await _service.CreateAsync(dto);
 
             return Ok(new ApiResponseDto
@@ -49,7 +47,6 @@ namespace ScholarshipManagementAPI.Controllers.University
         public async Task<IActionResult> Update(long id, [FromBody] ProgramRequestDto dto)
         {
             dto.ProgramId = id;
-            dto.UpdatedDate = DateTime.UtcNow;                            // always server-side
             dto.UpdatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
 
             var updated = await _service.UpdateAsync(dto);

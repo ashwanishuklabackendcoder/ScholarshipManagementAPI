@@ -41,13 +41,14 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     var validFacultyIds = await _context.KfFaculties
                         .Where(x =>
                             x.UniversityId == dto.UniversityId &&
+                            x.IsActive &&
                             dto.FacultyIds.Contains(x.FacultyId))
                         .Select(x => x.FacultyId)
                         .ToListAsync();
 
                     if (validFacultyIds.Count != dto.FacultyIds.Distinct().Count())
                     {
-                        throw new CustomException("One or more selected faculties do not belong to the selected university.");
+                        throw new CustomException("One or more selected faculties are not available for this university.");
                     }
                 }
 
@@ -59,8 +60,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     CourseNameAr = dto.CourseNameAr,
                     IsActive = true,
 
-                    CreatedDate = dto.CreatedDate ?? DateTime.UtcNow,
-                    CreatedBy = dto.CreatedBy ?? 0,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatedBy = dto.CreatedBy,
 
                     UpdatedBy = null,
                     UpdatedDate = null
@@ -77,7 +78,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                         .Select(facultyId => new KfCourseFaculty
                         {
                             CourseId = entity.CourseId,
-                            FacultyId = facultyId
+                            FacultyId = facultyId,
+                            IsActive = true,
+                            CreatedDate = DateTime.UtcNow,
+                            CreatedBy = entity.CreatedBy,
+                            UpdatedBy = null,
+                            UpdatedDate = null
                         })
                         .ToList();
 
@@ -108,10 +114,18 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             try
             {
+                var entity = await _context.KfCourses
+                    .FirstOrDefaultAsync(x => x.CourseId == dto.CourseId);
+
+                if (entity == null)
+                    return false;
+
+                var universityId = entity.UniversityId; // Ensure UniversityId is not changed
+
                 if (await _context.KfCourses.AnyAsync(x =>
                     x.CourseNameEn.ToLower() == dto.CourseNameEn.ToLower()
                     && x.CourseId != dto.CourseId
-                    && x.UniversityId == dto.UniversityId))
+                    && x.UniversityId == universityId))
                 {
                     throw new CustomException("Course with same name already exists");
                 }
@@ -121,29 +135,27 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 {
                     var validFacultyIds = await _context.KfFaculties
                         .Where(x =>
-                            x.UniversityId == dto.UniversityId &&
+                            x.UniversityId == universityId && 
+                            x.IsActive &&
                             dto.FacultyIds.Contains(x.FacultyId))
                         .Select(x => x.FacultyId)
                         .ToListAsync();
 
                     if (validFacultyIds.Count != dto.FacultyIds.Distinct().Count())
                     {
-                        throw new CustomException("One or more selected faculties do not belong to the selected university.");
+                        throw new CustomException("One or more selected faculties are not available for this university.");
                     }
                 }
 
-                var entity = await _context.KfCourses
-                    .FirstOrDefaultAsync(x => x.CourseId == dto.CourseId);
 
-                if (entity == null)
-                    return false;
+                // note: UniversityId is not updated here to maintain data integrity.
+                // entity.UniversityId = dto.UniversityId;
 
-                entity.UniversityId = dto.UniversityId;
                 entity.CourseCode = dto.CourseCode;
                 entity.CourseNameEn = dto.CourseNameEn;
                 entity.CourseNameAr = dto.CourseNameAr;
 
-                entity.UpdatedDate = dto.UpdatedDate;
+                entity.UpdatedDate = DateTime.UtcNow;
                 entity.UpdatedBy = dto.UpdatedBy;
 
                 await _context.SaveChangesAsync();
@@ -167,7 +179,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                         .Select(facultyId => new KfCourseFaculty
                         {
                             CourseId = entity.CourseId,
-                            FacultyId = facultyId
+                            FacultyId = facultyId,
+                            IsActive = true,
+                            CreatedDate = DateTime.UtcNow,
+                            CreatedBy = entity.CreatedBy,
+                            UpdatedBy = null,
+                            UpdatedDate = null
                         })
                         .ToList();
 
@@ -191,29 +208,53 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.KfCourses
-                .FirstOrDefaultAsync(x => x.CourseId == id);
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (entity == null)
-                return false;
+            try
+            {
+                var entity = await _context.KfCourses
+                    .FirstOrDefaultAsync(x => x.CourseId == id);
 
-            // Permanent delete
-            //_context.KfCourses.Remove(entity);
+                if (entity == null)
+                    return false;
 
-            // Soft delete
-            entity.IsActive = false;
-            await _context.SaveChangesAsync();
+                // Check if the program is already inactive/deleted
+                if (!entity.IsActive)
+                    return false;
 
-            return true;
+                // Soft delete course
+                entity.IsActive = false;
+
+                // Remove faculty mappings
+                var existingMappings = await _context.KfCourseFaculties
+                    .Where(x => x.CourseId == id)
+                    .ToListAsync();
+
+                if (existingMappings.Any())
+                {
+                    _context.KfCourseFaculties.RemoveRange(existingMappings);
+                }
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
 
         // ---------------- GET BY ID ----------------
         public async Task<CourseRequestDto?> GetByIdAsync(long id)
         {
-            return await _context.KfCourses
+            var result = await _context.KfCourses
                 .AsNoTracking()
-                .Where(x => x.CourseId == id)
+                .Where(x => x.CourseId == id && x.IsActive)
                 .Select(x => new CourseRequestDto
                 {
                     UniversityId = x.UniversityId,
@@ -241,6 +282,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     UpdatedByName = x.UpdatedByNavigation == null ? null : x.UpdatedByNavigation.LoginName
                 })
                 .FirstOrDefaultAsync();
+
+            return result;
         }
 
 
@@ -249,6 +292,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         {
             var query = _context.KfCourses
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .AsQueryable();
 
             if (currentUser.StaffType == StaffType.University)

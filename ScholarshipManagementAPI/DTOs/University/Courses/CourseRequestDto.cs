@@ -32,8 +32,8 @@ namespace ScholarshipManagementAPI.DTOs.University.Courses
         // Response
         public string? UniversityName { get; set; }
 
-        public DateTime? CreatedDate { get; set; }
-        public long? CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public long CreatedBy { get; set; }
         public string? CreatedByName { get; set; }
 
         public DateTime? UpdatedDate { get; set; }

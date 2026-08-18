@@ -15,7 +15,7 @@ public partial class KfProgram
 
     public string ProgramCode { get; set; } = null!;
 
-    public byte Degree { get; set; }
+    public long Degree { get; set; }
 
     public int NumberOfSemesters { get; set; }
 
@@ -54,6 +54,8 @@ public partial class KfProgram
     public virtual KfUsersLogin? AccreditationByNavigation { get; set; }
 
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
+
+    public virtual ZzMasterDropdown DegreeNavigation { get; set; } = null!;
 
     public virtual KfFaculty Faculty { get; set; } = null!;
 

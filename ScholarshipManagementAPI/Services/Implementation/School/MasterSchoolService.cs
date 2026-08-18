@@ -206,7 +206,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         {
             return await _context.KfSchools
                 .AsNoTracking()
-                .Where(x => x.SchoolId == id)
+                .Where(x => x.SchoolId == id && x.IsActive)
                 .Select(x => new MasterSchoolRequestDto
                 {
                     SchoolId = x.SchoolId,
@@ -221,7 +221,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     CenterName = x.CenterName,
                     SchoolNumber = x.SchoolNumber,
                     SchoolYearOfEstablish = x.SchoolYearOfEstablish,
-                    SchoolType = (byte)x.SchoolType,
+                    SchoolType = x.SchoolType,
                     SchoolTeachingLanguage = x.SchoolTeachingLanguage,
                     IsIslamicCurriculum = x.IsIslamicCurriculum,
                     ReligionSubjectCurriculum = x.ReligionSubjectCurriculum,
@@ -240,6 +240,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     PrincipalEmail = x.PrincipalEmail,
                     IsActive = x.IsActive,
                     IsDraft = x.IsDraft,
+                    SchoolStatus = x.SchoolStatus,
+                    SchoolStatusName = x.SchoolStatusNavigation != null ? x.SchoolStatusNavigation.DisplayText : null,
                     SchoolCoordinatorName = x.SchoolCoordinatorName,
                     SchoolCoordinatorMobile = x.SchoolCoordinatorMobile,
                     SchoolCoordinatorEmail = x.SchoolCoordinatorEmail,
@@ -262,6 +264,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         {
             var query = _context.KfSchools
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .AsQueryable();
 
             // Country filter
@@ -340,7 +343,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     CenterName = x.CenterName,
                     SchoolNumber = x.SchoolNumber,
                     SchoolYearOfEstablish = x.SchoolYearOfEstablish,
-                    SchoolType = (byte)x.SchoolType,
+                    SchoolType = x.SchoolType,
                     SchoolTeachingLanguage = x.SchoolTeachingLanguage,
                     IsIslamicCurriculum = x.IsIslamicCurriculum,
                     ReligionSubjectCurriculum = x.ReligionSubjectCurriculum,
@@ -359,6 +362,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     PrincipalEmail = x.PrincipalEmail,
                     IsActive = x.IsActive,
                     IsDraft = x.IsDraft,
+                    SchoolStatus = x.SchoolStatus,
+                    SchoolStatusName = x.SchoolStatusNavigation != null ? x.SchoolStatusNavigation.DisplayText : null,
                     SchoolCoordinatorName = x.SchoolCoordinatorName,
                     SchoolCoordinatorMobile = x.SchoolCoordinatorMobile,
                     SchoolCoordinatorEmail = x.SchoolCoordinatorEmail,
@@ -372,7 +377,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                     AccreditationBy = x.AccreditationBy,
                     AccreditationByName = x.AccreditationByNavigation != null ? x.AccreditationByNavigation.LoginName : null,
 
-                   // TotalStudents = x.StudentData != null ? x.StudentData.Count : 0
                 })
                 .ToListAsync();
 

@@ -17,7 +17,7 @@ namespace ScholarshipManagementAPI.DTOs.School.MasterSchool
         public string ShortName { get; set; } = string.Empty;
 
         [Required]
-        public byte SchoolType { get; set; }
+        public long SchoolType { get; set; }
 
         [MaxLength(300)]
         public string? OwningInstitution { get; set; }
@@ -121,7 +121,9 @@ namespace ScholarshipManagementAPI.DTOs.School.MasterSchool
 
         public long? DefaultCurrencyId { get; set; }
 
-        public byte SchoolStatus { get; set; } = 1;
+        public long SchoolStatus { get; set; } = 1;
+
+        public string? SchoolStatusName { get; set; }
 
         [MaxLength(20)]
         public string StudentCodeFormatPrefix { get; set; } = string.Empty;

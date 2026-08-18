@@ -27,6 +27,8 @@ public partial class ZzMasterDropdown
 
     public virtual ICollection<ZzMasterDropdown> InverseParent { get; set; } = new List<ZzMasterDropdown>();
 
+    public virtual ICollection<KfProgram> KfPrograms { get; set; } = new List<KfProgram>();
+
     public virtual ICollection<KfSchool> KfSchoolSchoolStatusNavigations { get; set; } = new List<KfSchool>();
 
     public virtual ICollection<KfSchool> KfSchoolSchoolTypeNavigations { get; set; } = new List<KfSchool>();

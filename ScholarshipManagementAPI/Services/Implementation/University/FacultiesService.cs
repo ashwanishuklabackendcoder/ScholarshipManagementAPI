@@ -44,8 +44,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 FacultyCode = dto.FacultyCode,
                 IsActive = true,
 
-                CreatedDate = dto.CreatedDate ?? DateTime.UtcNow,       // always server-side
-                CreatedBy = dto.CreatedBy ?? 0,                         // always server-side
+                CreatedDate = DateTime.UtcNow,                     // always server-side
+                CreatedBy = dto.CreatedBy,                         // always server-side
 
                 UpdatedBy = null,
                 UpdatedDate = null
@@ -58,26 +58,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         }
 
 
-
         // ---------------- UPDATE ----------------
         public async Task<bool> UpdateAsync(FacultyRequestDto dto)
         {
             if (dto.FacultyId == null || dto.FacultyId == 0)
                 return false;
-
-            if (!await _context.KfUniversities
-                .AnyAsync(x => x.UniversityId == dto.UniversityId && x.IsActive))
-            {
-                throw new CustomException("Selected university does not exist.");
-            }
-
-            if (await _context.KfFaculties.AnyAsync(x =>
-                      x.FacultyName.ToLower() == dto.FacultyName.ToLower()
-                      && x.FacultyId != dto.FacultyId
-                      && x.UniversityId == dto.UniversityId))
-            {
-                throw new CustomException("Faculty with same name already exists");
-            }
 
             var entity = await _context.KfFaculties
                 .FirstOrDefaultAsync(x => x.FacultyId == dto.FacultyId);
@@ -85,12 +70,30 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (entity == null)
                 return false;
 
+            var universityId = entity.UniversityId;
 
-            entity.UniversityId = dto.UniversityId;
+            if (!await _context.KfUniversities
+                .AnyAsync(x => x.UniversityId == universityId && x.IsActive))
+            {
+                throw new CustomException("The university assigned to this faculty is no longer available.");
+            }
+
+            if (await _context.KfFaculties.AnyAsync(x =>
+                      x.FacultyName.ToLower() == dto.FacultyName.ToLower()
+                      && x.FacultyId != dto.FacultyId
+                      && x.UniversityId == universityId))
+            {
+                throw new CustomException("Faculty with same name already exists");
+            }
+
+
+            // not updated
+            // entity.UniversityId = dto.UniversityId;
+
             entity.FacultyName = dto.FacultyName;
             entity.FacultyCode = dto.FacultyCode;
 
-            entity.UpdatedDate = dto.UpdatedDate;     // always server-side
+            entity.UpdatedDate = DateTime.UtcNow;     // always server-side
             entity.UpdatedBy = dto.UpdatedBy;         // always server-side
 
             // not updated
@@ -113,6 +116,37 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (entity == null)
                 return false;
 
+            // Check if the program is already inactive/deleted
+            if (!entity.IsActive)
+                return false;
+
+            // Check whether faculty is mapped to any course
+            var isMappedToCourse = await _context.KfCourseFaculties
+                .AnyAsync(x =>
+                    x.FacultyId == id &&
+                    x.IsActive);
+
+            if (isMappedToCourse)
+            {
+                throw new CustomException(
+                    "This faculty cannot be deleted because it is mapped to one or more courses."
+                );
+            }
+
+
+            // Check whether faculty is assigned to any program
+            var isMappedToProgram = await _context.KfPrograms
+                .AnyAsync(x =>
+                    x.FacultyId == id &&
+                    x.IsActive);
+
+            if (isMappedToProgram)
+            {
+                throw new CustomException(
+                    "This faculty cannot be deleted because it is assigned to one or more programs."
+                );
+            }
+
             // Permanent delete
             //_context.KfFaculties.Remove(entity);
 
@@ -130,7 +164,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         {
             return await _context.KfFaculties
                 .AsNoTracking()
-                .Where(x => x.FacultyId == id)
+                .Where(x => x.FacultyId == id && x.IsActive)
                 .Select(x => new FacultyRequestDto
                 {
                     UniversityId = x.UniversityId,
@@ -158,6 +192,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         {
             var query = _context.KfFaculties
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .AsQueryable();
 
             if (currentUser.StaffType == StaffType.University)
@@ -240,11 +275,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
         public async Task<FacultyProgramsDashboardDto>GetFacultyProgramsDashboardAsync(LoggedInUserDto currentUser)
         {
-            //var programsQuery = _context.KfPrograms
-            //    .AsNoTracking()
-            //    .Where(x =>
-            //        x.UniversityId == universityId &&
-            //        x.IsActive);
 
             if (currentUser.StaffType != StaffType.University)
                 throw new UnauthorizedAccessException();

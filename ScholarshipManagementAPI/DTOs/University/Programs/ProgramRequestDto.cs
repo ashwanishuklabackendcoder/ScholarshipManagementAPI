@@ -21,7 +21,7 @@ namespace ScholarshipManagementAPI.DTOs.University.Programs
         public string ProgramCode { get; set; } = string.Empty;
 
         [Required]
-        public byte Degree { get; set; }
+        public long Degree { get; set; }
 
         public int NumberOfSemesters { get; set; }
 
@@ -54,8 +54,8 @@ namespace ScholarshipManagementAPI.DTOs.University.Programs
         public string? FacultyName { get; set; }
         public string? FacultyCode { get; set; }
 
-        public DateTime? CreatedDate { get; set; }
-        public long? CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public long CreatedBy { get; set; }
         public string? CreatedByName { get; set; }
 
         public DateTime? UpdatedDate { get; set; }

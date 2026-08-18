@@ -26,7 +26,7 @@ namespace ScholarshipManagementAPI.Controllers.School
 
         // -------- CREATE --------
         [HttpPost("create")]
-        public async Task<IActionResult> Create(MasterSchoolRequestDto dto)
+        public async Task<IActionResult> Create([FromBody] MasterSchoolRequestDto dto)
         {
             if (User.Identity?.IsAuthenticated == true)
             {

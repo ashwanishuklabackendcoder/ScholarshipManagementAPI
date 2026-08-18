@@ -38,7 +38,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                      x.FacultyId == dto.FacultyId && x.UniversityId == dto.UniversityId &&
                      x.IsActive))
                 {
-                    throw new CustomException("Selected faculty does not belong to the selected university.");
+                    throw new CustomException("The selected faculty is not available for the selected university.");
                 }
 
                 if (dto.Courses?.Any() == true)
@@ -48,17 +48,38 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                         .Distinct()
                         .ToList();
 
+                    // 1. Check courses belong to the selected university
                     var validCourseIds = await _context.KfCourses
                         .Where(x =>
                             x.UniversityId == dto.UniversityId &&
+                            x.IsActive &&
                             courseIds.Contains(x.CourseId))
                         .Select(x => x.CourseId)
                         .ToListAsync();
 
                     if (validCourseIds.Count != courseIds.Count)
                     {
-                        throw new CustomException("One or more selected courses do not belong to the selected university.");
+                        throw new CustomException("One or more selected courses are not available for the selected university.");
                     }
+
+
+                    // 2. Check courses are mapped to the selected faculty
+                    var validFacultyCourseIds = await _context.KfCourseFaculties
+                        .Where(x =>
+                            x.FacultyId == dto.FacultyId &&
+                            x.IsActive &&
+                            courseIds.Contains(x.CourseId))
+                        .Select(x => x.CourseId)
+                        .Distinct()
+                        .ToListAsync();
+
+                    if (validFacultyCourseIds.Count != courseIds.Count)
+                    {
+                        throw new CustomException(
+                            "One or more selected courses are not mapped to the selected faculty."
+                        );
+                    }
+
                 }
 
 
@@ -67,6 +88,50 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                         && x.UniversityId == dto.UniversityId))
                 {
                     throw new CustomException("Program with same code already exists");
+                }
+
+                if (dto.Documents?.Any() == true)
+                {
+                    var documentTypeIds = dto.Documents
+                        .Select(x => x.DocumentTypeId)
+                        .Distinct()
+                        .ToList();
+
+                    var validDocumentTypeIds = await _context.KfDocumentTypes
+                        .Where(x =>
+                            x.IsActive &&
+                            documentTypeIds.Contains(x.DocumentTypeId))
+                        .Select(x => x.DocumentTypeId)
+                        .ToListAsync();
+
+                    if (validDocumentTypeIds.Count != documentTypeIds.Count)
+                    {
+                        throw new CustomException(
+                            "One or more selected document types are no longer available."
+                        );
+                    }
+                }
+
+                if(dto.Costs?.Any() == true)
+                {
+                    var sponsorshipTypeIds = dto.Costs
+                        .Select(x => x.SponsorshipTypeId)
+                        .Distinct()
+                        .ToList();
+
+                    var validSponsorshipTypeIds = await _context.KfSponsorshipTypes
+                        .Where(x =>
+                            x.IsActive &&
+                            sponsorshipTypeIds.Contains(x.SponsorshipTypeId))
+                        .Select(x => x.SponsorshipTypeId)
+                        .ToListAsync();
+
+                    if (validSponsorshipTypeIds.Count != sponsorshipTypeIds.Count)
+                    {
+                        throw new CustomException(
+                            "One or more selected sponsorship types are no longer available."
+                        );
+                    }
                 }
 
                 ValidateProgramRequest(dto);
@@ -88,8 +153,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     IsDraft = dto.IsDraft,
                     
                     IsActive = true,
-                    CreatedBy = dto.CreatedBy ?? 0,
-                    CreatedDate = dto.CreatedDate ?? DateTime.UtcNow
+                    CreatedBy = dto.CreatedBy,
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 // Draft / Submit Logic
@@ -177,7 +242,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         }
 
 
-
         // ---------------- UPDATE ----------------
         public async Task<bool> UpdateAsync(ProgramRequestDto dto)
         {
@@ -188,17 +252,27 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             try
             {
+                var entity = await _context.KfPrograms
+                    .FirstOrDefaultAsync(x => x.ProgramId == dto.ProgramId);
+
+                if (entity == null)
+                    return false;
+
+                var universityId = entity.UniversityId;
+
                 if (!await _context.KfUniversities
-                    .AnyAsync(x => x.UniversityId == dto.UniversityId && x.IsActive))
+                    .AnyAsync(x => x.UniversityId == universityId && x.IsActive))
                 {
-                    throw new CustomException("Selected university does not exist.");
+                    throw new CustomException("The university assigned to this faculty is no longer available.");
                 }
 
+
                 if (!await _context.KfFaculties.AnyAsync(x =>
-                     x.FacultyId == dto.FacultyId && x.UniversityId == dto.UniversityId &&
+                     x.FacultyId == dto.FacultyId && 
+                     x.UniversityId == universityId &&
                      x.IsActive))
                 {
-                    throw new CustomException("Selected faculty does not belong to the selected university.");
+                    throw new CustomException("The selected faculty is not available for the selected university.");
                 }
 
                 if (dto.Courses?.Any() == true)
@@ -208,34 +282,95 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                        .Distinct()
                        .ToList();
 
+                    // 1. Courses must belong to selected university and must be active
+
                     var validCourseIds = await _context.KfCourses
                         .Where(x =>
-                            x.UniversityId == dto.UniversityId &&
+                            x.UniversityId == universityId &&
+                            x.IsActive &&
                             courseIds.Contains(x.CourseId))
                         .Select(x => x.CourseId)
                         .ToListAsync();
 
                     if (validCourseIds.Count != courseIds.Count)
                     {
-                        throw new CustomException("One or more selected courses do not belong to the selected university.");
+                        throw new CustomException(
+                            "One or more selected courses are not available for the selected university."
+                        );
+                    }
+
+                    // 2. Courses must be mapped to selected faculty
+
+                    var validFacultyCourseIds = await _context.KfCourseFaculties
+                        .Where(x =>
+                            x.FacultyId == dto.FacultyId &&
+                            x.IsActive &&
+                            courseIds.Contains(x.CourseId))
+                        .Select(x => x.CourseId)
+                        .Distinct()
+                        .ToListAsync();
+
+                    if (validFacultyCourseIds.Count != courseIds.Count)
+                    {
+                        throw new CustomException(
+                            "One or more selected courses are not mapped to the selected faculty."
+                        );
                     }
                 }
 
                 if (await _context.KfPrograms.AnyAsync(x =>
                         x.ProgramCode.ToLower() == dto.ProgramCode.ToLower()
-                        && x.UniversityId == dto.UniversityId
+                        && x.UniversityId == universityId
                         && x.ProgramId != dto.ProgramId))
                 {
                     throw new CustomException("Program with same code already exists");
                 }
 
+                if (dto.Documents?.Any() == true)
+                {
+                    var documentTypeIds = dto.Documents
+                        .Select(x => x.DocumentTypeId)
+                        .Distinct()
+                        .ToList();
+
+                    var validDocumentTypeIds = await _context.KfDocumentTypes
+                        .Where(x =>
+                            x.IsActive &&
+                            documentTypeIds.Contains(x.DocumentTypeId))
+                        .Select(x => x.DocumentTypeId)
+                        .ToListAsync();
+
+                    if (validDocumentTypeIds.Count != documentTypeIds.Count)
+                    {
+                        throw new CustomException(
+                            "One or more selected document types are no longer available."
+                        );
+                    }
+                }
+
+                if (dto.Costs?.Any() == true)
+                {
+                    var sponsorshipTypeIds = dto.Costs
+                        .Select(x => x.SponsorshipTypeId)
+                        .Distinct()
+                        .ToList();
+
+                    var validSponsorshipTypeIds = await _context.KfSponsorshipTypes
+                        .Where(x =>
+                            x.IsActive &&
+                            sponsorshipTypeIds.Contains(x.SponsorshipTypeId))
+                        .Select(x => x.SponsorshipTypeId)
+                        .ToListAsync();
+
+                    if (validSponsorshipTypeIds.Count != sponsorshipTypeIds.Count)
+                    {
+                        throw new CustomException(
+                            "One or more selected sponsorship types are no longer available."
+                        );
+                    }
+                }
+
                 ValidateProgramRequest(dto);
-
-                var entity = await _context.KfPrograms
-                    .FirstOrDefaultAsync(x => x.ProgramId == dto.ProgramId);
-
-                if (entity == null)
-                    return false;
 
                 if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
                 {
@@ -250,8 +385,9 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 var oldStatus = entity.AccreditationStatus;
                 var wasDraft = entity.IsDraft;
 
-                // Program
-                entity.UniversityId = dto.UniversityId;
+                // UniversityId should not be updated
+                // entity.UniversityId = dto.UniversityId;
+
                 entity.FacultyId = dto.FacultyId;
                 entity.ProgramName = dto.ProgramName;
                 entity.ProgramCode = dto.ProgramCode;
@@ -283,9 +419,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                     entity.CommitteeComment = null;
                 }
 
-
-                entity.UpdatedBy = dto.UpdatedBy;
-                entity.UpdatedDate = dto.UpdatedDate;
+                entity.UpdatedBy = dto.UpdatedBy; 
+                entity.UpdatedDate = DateTime.UtcNow;
 
                 // Documents
                 var oldDocuments = _context.KfProgramDocuments.Where(x => x.ProgramId == entity.ProgramId);
@@ -294,14 +429,17 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
                 if (dto.Documents?.Any() == true)
                 {
-                    _context.KfProgramDocuments.AddRange(
-                        dto.Documents.Select(x => new KfProgramDocument
+                    var documents = dto.Documents
+                        .Select(x => new KfProgramDocument
                         {
                             ProgramId = entity.ProgramId,
                             DocumentTypeId = x.DocumentTypeId,
                             IsRequired = x.IsRequired,
                             DisplayOrder = x.DisplayOrder
-                        }));
+                        })
+                        .ToList();
+
+                    _context.KfProgramDocuments.AddRange(documents);
                 }
 
                 // Costs
@@ -311,13 +449,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
                 if (dto.Costs?.Any() == true)
                 {
-                    _context.KfProgramCosts.AddRange(
-                        dto.Costs.Select(x => new KfProgramCost
+                    var costs = dto.Costs
+                        .Select(x => new KfProgramCost
                         {
                             ProgramId = entity.ProgramId,
                             SponsorshipTypeId = x.SponsorshipTypeId,
                             Amount = x.Amount
-                        }));
+                        })
+                        .ToList();
+
+                    _context.KfProgramCosts.AddRange(costs);
                 }
 
                 // Courses
@@ -328,8 +469,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
                 if (dto.Courses?.Any() == true)
                 {
-                    _context.KfProgramCourses.AddRange(
-                        dto.Courses.Select(x => new KfProgramCourse
+                    var courses = dto.Courses
+                        .Select(x => new KfProgramCourse
                         {
                             ProgramId = entity.ProgramId,
                             CourseId = x.CourseId,
@@ -337,7 +478,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                             Credits = x.Credits,
                             DisplayOrder = x.DisplayOrder,
                             SemesterNo = x.SemesterNo
-                        }));
+                        })
+                        .ToList();
+
+                    _context.KfProgramCourses.AddRange(courses);
                 }
 
                 await _context.SaveChangesAsync();
@@ -357,37 +501,77 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         // ---------------- DELETE ----------------
         public async Task<bool> DeleteAsync(long id)
         {
-            var entity = await _context.KfPrograms
-                .FirstOrDefaultAsync(x => x.ProgramId == id);
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (entity == null)
-                return false;
-
-            if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+            try
             {
-                throw new CustomException("Program under review cannot be deleted");
-            }
+                var entity = await _context.KfPrograms
+                    .FirstOrDefaultAsync(x => x.ProgramId == id);
 
-            if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited)
+                if (entity == null)
+                    return false;
+
+                if (!entity.IsActive)
+                    return false;
+
+                if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+                {
+                    throw new CustomException(
+                        "A program under accreditation review cannot be deleted."
+                    );
+                }
+
+                if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited)
+                {
+                    throw new CustomException(
+                        "An accredited program cannot be deleted."
+                    );
+                }
+
+                // Delete program documents
+                var documents = await _context.KfProgramDocuments
+                    .Where(x => x.ProgramId == id)
+                    .ToListAsync();
+
+                _context.KfProgramDocuments.RemoveRange(documents);
+
+                // Delete program costs
+                var costs = await _context.KfProgramCosts
+                    .Where(x => x.ProgramId == id)
+                    .ToListAsync();
+
+                _context.KfProgramCosts.RemoveRange(costs);
+
+                // Delete program courses
+                var courses = await _context.KfProgramCourses
+                    .Where(x => x.ProgramId == id)
+                    .ToListAsync();
+
+                _context.KfProgramCourses.RemoveRange(courses);
+
+                // Soft delete program
+                entity.IsActive = false;
+                entity.UpdatedDate = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch
             {
-                throw new CustomException("Accredited program cannot be deleted");
+                await transaction.RollbackAsync();
+                throw;
             }
-
-            entity.IsActive = false;
-
-            await _context.SaveChangesAsync();
-
-            return true;
         }
-
-
 
         // ---------------- GET BY ID ----------------
         public async Task<ProgramRequestDto?> GetByIdAsync(long id)
         {
             return await _context.KfPrograms
                 .AsNoTracking()
-                .Where(x => x.ProgramId == id)
+                .Where(x => x.ProgramId == id && x.IsActive)
                 .Select(x => new ProgramRequestDto
                 {
                     ProgramId = x.ProgramId,
@@ -481,6 +665,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         {
             var query = _context.KfPrograms
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .AsQueryable();
 
             if (currentUser.StaffType == StaffType.University)

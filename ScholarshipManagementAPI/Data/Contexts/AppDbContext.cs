@@ -94,9 +94,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropdown> ZzMasterDropdowns { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db34973.public.databaseasp.net;Database=db34973;User Id=db34973;Password=n@7BS5s!9#Nj;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -246,6 +243,11 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_kf_programs_CreatedBy_UsersLogin");
+
+            entity.HasOne(d => d.DegreeNavigation).WithMany(p => p.KfPrograms)
+                .HasForeignKey(d => d.Degree)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_kf_programs_Degree_zz_master_dropdown");
 
             entity.HasOne(d => d.Faculty).WithMany(p => p.KfPrograms)
                 .HasForeignKey(d => d.FacultyId)
