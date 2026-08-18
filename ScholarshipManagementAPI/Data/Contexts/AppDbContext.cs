@@ -94,7 +94,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ZzMasterDropdown> ZzMasterDropdowns { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<KfCourse>(entity =>
@@ -110,7 +109,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CourseNameEn).HasMaxLength(300);
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfCourseCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
@@ -134,8 +132,6 @@ public partial class AppDbContext : DbContext
             entity.ToTable("kf_course_faculties");
 
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
 
             entity.HasOne(d => d.Course).WithMany(p => p.KfCourseFaculties)
                 .HasForeignKey(d => d.CourseId)
@@ -158,7 +154,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.DefaultRequired).HasDefaultValue(true);
             entity.Property(e => e.DocumentName).HasMaxLength(200);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfDocumentTypeCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
@@ -182,7 +177,6 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.FacultyName).HasMaxLength(200);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDraft).HasDefaultValue(true);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.KfFacultyCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)

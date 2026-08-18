@@ -25,8 +25,6 @@ public partial class KfCourse
 
     public DateTime? UpdatedDate { get; set; }
 
-    public bool IsDraft { get; set; }
-
     public virtual KfUsersLogin CreatedByNavigation { get; set; } = null!;
 
     public virtual ICollection<KfCourseFaculty> KfCourseFaculties { get; set; } = new List<KfCourseFaculty>();

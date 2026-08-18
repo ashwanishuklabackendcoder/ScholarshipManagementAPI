@@ -11,8 +11,6 @@ public partial class KfCourseFaculty
 
     public long FacultyId { get; set; }
 
-    public bool IsDraft { get; set; }
-
     public bool IsActive { get; set; }
 
     public long? CreatedBy { get; set; }
