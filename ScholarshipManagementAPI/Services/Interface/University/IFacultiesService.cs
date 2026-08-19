@@ -11,7 +11,7 @@ namespace ScholarshipManagementAPI.Services.Interface.University
         Task<bool> UpdateAsync(FacultyRequestDto dto);
         Task<bool> DeleteAsync(long id);
 
-        Task<FacultyRequestDto?> GetByIdAsync(long id);
+        Task<FacultyRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser);
         Task<PagedResultDto<FacultyRequestDto>> GetByFilterAsync(FacultyFilterDto filter, LoggedInUserDto currentUser);
 
 

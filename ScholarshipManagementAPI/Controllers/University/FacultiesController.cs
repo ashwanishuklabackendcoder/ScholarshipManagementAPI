@@ -27,7 +27,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- CREATE --------
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Create(FacultyRequestDto dto)
+        public async Task<IActionResult> Create([FromBody] FacultyRequestDto dto)
         {
             dto.CreatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
 
@@ -103,7 +103,8 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> GetById(long id)
         {
-            var data = await _service.GetByIdAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetByIdAsync(id, currentUser);
 
             if (data == null)
             {
@@ -127,7 +128,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(FacultyFilterDto filter)
+        public async Task<IActionResult> GetByFilter([FromBody] FacultyFilterDto filter)
         {
             var currentUser = await _currentUser.GetCurrentUserAsync();
             var result = await _service.GetByFilterAsync(filter, currentUser);

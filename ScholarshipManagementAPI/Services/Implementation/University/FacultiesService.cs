@@ -8,6 +8,7 @@ using ScholarshipManagementAPI.DTOs.University.MasterUniversity;
 using ScholarshipManagementAPI.Helper.Enums;
 using ScholarshipManagementAPI.Helper.Utilities;
 using ScholarshipManagementAPI.Services.Interface.University;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ScholarshipManagementAPI.Services.Implementation.University
 {
@@ -160,11 +161,20 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET BY ID ----------------
-        public async Task<FacultyRequestDto?> GetByIdAsync(long id)
+        public async Task<FacultyRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser)
         {
-            return await _context.KfFaculties
+            var query = _context.KfFaculties
                 .AsNoTracking()
-                .Where(x => x.FacultyId == id && x.IsActive)
+                .Where(x => x.FacultyId == id && x.IsActive);
+
+            // Only faculty belonging to currentUser.UniversityIds,
+            if (currentUser.StaffType == StaffType.University)
+            {
+                query = query.Where(x =>
+                    currentUser.UniversityIds.Contains(x.UniversityId));
+            }
+
+            return await query
                 .Select(x => new FacultyRequestDto
                 {
                     UniversityId = x.UniversityId,
@@ -195,16 +205,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 .Where(x => x.IsActive)
                 .AsQueryable();
 
+            // Only faculties belonging to currentUser.UniversityIds,
             if (currentUser.StaffType == StaffType.University)
             {
                 query = query.Where(x =>
                     currentUser.UniversityIds.Contains(x.UniversityId));
-            }
-
-            // Active status filter
-            if (filter.IsActive.HasValue)
-            {
-                query = query.Where(x => x.IsActive == filter.IsActive.Value);
             }
 
             if (filter.UniversityId.HasValue)

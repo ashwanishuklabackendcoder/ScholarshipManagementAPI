@@ -18,17 +18,19 @@ namespace ScholarshipManagementAPI.Controllers.University
     public class UniversityController : ControllerBase
     {
         private readonly IUniversityService _service;
+        private readonly CurrentUserContextService _currentUser;
 
-        public UniversityController(IUniversityService service)
+
+        public UniversityController(IUniversityService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
 
         // -------- CREATE --------
         [HttpPost("create")]
-        [Authorize]
-        public async Task<IActionResult> Create(UniversityRequestDto dto)
+        public async Task<IActionResult> Create([FromBody] UniversityRequestDto dto)
         {
             if (User.Identity?.IsAuthenticated == true)
             {
@@ -106,7 +108,8 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> GetById(long id)
         {
-            var data = await _service.GetByIdAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetByIdAsync(id, currentUser);
 
             if (data == null)
             {
@@ -130,9 +133,10 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(UniversityFilterDto filter)
+        public async Task<IActionResult> GetByFilter([FromBody] UniversityFilterDto filter)
         {
-            var result = await _service.GetByFilterAsync(filter);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByFilterAsync(filter,currentUser);
 
             return Ok(new ApiResponseDto
             {

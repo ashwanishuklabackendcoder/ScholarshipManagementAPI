@@ -27,7 +27,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- CREATE --------
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Create(ProgramRequestDto dto)
+        public async Task<IActionResult> Create([FromBody] ProgramRequestDto dto)
         {
             dto.CreatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
             var id = await _service.CreateAsync(dto);
@@ -96,13 +96,13 @@ namespace ScholarshipManagementAPI.Controllers.University
         }
 
 
-
         // -------- GET BY ID --------
         [HttpGet("getById/{id}")]
         [Authorize]
         public async Task<IActionResult> GetById(long id)
         {
-            var data = await _service.GetByIdAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetByIdAsync(id,currentUser);
 
             if (data == null)
             {
@@ -126,7 +126,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(ProgramFilterDto filter)
+        public async Task<IActionResult> GetByFilter([FromBody] ProgramFilterDto filter)
         {
             var currentUser = await _currentUser.GetCurrentUserAsync();
             var result = await _service.GetByFilterAsync(filter, currentUser);
@@ -142,10 +142,12 @@ namespace ScholarshipManagementAPI.Controllers.University
         }
 
 
+
         [HttpGet("semesters/{programId:long}")]
         public async Task<IActionResult> GetSemesters(long programId)
         {
-            var result = await _service.GetSemestersAsync(programId);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetSemestersAsync(programId, currentUser);
 
             return Ok(new ApiResponseDto
             {

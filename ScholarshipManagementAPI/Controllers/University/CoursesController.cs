@@ -25,7 +25,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- CREATE --------
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> Create(CourseRequestDto dto)
+        public async Task<IActionResult> Create([FromBody] CourseRequestDto dto)
         {
             dto.CreatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
 
@@ -43,7 +43,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- UPDATE --------
         [HttpPut("update/{id:long}")]
         [Authorize]
-        public async Task<IActionResult> Update(long id, [FromBody] CourseRequestDto dto)
+        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] CourseRequestDto dto)
         {
             dto.CourseId = id;
             dto.UpdatedBy = JwtClaimHelper.LoginId(User);                 // or from claims
@@ -101,7 +101,8 @@ namespace ScholarshipManagementAPI.Controllers.University
         [Authorize]
         public async Task<IActionResult> GetById(long id)
         {
-            var data = await _service.GetByIdAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetByIdAsync(id,currentUser);
 
             if (data == null)
             {
@@ -125,7 +126,7 @@ namespace ScholarshipManagementAPI.Controllers.University
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(CourseFilterDto filter)
+        public async Task<IActionResult> GetByFilter([FromBody] CourseFilterDto filter)
         {
             var currentUser = await _currentUser.GetCurrentUserAsync();
             var result = await _service.GetByFilterAsync(filter, currentUser);

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.MasterSchool;
 using ScholarshipManagementAPI.Helper;
@@ -79,18 +80,22 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 StudentCodeFormatSuffix = dto.StudentCodeFormatSuffix,
                 StudentSequenceNumber = dto.StudentSequenceNumber,
 
-                AccreditationStatus = dto.AccreditationStatus,
-                AccreditationBy = dto.AccreditationBy,
-                AccreditationDate = dto.AccreditationDate,
-                CommitteeComment = dto.CommitteeComment,
-
                 IsDraft = dto.IsDraft,
                 IsActive = dto.IsActive,
                 CreatedBy = dto.CreatedBy,
                 CreatedDate = DateTime.UtcNow,
                 UpdatedBy = null,
-                UpdatedDate = null
+                UpdatedDate = null,
+
+                // Draft / Submit Logic
+                AccreditationStatus = dto.IsDraft ? (byte)0 : (byte)AccreditationStatusEnum.Pending,
+
+                CommitteeComment = null,
+                AccreditationBy = null,
+                AccreditationDate = null,
             };
+
+
 
             _context.KfSchools.Add(entity);
             await _context.SaveChangesAsync();
@@ -117,6 +122,24 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
             if (entity == null)
                 return false;
+
+
+            // Accreditation / Workflow Logic
+
+            var oldStatus = entity.AccreditationStatus;
+            var wasDraft = entity.IsDraft;
+
+            // Do not allow modification while under review
+            if (oldStatus == (byte)AccreditationStatusEnum.Pending)
+            {
+                throw new CustomException("School is under accreditation review.");
+            }
+
+            // Do not allow modification after accreditation
+            if (oldStatus == (byte)AccreditationStatusEnum.Accredited)
+            {
+                throw new CustomException("Accredited school cannot be modified.");
+            }
 
             entity.SchoolName = dto.SchoolName;
             entity.ShortName = dto.ShortName;
@@ -161,21 +184,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             entity.StudentCodeFormatSuffix = dto.StudentCodeFormatSuffix;
             entity.StudentSequenceNumber = dto.StudentSequenceNumber;
 
-            if (dto.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+            // Draft -> Submit
+            if (wasDraft && !dto.IsDraft && dto.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
             {
-                entity.AccreditationStatus = dto.AccreditationStatus;
+                entity.IsDraft = false;
+                entity.AccreditationStatus = (byte)AccreditationStatusEnum.Pending;
+                entity.AccreditationDate = null;
+                entity.AccreditationBy = null;
+                entity.CommitteeComment = null;
             }
-
-            //entity.AccreditationStatus = dto.AccreditationStatus;
-            //entity.AccreditationBy = dto.AccreditationBy;
-            //entity.AccreditationDate = dto.AccreditationDate;
-            //entity.CommitteeComment = dto.CommitteeComment;
-
-            entity.IsDraft = dto.IsDraft;
 
             //entity.IsActive = dto.IsActive;
 
-            entity.UpdatedBy = dto.CreatedBy;
+            entity.UpdatedBy = dto.UpdatedBy;
             entity.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -192,6 +213,41 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
             if (entity == null)
                 return false;
 
+            // Already soft deleted
+            if (!entity.IsActive)
+            {
+                throw new CustomException("School is already deleted.");
+            }
+
+            // Do not allow deletion while under accreditation review
+            if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+            {
+                throw new CustomException(
+                    "School under accreditation review cannot be deleted."
+                );
+            }
+
+            // Do not allow deletion after accreditation
+            if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited)
+            {
+                throw new CustomException(
+                    "Accredited school cannot be deleted."
+                );
+            }
+
+            // Check active child records here, if School has any
+
+            var hasActiveStudents = await _context.KfStudentRegistrations
+                .AnyAsync(x => x.SchoolId == id && x.IsActive);
+
+            if (hasActiveStudents)
+            {
+                throw new CustomException(
+                    "This school cannot be deleted because it has active students."
+                );
+            }
+
+
             // Soft delete
             entity.IsActive = false;
             await _context.SaveChangesAsync();
@@ -202,11 +258,29 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
 
 
         // ---------------- GET BY ID ----------------
-        public async Task<MasterSchoolRequestDto?> GetByIdAsync(long id)
+        public async Task<MasterSchoolRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser)
         {
-            return await _context.KfSchools
+            var query = _context.KfSchools
                 .AsNoTracking()
-                .Where(x => x.SchoolId == id && x.IsActive)
+                .Where(x => x.SchoolId == id && x.IsActive);
+
+            // Role-based visibility
+            if (currentUser.StaffType == StaffType.School)
+            {
+                // School users can see all active schools
+            }
+            else if (currentUser.StaffType == StaffType.Ngo)
+            {
+                // NGO can see all submitted/non-draft schools
+                query = query.Where(x => !x.IsDraft);
+            }
+            else
+            {
+                // Other users can see only accredited schools
+                query = query.Where(x => x.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited);
+            }
+
+            return await query
                 .Select(x => new MasterSchoolRequestDto
                 {
                     SchoolId = x.SchoolId,
@@ -259,13 +333,45 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
         }
 
 
+
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<MasterSchoolRequestDto>> GetByFilterAsync(MasterSchoolFilterDto filter)
+        public async Task<PagedResultDto<MasterSchoolRequestDto>> GetByFilterAsync(MasterSchoolFilterDto filter, LoggedInUserDto currentUser)
         {
             var query = _context.KfSchools
                 .AsNoTracking()
                 .Where(x => x.IsActive)
                 .AsQueryable();
+
+            // Role-based visibility
+            if (currentUser.StaffType == StaffType.School)
+            {
+                // School Coordinator can see all active schools
+                // Draft + Pending + Accredited + Rejected
+
+                // Only schools belonging to currentUser.SchoolIds
+                query = query.Where(x => currentUser.SchoolIds.Contains(x.SchoolId));
+            }
+            else if (currentUser.StaffType == StaffType.Ngo)
+            {
+                // NGO can see all submitted/non-draft schools
+                query = query.Where(x => !x.IsDraft);
+            }
+            else
+            {
+                // Other users can see only accredited schools
+                query = query.Where(x => x.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited);
+            }
+
+
+            // Accreditation filter is meaningful only for
+            // School and NGO users.
+            if (filter.AccreditationStatus.HasValue &&
+                (currentUser.StaffType == StaffType.School ||
+                 currentUser.StaffType == StaffType.Ngo))
+            {
+                query = query.Where(x =>
+                    x.AccreditationStatus == filter.AccreditationStatus.Value);
+            }
 
             // Country filter
             if (filter.CountryId.HasValue)
@@ -273,31 +379,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 query = query.Where(x => x.CountryId == filter.CountryId.Value);
             }
 
-            // Active status filter
-            if (filter.IsActive.HasValue)
-            {
-                query = query.Where(x => x.IsActive == filter.IsActive.Value);
-            }
-
-            // Approval status filter
-            if (filter.ApprovalStatus.HasValue)
-            {
-                query = query.Where(x => x.AccreditationStatus == filter.ApprovalStatus.Value);
-            }
-
-            // filter date range filter
-            if (filter.AcademicYearStartFrom.HasValue || filter.AcademicYearEndTo.HasValue)
-            {
-                var from = DateOnly.FromDateTime(filter.AcademicYearStartFrom ?? DateTime.MinValue);
-                var to = DateOnly.FromDateTime(filter.AcademicYearEndTo ?? DateTime.MaxValue);
-
-                query = query.Where(x =>
-                    x.AcademicYearStartDate.HasValue &&
-                    x.AcademicYearEndDate.HasValue &&
-                    x.AcademicYearEndDate.Value >= from &&
-                    x.AcademicYearStartDate.Value <= to
-                );
-            }
 
             /* Global Search */
             if (!string.IsNullOrWhiteSpace(filter.SearchText))
@@ -402,7 +483,11 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 .AsNoTracking()
                 .Where(x =>
                     x.IsActive &&
-                    countryIds.Contains(x.CountryId))
+                    !x.IsDraft &&
+                    x.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited &&
+                    countryIds.Contains(x.CountryId) &&
+                    x.Country != null &&
+                    x.Country.IsActive)
                 .OrderBy(x => x.SchoolName)
                 .Select(x => new SchoolLookupDto
                 {
@@ -411,6 +496,8 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 })
                 .ToListAsync();
         }
+
+
 
     }
 }

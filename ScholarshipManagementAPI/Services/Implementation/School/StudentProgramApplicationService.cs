@@ -142,6 +142,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 if (!currentUser.SchoolIds.Contains(student.SchoolId))
                     throw new UnauthorizedAccessException();
 
+
                 // Validate selected program
                 var program = await _context.KfPrograms
                     .AsNoTracking()
@@ -177,6 +178,12 @@ namespace ScholarshipManagementAPI.Services.Implementation.School
                 if (hasActiveApplication)
                 {
                     throw new CustomException("Student already has an active program application.");
+                }
+
+                // Student is no longer a registration draft once a program application is created
+                if (student.IsDraft == true)
+                {
+                    student.IsDraft = false;
                 }
 
                 var application = new KfStudentProgramApplication

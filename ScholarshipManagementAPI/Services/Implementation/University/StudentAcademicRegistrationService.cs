@@ -191,6 +191,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 _ => StudentHistoryTypeEnum.ApplicationUpdated
             };
         }
+       
         private string GetHistoryTitle(StudentApplicationStatus status)
         {
             return status switch

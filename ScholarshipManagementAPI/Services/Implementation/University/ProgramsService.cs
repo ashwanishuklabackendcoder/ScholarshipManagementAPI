@@ -566,12 +566,34 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             }
         }
 
+
         // ---------------- GET BY ID ----------------
-        public async Task<ProgramRequestDto?> GetByIdAsync(long id)
+        public async Task<ProgramRequestDto?> GetByIdAsync(long id,LoggedInUserDto currentUser)
         {
-            return await _context.KfPrograms
+            var query = _context.KfPrograms
                 .AsNoTracking()
-                .Where(x => x.ProgramId == id && x.IsActive)
+                .Where(x => x.ProgramId == id && x.IsActive);
+
+            // Role-based visibility
+            if (currentUser.StaffType == StaffType.University)
+            {
+                // University users can see all active programs
+                // but only for their assigned universities
+                query = query.Where(x => currentUser.UniversityIds.Contains(x.UniversityId));
+            }
+            else if (currentUser.StaffType == StaffType.Ngo)
+            {
+                // NGO can see all active submitted programs
+                // Pending + Accredited + Rejected
+                query = query.Where(x => !x.IsDraft);
+            }
+            else
+            {
+                // Other users can see only active + accredited programs
+                query = query.Where(x => x.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited);
+            }
+
+            return await query
                 .Select(x => new ProgramRequestDto
                 {
                     ProgramId = x.ProgramId,
@@ -630,8 +652,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                             SponsorshipTypeId = c.SponsorshipTypeId,
                             SponsorshipTypeName = c.SponsorshipType.SponsorshipName,
                             FrequencyTypeId = c.SponsorshipType.FrequencyType,
-                            // 1- One-time costs (FrequencyTypeId == 1)
-                            // 2- Recurring(Semester) costs (FrequencyTypeId == 2)
                             Amount = c.Amount
                         })
                         .ToList(),
@@ -659,7 +679,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         }
 
 
-
         // ---------------- GET ALL FILTER ----------------
         public async Task<PagedResultDto<ProgramRequestDto>> GetByFilterAsync(ProgramFilterDto filter, LoggedInUserDto currentUser)
         {
@@ -670,14 +689,35 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             if (currentUser.StaffType == StaffType.University)
             {
-                query = query.Where(x =>
-                    currentUser.UniversityIds.Contains(x.UniversityId));
+                // All active programs
+                // Draft + Pending + Accredited + Rejected
+
+                // Only programs belonging to currentUser.UniversityIds,
+                query = query.Where(x => currentUser.UniversityIds.Contains(x.UniversityId));
+
+            }
+            else if (currentUser.StaffType == StaffType.Ngo)
+            {
+                // Active + submitted
+                // Pending + Accredited + Rejected
+                query = query.Where(x => !x.IsDraft);
+
+            }
+            else
+            {
+                // Only active + accredited
+                query = query.Where(x => x.AccreditationStatus ==  (byte)AccreditationStatusEnum.Accredited);
             }
 
-            // Active status filter
-            if (filter.IsActive.HasValue)
+
+            // Accreditation filter is meaningful only for
+            // University and NGO users.
+            if (filter.AccreditationStatus.HasValue &&
+                (currentUser.StaffType == StaffType.University ||
+                 currentUser.StaffType == StaffType.Ngo))
             {
-                query = query.Where(x => x.IsActive == filter.IsActive.Value);
+                query = query.Where(x =>
+                    x.AccreditationStatus == filter.AccreditationStatus.Value);
             }
 
             if (filter.UniversityId.HasValue)
@@ -687,21 +727,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             if (filter.FacultyId.HasValue)
             {
-                query = query.Where(x =>
-                    x.FacultyId == filter.FacultyId.Value);
-            }
-
-            if (filter.IsDraft.HasValue)
-            {
-                query = query.Where(x =>
-                    x.IsDraft == filter.IsDraft.Value);
-            }
-
-            if (filter.AccreditationStatus.HasValue)
-            {
-                query = query.Where(x =>
-                    x.AccreditationStatus ==
-                    filter.AccreditationStatus.Value);
+                query = query.Where(x => x.FacultyId == filter.FacultyId.Value);
             }
 
 
@@ -776,13 +802,37 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
         }
 
 
-
-
-        public async Task<List<ProgramSemesterDto>> GetSemestersAsync(long programId)
+        public async Task<List<ProgramSemesterDto>> GetSemestersAsync(long programId, LoggedInUserDto currentUser)
         {
-            var program = await _context.KfPrograms
+            var query = _context.KfPrograms
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.ProgramId == programId);
+                .Where(x => x.ProgramId == programId && x.IsActive);
+
+            // Role-based visibility
+            if (currentUser.StaffType == StaffType.University)
+            {
+                // University users can access programs
+                // belonging to their assigned universities
+                query = query.Where(x => currentUser.UniversityIds.Contains(x.UniversityId));
+            }
+            else if (currentUser.StaffType == StaffType.Ngo)
+            {
+                // NGO can access submitted programs
+                // Pending + Accredited + Rejected
+                query = query.Where(x => !x.IsDraft);
+            }
+            else
+            {
+                // Other users can access only accredited programs
+                query = query.Where(x => x.AccreditationStatus ==  (byte)AccreditationStatusEnum.Accredited);
+            }
+
+            var program = await query
+                .Select(x => new
+                {
+                    x.NumberOfSemesters
+                })
+                .FirstOrDefaultAsync();
 
             if (program == null)
             {
@@ -790,6 +840,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             }
 
             var semesters = new List<ProgramSemesterDto>();
+
             for (int i = 1; i <= program.NumberOfSemesters; i++)
             {
                 semesters.Add(new ProgramSemesterDto
@@ -799,7 +850,7 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 });
             }
 
-            return semesters;   
+            return semesters;
         }
 
 

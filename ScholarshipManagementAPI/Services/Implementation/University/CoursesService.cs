@@ -250,11 +250,20 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET BY ID ----------------
-        public async Task<CourseRequestDto?> GetByIdAsync(long id)
+        public async Task<CourseRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser)
         {
-            var result = await _context.KfCourses
+            var query =  _context.KfCourses
                 .AsNoTracking()
-                .Where(x => x.CourseId == id && x.IsActive)
+                .Where(x => x.CourseId == id && x.IsActive);
+
+            // Only course belonging to currentUser.UniversityIds,
+            if (currentUser.StaffType == StaffType.University)
+            {
+                query = query.Where(x =>
+                    currentUser.UniversityIds.Contains(x.UniversityId));
+            }
+
+            var result = await query
                 .Select(x => new CourseRequestDto
                 {
                     UniversityId = x.UniversityId,
@@ -295,16 +304,10 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 .Where(x => x.IsActive)
                 .AsQueryable();
 
+            // Only courses belonging to currentUser.UniversityIds,
             if (currentUser.StaffType == StaffType.University)
             {
-                query = query.Where(x =>
-                    currentUser.UniversityIds.Contains(x.UniversityId));
-            }
-
-            // Active status filter
-            if (filter.IsActive.HasValue)
-            {
-                query = query.Where(x => x.IsActive == filter.IsActive.Value);
+                query = query.Where(x => currentUser.UniversityIds.Contains(x.UniversityId));
             }
 
             if (filter.UniversityId.HasValue)

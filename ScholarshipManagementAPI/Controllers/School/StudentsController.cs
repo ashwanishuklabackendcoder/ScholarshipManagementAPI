@@ -25,7 +25,7 @@ namespace ScholarshipManagementAPI.Controllers.School
 
         // -------- CREATE --------
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromForm] StudentRequestDto dto)
+        public async Task<IActionResult> Create([FromBody] StudentRequestDto dto)
         {
             var currentUser = await _currentUser.GetCurrentUserAsync();
             var id = await _service.CreateAsync(dto, currentUser);
@@ -42,7 +42,7 @@ namespace ScholarshipManagementAPI.Controllers.School
         // -------- UPDATE --------
         [HttpPut("update/{id:long}")]
         [Authorize]
-        public async Task<IActionResult> Update(long id, [FromForm] StudentRequestDto dto)
+        public async Task<IActionResult> Update(long id, [FromBody] StudentRequestDto dto)
         {
             var currentUser = await _currentUser.GetCurrentUserAsync();
             dto.StudentId = id;

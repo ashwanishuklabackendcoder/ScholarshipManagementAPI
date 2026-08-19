@@ -1,4 +1,5 @@
-﻿using ScholarshipManagementAPI.DTOs.Common.Response;
+﻿using ScholarshipManagementAPI.DTOs.Common.Auth;
+using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.MasterSchool;
 
 namespace ScholarshipManagementAPI.Services.Interface.School
@@ -9,8 +10,8 @@ namespace ScholarshipManagementAPI.Services.Interface.School
         Task<bool> UpdateAsync(MasterSchoolRequestDto dto);
         Task<bool> DeleteAsync(long id);
 
-        Task<MasterSchoolRequestDto?> GetByIdAsync(long id);
-        Task<PagedResultDto<MasterSchoolRequestDto>> GetByFilterAsync(MasterSchoolFilterDto filter);
+        Task<MasterSchoolRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser);
+        Task<PagedResultDto<MasterSchoolRequestDto>> GetByFilterAsync(MasterSchoolFilterDto filter, LoggedInUserDto currentUser);
 
 
         Task<List<SchoolLookupDto>> GetSchoolsByCountryIdsAsync(List<long> countryIds);

@@ -12,7 +12,7 @@ namespace ScholarshipManagementAPI.Services.Interface.University
 
         Task<bool> DeleteAsync(long id);
 
-        Task<CourseRequestDto?> GetByIdAsync(long id);
+        Task<CourseRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser);
 
         Task<PagedResultDto<CourseRequestDto>>GetByFilterAsync(CourseFilterDto filter, LoggedInUserDto currentUser);
     }

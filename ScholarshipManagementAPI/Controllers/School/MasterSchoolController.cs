@@ -17,10 +17,11 @@ namespace ScholarshipManagementAPI.Controllers.School
     public class MasterSchoolController : ControllerBase
     {
         private readonly IMasterSchoolService _service;
-
-        public MasterSchoolController(IMasterSchoolService service)
+        private readonly CurrentUserContextService _currentUser;
+        public MasterSchoolController(IMasterSchoolService service, CurrentUserContextService currentUser)
         {
             _service = service;
+            _currentUser = currentUser;
         }
 
 
@@ -104,7 +105,8 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> GetById(long id)
         {
-            var data = await _service.GetByIdAsync(id);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var data = await _service.GetByIdAsync(id,currentUser);
 
             if (data == null)
             {
@@ -129,9 +131,10 @@ namespace ScholarshipManagementAPI.Controllers.School
         // -------- FILTER / GET ALL --------
         [HttpPost("search")]
         [Authorize]
-        public async Task<IActionResult> GetByFilter(MasterSchoolFilterDto filter)
+        public async Task<IActionResult> GetByFilter([FromBody] MasterSchoolFilterDto filter)
         {
-            var result = await _service.GetByFilterAsync(filter);
+            var currentUser = await _currentUser.GetCurrentUserAsync();
+            var result = await _service.GetByFilterAsync(filter,currentUser);
 
             return Ok(new ApiResponseDto
             {
@@ -150,6 +153,7 @@ namespace ScholarshipManagementAPI.Controllers.School
         [Authorize]
         public async Task<IActionResult> GetSchoolsByCountryIds([FromBody] SchoolByCountryRequestDto dto)
         {
+            var currentUser = await _currentUser.GetCurrentUserAsync();
             var result = await _service.GetSchoolsByCountryIdsAsync(dto.CountryIds);
 
             return Ok(new ApiResponseDto

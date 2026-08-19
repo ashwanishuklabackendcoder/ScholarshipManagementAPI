@@ -7,19 +7,15 @@ namespace ScholarshipManagementAPI.DTOs.School.MasterSchool
     {   
         // Search Filters
         
-        public string? SchoolName { get; set; }
         public long? CountryId { get; set; }
+        public long? SchoolType { get; set; }
+        public long? SchoolStatus { get; set; }
+
+        public byte? AccreditationStatus { get; set; }
+
         public bool? IsActive { get; set; }
-        public int? ApprovalStatus { get; set; }
 
-        public string? Area { get; set; }
-        public string? CenterName { get; set; }
-        public string? SchoolType { get; set; }
-
-
-        // Date Filters
-        public DateTime? AcademicYearStartFrom { get; set; }
-        public DateTime? AcademicYearEndTo { get; set; }
+        public bool? MySchools { get; set; }
 
     }
 }

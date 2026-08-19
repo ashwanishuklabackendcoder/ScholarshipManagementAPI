@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ScholarshipManagementAPI.Data.Contexts;
 using ScholarshipManagementAPI.Data.DbModels;
+using ScholarshipManagementAPI.DTOs.Common.Auth;
 using ScholarshipManagementAPI.DTOs.Common.Response;
 using ScholarshipManagementAPI.DTOs.School.MasterSchool;
 using ScholarshipManagementAPI.DTOs.University;
@@ -88,16 +89,19 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
                 ExternalGrants = dto.ExternalGrants,
                 Notes = dto.Notes,
 
-                AccreditationStatus = dto.AccreditationStatus,
-                AccreditationBy = dto.AccreditationBy,
-                AccreditationDate = dto.AccreditationDate,
-                CommitteeComment = dto.CommitteeComment,
-
                 IsDraft = dto.IsDraft,
                 IsActive = dto.IsActive,
-
                 CreatedBy = dto.CreatedBy,
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow,
+                UpdatedBy = null,
+                UpdatedDate = null,
+
+                // Draft / Submit Logic
+                AccreditationStatus = dto.IsDraft ? (byte)0 : (byte)AccreditationStatusEnum.Pending,
+
+                CommitteeComment = null,
+                AccreditationBy = null,
+                AccreditationDate = null,
             };
 
             _context.KfUniversities.Add(entity);
@@ -126,6 +130,24 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
             if (entity == null)
                 return false;
+
+
+            // Accreditation / Workflow Logic
+
+            var oldStatus = entity.AccreditationStatus;
+            var wasDraft = entity.IsDraft;
+
+            // Do not allow modification while under review
+            if (oldStatus == (byte)AccreditationStatusEnum.Pending)
+            {
+                throw new CustomException("University is under accreditation review.");
+            }
+
+            // Do not allow modification after accreditation
+            if (oldStatus == (byte)AccreditationStatusEnum.Accredited)
+            {
+                throw new CustomException("Accredited university cannot be modified.");
+            }
 
             entity.UniversityName = dto.UniversityName;
             entity.UniversityType = dto.UniversityTypeId;
@@ -182,17 +204,16 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             entity.ExternalGrants = dto.ExternalGrants;
             entity.Notes = dto.Notes;
 
-            if(dto.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+
+            // Draft -> Submit
+            if (wasDraft && !dto.IsDraft && dto.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
             {
-                entity.AccreditationStatus = dto.AccreditationStatus;
+                entity.IsDraft = false;
+                entity.AccreditationStatus = (byte)AccreditationStatusEnum.Pending;
+                entity.AccreditationDate = null;
+                entity.AccreditationBy = null;
+                entity.CommitteeComment = null;
             }
-
-            //entity.AccreditationStatus = dto.AccreditationStatus;
-            //entity.AccreditationBy = dto.AccreditationBy;
-            //entity.AccreditationDate = dto.AccreditationDate;
-            //entity.CommitteeComment = dto.CommitteeComment;
-
-            entity.IsDraft = dto.IsDraft;
 
             // entity.IsActive = dto.IsActive;
 
@@ -214,6 +235,67 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (entity == null)
                 return false;
 
+            // University is already soft deleted
+            if (!entity.IsActive)
+            {
+                throw new CustomException("University is already deleted.");
+            }
+
+            // Do not allow deletion while under accreditation review
+            if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Pending)
+            {
+                throw new CustomException(
+                    "University under accreditation review cannot be deleted."
+                );
+            }
+
+            // Do not allow deletion after accreditation
+            if (entity.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited)
+            {
+                throw new CustomException(
+                    "Accredited university cannot be deleted."
+                );
+            }
+
+            // Check whether university has active faculties
+            var hasFaculties = await _context.KfFaculties
+                .AnyAsync(x =>
+                    x.UniversityId == id &&
+                    x.IsActive);
+
+            if (hasFaculties)
+            {
+                throw new CustomException(
+                    "This university cannot be deleted because it has active faculties."
+                );
+            }
+
+            // Check whether university has active programs
+            var hasPrograms = await _context.KfPrograms
+                .AnyAsync(x =>
+                    x.UniversityId == id &&
+                    x.IsActive);
+
+            if (hasPrograms)
+            {
+                throw new CustomException(
+                    "This university cannot be deleted because it has active programs."
+                );
+            }
+
+            // Check whether university has active courses
+            var hasCourses = await _context.KfCourses
+                .AnyAsync(x =>
+                    x.UniversityId == id &&
+                    x.IsActive);
+
+            if (hasCourses)
+            {
+                throw new CustomException(
+                    "This university cannot be deleted because it has active courses."
+                );
+            }
+
             // Soft delete
             entity.IsActive = false;
             await _context.SaveChangesAsync();
@@ -224,11 +306,29 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET BY ID ----------------
-        public async Task<UniversityRequestDto?> GetByIdAsync(long id)
+        public async Task<UniversityRequestDto?> GetByIdAsync(long id, LoggedInUserDto currentUser)
         {
-            return await _context.KfUniversities
+            var query = _context.KfUniversities
                 .AsNoTracking()
-                .Where(x => x.UniversityId == id)
+                .Where(x => x.UniversityId == id && x.IsActive);
+
+            // Role-based visibility
+            if (currentUser.StaffType == StaffType.University)
+            {
+                // University users can see all active universities
+            }
+            else if (currentUser.StaffType == StaffType.Ngo)
+            {
+                // NGO can see submitted/non-draft active universities
+                query = query.Where(x => !x.IsDraft);
+            }
+            else
+            {
+                // Other users can see only accredited active universities
+                query = query.Where(x => x.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited);
+            }
+
+            return await query
                 .Select(x => new UniversityRequestDto
                 {
                     UniversityId = x.UniversityId,
@@ -337,17 +437,46 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
 
 
         // ---------------- GET ALL FILTER ----------------
-        public async Task<PagedResultDto<UniversityRequestDto>> GetByFilterAsync(UniversityFilterDto filter)
+        public async Task<PagedResultDto<UniversityRequestDto>> GetByFilterAsync(UniversityFilterDto filter, LoggedInUserDto currentUser)
         {
             var query = _context.KfUniversities
                 .AsNoTracking()
+                .Where(x => x.IsActive)
                 .AsQueryable();
+
+
+            // Role-based visibility
+            if (currentUser.StaffType == StaffType.University)
+            {
+                // All active universities
+                // Draft + Pending + Accredited + Rejected
+
+                // Only universities belonging to currentUser.UniversityIds,
+                query = query.Where(x => currentUser.UniversityIds.Contains(x.UniversityId));
+            }
+            else if (currentUser.StaffType == StaffType.Ngo)
+            {
+                // NGO can see submitted/non-draft active universities
+                query = query.Where(x => !x.IsDraft);
+            }
+            else
+            {
+                // Other users can see only accredited active universities
+                query = query.Where(x => x.AccreditationStatus == (byte)AccreditationStatusEnum.Accredited);
+            }
+
+            // Accreditation filter is meaningful only for
+            // University and NGO users.
+            if (filter.AccreditationStatus.HasValue &&
+                (currentUser.StaffType == StaffType.University ||
+                 currentUser.StaffType == StaffType.Ngo))
+            {
+                query = query.Where(x =>
+                    x.AccreditationStatus == filter.AccreditationStatus.Value);
+            }
 
             if (filter.UniversityId.HasValue)
                 query = query.Where(x => x.UniversityId == filter.UniversityId);
-
-            if (!string.IsNullOrWhiteSpace(filter.UniversityName))
-                query = query.Where(x => x.UniversityName.Contains(filter.UniversityName));
 
             if (filter.CountryId.HasValue)
                 query = query.Where(x => x.CountryId == filter.CountryId);
@@ -358,29 +487,6 @@ namespace ScholarshipManagementAPI.Services.Implementation.University
             if (filter.StudentsGenderTypeId.HasValue)
                 query = query.Where(x => x.StudentsGenderTypeId == filter.StudentsGenderTypeId);
 
-            if (filter.AccreditationStatus.HasValue)
-                query = query.Where(x => x.AccreditationStatus == filter.AccreditationStatus);
-
-            if (filter.AccreditationBy.HasValue)
-                query = query.Where(x => x.AccreditationBy == filter.AccreditationBy);
-
-            if (filter.IsDraft.HasValue)
-                query = query.Where(x => x.IsDraft == filter.IsDraft);
-
-            if (filter.IsActive.HasValue)
-                query = query.Where(x => x.IsActive == filter.IsActive);
-
-            if (filter.CreatedFrom.HasValue)
-                query = query.Where(x => x.CreatedDate >= filter.CreatedFrom);
-
-            if (filter.CreatedTo.HasValue)
-                query = query.Where(x => x.CreatedDate <= filter.CreatedTo);
-
-            if (filter.AccreditationFrom.HasValue)
-                query = query.Where(x => x.AccreditationDate >= filter.AccreditationFrom);
-
-            if (filter.AccreditationTo.HasValue)
-                query = query.Where(x => x.AccreditationDate <= filter.AccreditationTo);
 
             if (!string.IsNullOrWhiteSpace(filter.SearchText))
             {
